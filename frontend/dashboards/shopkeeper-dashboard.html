@@ -409,7 +409,7 @@
                 const user_id = localStorage.getItem('user_id');
                 const API_BASE_URL = window.location.hostname === '127.0.0.1' || window.location.hostname === 'localhost' 
                     ? 'http://127.0.0.1:5000/api' 
-                    : 'https://civil_con.onrender.com/api';
+                    : 'https://civil-con.onrender.com/api';
                 const res = await fetch(`${API_BASE_URL}/auth/profile?user_id=${user_id}`);
                 const { profile } = await res.json();
                 
@@ -425,7 +425,7 @@
                             const img = document.createElement('img');
                             const IMG_BASE_URL = window.location.hostname === '127.0.0.1' || window.location.hostname === 'localhost' 
                                 ? 'http://127.0.0.1:5000' 
-                                : 'https://civil_con.onrender.com';
+                                : 'https://civil-con.onrender.com';
                             img.src = `${IMG_BASE_URL}${url}`;
                             img.style.width = '80px'; img.style.height = '80px'; img.style.objectFit = 'cover'; img.style.borderRadius = '8px';
                             galleryList.appendChild(img);
