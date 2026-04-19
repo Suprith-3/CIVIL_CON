@@ -6,6 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Worker Dashboard | Civil Hub</title>
     <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
         body {
@@ -153,6 +154,26 @@
                 d="m2.25 12 8.954-8.955c.44-.439 1.152-.439 1.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75M8.25 21h8.25" />
         </svg>
     </a>
+
+    <!-- 📱 Floating Mobile Worker Bar 📱 -->
+    <div class="mobile-nav">
+        <a href="#" class="mobile-nav-item active" onclick="showSection('overview', this)">
+            <i class="fa-solid fa-house"></i>
+            <span>Overview</span>
+        </a>
+        <a href="#" class="mobile-nav-item" onclick="showSection('my-work', this)">
+            <i class="fa-solid fa-images"></i>
+            <span>Portfolio</span>
+        </a>
+        <a href="#" class="mobile-nav-item" id="mobile-bell-nav" onclick="showSection('inquiries', this)">
+            <i class="fa-solid fa-bell"></i>
+            <span>Jobs</span>
+        </a>
+        <a href="#" class="mobile-nav-item" onclick="showSection('profile', this)">
+            <i class="fa-solid fa-circle-user"></i>
+            <span>Profile</span>
+        </a>
+    </div>
 
             <div class="sidebar">
         <div class="logo"

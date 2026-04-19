@@ -462,7 +462,161 @@ body {
     color: white;
 }
 
-.home-btn svg {
-    width: 22px;
-    height: 22px;
+/* 📱 MOBILE APP ARCHITECTURE 📱 */
+@media (max-width: 768px) {
+    /* Base Resets for Mobile */
+    body {
+        padding-bottom: 80px; /* Space for Bottom Nav */
+        background-color: #f8fafc;
+    }
+
+    /* Standardize Nav for Mobile */
+    nav {
+        padding: 1rem 5%;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+    }
+
+    .nav-links {
+        display: none; /* Hide top links on mobile, use bottom nav instead */
+    }
+
+    /* Hero Section - App Style */
+    .hero {
+        padding: 3rem 5%;
+    }
+
+    .hero h1 {
+        font-size: 2.5rem;
+        line-height: 1.2;
+    }
+
+    .hero p {
+        font-size: 1rem;
+        margin-bottom: 2rem;
+    }
+
+    /* Mobile Bottom Navigation Bar 💎 */
+    .mobile-nav {
+        position: fixed;
+        bottom: 15px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 90%;
+        max-width: 400px;
+        background: rgba(255, 255, 255, 0.85);
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+        display: flex;
+        justify-content: space-around;
+        align-items: center;
+        padding: 12px 0;
+        border-radius: 25px;
+        box-shadow: 0 10px 40px rgba(0,0,0,0.15);
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        z-index: 9999;
+    }
+
+    .mobile-nav-item {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        text-decoration: none;
+        color: #64748b;
+        font-size: 0.75rem;
+        font-weight: 500;
+        transition: all 0.3s;
+    }
+
+    .mobile-nav-item.active {
+        color: var(--primary);
+    }
+
+    .mobile-nav-item i {
+        font-size: 1.4rem;
+        margin-bottom: 4px;
+    }
+
+    /* Single Column Stacking - No Overlap! 📏 */
+    .features, .stats-grid, .auth-container {
+        grid-template-columns: 1fr !important;
+        display: flex !important;
+        flex-direction: column !important;
+        gap: 1.5rem !important;
+    }
+
+    .auth-container {
+        border-radius: 0;
+        max-width: 100%;
+        box-shadow: none;
+    }
+
+    .auth-sidebar {
+        padding: 2rem;
+        text-align: center;
+    }
+
+    .auth-sidebar h1 {
+        font-size: 2rem;
+    }
+
+    /* Touch Optimized Buttons 🔘 */
+    .btn-primary, .btn-secondary, .btn-auth {
+        width: 100%;
+        text-align: center;
+        padding: 1.2rem;
+        font-size: 1.1rem;
+        border-radius: 18px;
+    }
+
+    /* Dashboard Layout Resets (No Sidebar on Mobile!) 📏 */
+    .sidebar {
+        display: none !important;
+    }
+
+    .auth-sidebar .stats-grid {
+        display: none !important; /* Hide stats on mobile login for clarity */
+    }
+
+    .auth-sidebar h1 {
+        margin-bottom: 1rem;
+        font-size: 1.8rem;
+    }
+
+    .main-content {
+        margin-left: 0 !important;
+        width: 100% !important;
+        padding: 1rem !important;
+    }
+
+    .top-bar {
+        padding: 1rem;
+        flex-direction: column;
+        gap: 1rem;
+        text-align: center;
+        border-radius: 12px;
+    }
+
+    .top-bar div {
+        justify-content: center;
+    }
+
+    #pageTitle {
+        font-size: 1.2rem;
+    }
+
+    /* Floating Home Button Fix */
+    .home-btn {
+        width: 40px;
+        height: 40px;
+        top: 10px;
+        right: 10px;
+    }
+}
+
+/* Universal Button Polishing */
+.btn-primary, .btn-secondary {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
 }
