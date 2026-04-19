@@ -134,6 +134,24 @@ def add_scheme():
         logger.error(f"Error publishing scheme: {str(e)}")
         return jsonify({'error': 'Database Error', 'message': str(e)}), 500
 
+@admin_bp.route('/orders', methods=['GET'])
+def get_all_orders():
+    try:
+        orders = supabase.table('orders').select('*, users(full_name, email)').order('created_at', desc=True).execute()
+        return jsonify(orders.data), 200
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@admin_bp.route('/orders/<id>/status', methods=['POST'])
+def update_order_status(id):
+    data = request.json
+    new_status = data.get('status') # e.g. 'accepted', 'shipped', 'delivered'
+    try:
+        supabase.table('orders').update({'status': new_status}).eq('id', id).execute()
+        return jsonify({'message': f'Order status updated to {new_status}'}), 200
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
 @admin_bp.route('/schemes', methods=['GET'])
 def get_schemes():
     try:

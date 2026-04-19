@@ -14,7 +14,7 @@ def create_app():
     app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024  # 16 MB limit
 
     # Initialize extensions
-    CORS(app, resources={r"/api/*": {"origins": "*"}}, supports_credentials=True)
+    CORS(app, resources={r"/api/*": {"origins": "*"}})
     jwt = JWTManager(app)
 
     # JWT Error handlers
@@ -45,7 +45,16 @@ def create_app():
     @app.route('/uploads/<path:filename>')
     def uploaded_file(filename):
         from flask import send_from_directory
-        return send_from_directory(os.path.join(os.getcwd(), 'uploads'), filename)
+        # Primary: Project root 'uploads'
+        root_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+        primary_path = os.path.join(root_dir, 'uploads')
+        
+        # Fallback: backend/uploads (for old files)
+        backend_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'uploads')
+        
+        if os.path.exists(os.path.join(primary_path, filename)):
+            return send_from_directory(primary_path, filename)
+        return send_from_directory(backend_path, filename)
 
     from routes.auth import auth_bp
     from routes.admin import admin_bp
@@ -53,6 +62,7 @@ def create_app():
     from routes.ai import ai_bp
     from routes.engineer import engineer_bp
     from routes.worker import worker_bp
+    from routes.orders import orders_bp
     
     # Register Blueprints
     app.register_blueprint(auth_bp, url_prefix='/api/auth')
@@ -61,6 +71,7 @@ def create_app():
     app.register_blueprint(ai_bp, url_prefix='/api/ai')
     app.register_blueprint(engineer_bp, url_prefix='/api/engineer')
     app.register_blueprint(worker_bp, url_prefix='/api/worker')
+    app.register_blueprint(orders_bp, url_prefix='/api/orders')
 
     # Base error handlers
     @app.errorhandler(400)
