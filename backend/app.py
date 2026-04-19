@@ -11,14 +11,16 @@ logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(level
 def create_app():
     app = Flask(__name__)
     app.config.from_object(Config)
+    app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024  # 16 MB limit
 
     # Initialize extensions
-    CORS(app)
+    CORS(app, resources={r"/api/*": {"origins": "*"}}, supports_credentials=True)
     jwt = JWTManager(app)
 
     # JWT Error handlers
     @jwt.unauthorized_loader
     def unauthorized_response(callback):
+        print("DEBUG: Unauthorized access attempt. Headers:", request.headers)
         return jsonify({
             'error': 'Unauthorized',
             'message': 'Missing Authorization Header'

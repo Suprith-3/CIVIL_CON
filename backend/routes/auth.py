@@ -120,12 +120,37 @@ def register():
                 supabase.table('worker_registrations').insert(reg_data).execute()
                 
             elif user_type == 'shopkeeper':
+                # Handle File Saving for Shopkeeper
+                import os
+                from werkzeug.utils import secure_filename
+                
+                upload_folder = os.path.join(os.getcwd(), 'uploads')
+                if not os.path.exists(upload_folder):
+                    os.makedirs(upload_folder)
+
+                docs = {}
+                for field in ['gst_doc', 'shop_photo']:
+                    file = request.files.get(field)
+                    if file and file.filename:
+                        filename = secure_filename(f"{user_id}_{field}_{file.filename}")
+                        file.save(os.path.join(upload_folder, filename))
+                        docs[field] = f"/uploads/{filename}"
+                    else:
+                        docs[field] = "not_provided"
+
                 reg_data = {
                     'user_id': user_id,
                     'name': data.get('name', 'New shopkeeper'),
+                    'shop_name': data.get('shop_name', ''),
                     'phone': data.get('phone', ''),
-                    'shop_location': {'address': data.get('address', 'Not set')},
-                    'status': 'pending'
+                    'shop_location': {
+                        'address': data.get('address', 'Not set'),
+                        'lat': data.get('lat'),
+                        'lng': data.get('lng')
+                    },
+                    'status': 'pending',
+                    'gst_doc': docs['gst_doc'],
+                    'shop_photo': docs['shop_photo']
                 }
                 supabase.table('shopkeeper_registrations').insert(reg_data).execute()
 
@@ -194,14 +219,7 @@ def login():
                             'message': f'Your {role} account is still pending approval by admin.'
                         }), 403
 
-            ident = {
-                'id': user_data['id'],
-                'email': user_data['email'],
-                'user_type': user_data['user_type']
-            }
-        else:
-            logger.warning("Supabase not configured. Mocking login failure.")
-            return jsonify({'error': 'Internal Error', 'message': 'Database not configured'}), 500
+        ident = user_data['id']
             
         access_token = create_access_token(identity=ident)
         refresh_token = create_refresh_token(identity=ident)
@@ -231,33 +249,109 @@ def refresh():
     }), 200
 
 @auth_bp.route('/status', methods=['GET'])
-@jwt_required()
 def get_status():
-    user = get_jwt_identity()
-    user_id = user['id']
-    role = user['user_type']
-    
-    table_map = {
-        'engineer': 'engineer_registrations',
-        'worker': 'worker_registrations',
-        'shopkeeper': 'shopkeeper_registrations'
-    }
-    
-    if role not in table_map:
-        return jsonify({'status': 'approved'}), 200 # Admin/Users are implicitly approved
-        
+    # Try to get identity from JWT first
+    user_id = None
     try:
+        from flask_jwt_extended import decode_token
+        auth_header = request.headers.get('Authorization')
+        if auth_header and 'Bearer ' in auth_header:
+            token = auth_header.split(' ')[1]
+            decoded = decode_token(token)
+            user_id = decoded['sub']
+    except:
+        pass
+    
+    # Fallback to query param
+    if not user_id:
+        user_id = request.args.get('user_id')
+        
+    if not user_id:
+        return jsonify({'error': 'Missing identity'}), 401
+    
+    try:
+        # Fetch user role from db
+        user_res = supabase.table('users').select('user_type').eq('id', user_id).execute()
+        if not user_res.data:
+            return jsonify({'status': 'not_found'}), 404
+            
+        role = user_res.data[0]['user_type']
+        
+        table_map = {
+            'engineer': 'engineer_registrations',
+            'worker': 'worker_registrations',
+            'shopkeeper': 'shopkeeper_registrations'
+        }
+        
+        if role not in table_map:
+            return jsonify({'status': 'approved', 'role': role}), 200
+            
         res = supabase.table(table_map[role]).select('status').eq('user_id', user_id).execute()
         if res.data:
-            return jsonify({'status': res.data[0]['status']}), 200
+            return jsonify({'status': res.data[0]['status'], 'role': role}), 200
         return jsonify({'status': 'not_found'}), 404
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
-@auth_bp.route('/me', methods=['GET'])
-@jwt_required()
-def get_me():
-    current_user = get_jwt_identity()
-    return jsonify({
-        'user': current_user
-    }), 200
+@auth_bp.route('/profile', methods=['GET'])
+def get_user_profile():
+    user_id = request.args.get('user_id')
+    if not user_id:
+        return jsonify({'error': 'Missing user_id'}), 400
+    try:
+        res = supabase.table('users').select('email, user_type, full_name, age, bio, profile_pic_url, location').eq('id', user_id).execute()
+        if res.data:
+            return jsonify({'profile': res.data[0]}), 200
+        return jsonify({'error': 'Not found'}), 404
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@auth_bp.route('/profile', methods=['POST'])
+def update_user_profile():
+    import os
+    from werkzeug.utils import secure_filename
+    
+    user_id = request.form.get('user_id')
+    if not user_id:
+        return jsonify({'error': 'Missing user_id'}), 400
+        
+    def safe_int(val):
+        try: return int(val) if val and str(val).strip() else None
+        except: return None
+        
+    def safe_float(val):
+        try: return float(val) if val and str(val).strip() else None
+        except: return None
+
+    try:
+        # Handle Photo Upload
+        profile_pic_url = None
+        file = request.files.get('photo')
+        if file and file.filename:
+            upload_folder = os.path.join(os.getcwd(), 'uploads')
+            if not os.path.exists(upload_folder):
+                os.makedirs(upload_folder)
+            filename = secure_filename(f"user_{user_id}_{file.filename}")
+            file.save(os.path.join(upload_folder, filename))
+            profile_pic_url = f"/uploads/{filename}"
+
+        # Build update object
+        update_data = {
+            'full_name': request.form.get('name'),
+            'age': safe_int(request.form.get('age')),
+            'bio': request.form.get('bio'),
+            'location': {
+                'lat': safe_float(request.form.get('lat')),
+                'lng': safe_float(request.form.get('lng'))
+            }
+        }
+        
+        if profile_pic_url:
+            update_data['profile_pic_url'] = profile_pic_url
+
+        supabase.table('users').update(update_data).eq('id', user_id).execute()
+        return jsonify({'message': 'Profile updated successfully!'}), 200
+        
+    except Exception as e:
+        logger.error(f"Profile update error: {str(e)}")
+        return jsonify({'error': 'Database Error', 'message': str(e)}), 500

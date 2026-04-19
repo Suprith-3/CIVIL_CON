@@ -17,10 +17,10 @@ def get_pending():
     #     return jsonify({'error': 'Forbidden', 'message': 'Admin access required'}), 403
     
     try:
-        # Fetch anything that is NOT 'approved' from specialized tables
-        workers_res = supabase.table('worker_registrations').select('*').neq('status', 'approved').execute()
-        engineers_res = supabase.table('engineer_registrations').select('*').neq('status', 'approved').execute()
-        shops_res = supabase.table('shopkeeper_registrations').select('*').neq('status', 'approved').execute()
+        # Fetch ONLY 'pending' from specialized tables
+        workers_res = supabase.table('worker_registrations').select('*').eq('status', 'pending').execute()
+        engineers_res = supabase.table('engineer_registrations').select('*').eq('status', 'pending').execute()
+        shops_res = supabase.table('shopkeeper_registrations').select('*').eq('status', 'pending').execute()
         
         # FALLBACK: Also find users who are engineers but don't have a record in engineer_registrations yet
         all_users = supabase.table('users').select('*').in_('user_type', ['engineer', 'worker', 'shopkeeper']).execute()
@@ -89,6 +89,24 @@ def approve_registration(role, id):
     except Exception as e:
         return jsonify({'error': 'Server Error', 'message': str(e)}), 500
 
+@admin_bp.route('/reject/<role>/<id>', methods=['POST'])
+def reject_registration(role, id):
+    table_map = {
+        'worker': 'worker_registrations',
+        'engineer': 'engineer_registrations',
+        'shopkeeper': 'shopkeeper_registrations'
+    }
+    
+    table = table_map.get(role)
+    if not table:
+        return jsonify({'error': 'Bad Request', 'message': 'Invalid role'}), 400
+        
+    try:
+        supabase.table(table).update({'status': 'rejected'}).eq('id', id).execute()
+        return jsonify({'message': f'{role} rejected successfully'}), 200
+    except Exception as e:
+        return jsonify({'error': 'Server Error', 'message': str(e)}), 500
+
 @admin_bp.route('/users', methods=['GET'])
 def get_all_users():
     # TEMPORARY: Removing JWT check
@@ -105,15 +123,16 @@ def get_all_users():
 def add_scheme():
     data = request.get_json()
     try:
-        supabase.table('govt_schemes').insert({
-            'title': data['title'],
-            'category': data['category'],
+        res = supabase.table('govt_schemes').insert({
+            'title': data.get('title'),
+            'category': data.get('category'),
             'description': data.get('description'),
             'official_link': data.get('link')
         }).execute()
         return jsonify({'message': 'Scheme Published!'}), 201
     except Exception as e:
-        return jsonify({'error': str(e)}), 500
+        logger.error(f"Error publishing scheme: {str(e)}")
+        return jsonify({'error': 'Database Error', 'message': str(e)}), 500
 
 @admin_bp.route('/schemes', methods=['GET'])
 def get_schemes():
@@ -121,4 +140,5 @@ def get_schemes():
         res = supabase.table('govt_schemes').select('*').execute()
         return jsonify({'schemes': res.data}), 200
     except Exception as e:
-        return jsonify({'error': str(e)}), 500
+        logger.error(f"Error fetching schemes: {str(e)}")
+        return jsonify({'error': 'Database Error', 'message': str(e)}), 500
