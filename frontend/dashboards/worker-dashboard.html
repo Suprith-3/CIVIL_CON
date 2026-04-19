@@ -155,7 +155,7 @@
     </a>
 
     <div class="sidebar">
-        <div
+        <div class="logo"
             style="font-size: 1.5rem; font-weight: 800; margin-bottom: 3rem; display: flex; align-items: center; gap: 10px;">
             🏗️ Worker<span>Hub</span></div>
         <div class="nav-link active">🏠 Overview</div>
@@ -165,25 +165,97 @@
     </div>
 
     <div class="main-content">
-        <div id="statusBanner" class="status-banner pending">
-            <div>
-                <h2 id="statusText" style="margin:0;">Status: Pending Approval</h2>
-                <p id="statusDesc" style="margin:5px 0 0 0; opacity: 0.8;">The Civil Hub team is reviewing your
-                    documents.</p>
+        <div id="google_translate_element" style="margin-bottom: 1rem;"></div>
+        <script type="text/javascript">
+            function googleTranslateElementInit() {
+                new google.translate.TranslateElement({
+                    pageLanguage: 'en',
+                    includedLanguages: 'hi,bn,te,mr,ta,gu,kn,ml,pa,ur,as,or,sa,en',
+                    layout: google.translate.TranslateElement.InlineLayout.SIMPLE
+                }, 'google_translate_element');
+            }
+        </script>
+        <script type="text/javascript" src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
+
+        <!-- Overview Section -->
+        <div id="overviewSection">
+            <div id="statusBanner" class="status-banner pending">
+                <div>
+                    <h2 id="statusText" style="margin:0;">Status: Pending Approval</h2>
+                    <p id="statusDesc" style="margin:5px 0 0 0; opacity: 0.8;">The Civil Hub team is reviewing your documents.</p>
+                </div>
+                <div id="statusIcon" style="font-size: 2rem;">⏳</div>
             </div>
-            <div id="statusIcon" style="font-size: 2rem;">⏳</div>
+
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+                <div>
+                    <h1 style="margin:0;">Manage Your <span style="color: #2563eb;">Worker Portfolio</span></h1>
+                    <p style="color: #64748b;">Add images of your previous work to get hired by customers.</p>
+                </div>
+                <button class="btn-primary" onclick="openModal()">+ Add New Work</button>
+            </div>
+
+            <div class="grid" id="portfolioGrid">
+                <!-- Portfolio Items -->
+            </div>
         </div>
 
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
-            <div>
-                <h1 style="margin:0;">Manage Your <span style="color: #2563eb;">Worker Portfolio</span></h1>
-                <p style="color: #64748b;">Add images of your previous work to get hired by customers.</p>
+        <!-- Profile Section -->
+        <div id="profileSection" style="display:none;">
+            <div class="card" style="max-width: 800px; margin: 0 auto;">
+                <h1 style="margin-bottom: 2rem;">My Professional Profile</h1>
+                
+                <form id="profileForm">
+                    <div style="display: grid; grid-template-columns: 200px 1fr; gap: 2rem; align-items: start;">
+                        <div style="text-align: center;">
+                            <div id="profileImagePreview" style="width: 150px; height: 150px; border-radius: 50%; background: #f1f5f9; margin: 0 auto 1rem auto; background-size: cover; background-position: center; border: 2px solid #e2e8f0;"></div>
+                            <label class="btn-primary" style="display: inline-block; padding: 8px 16px; font-size: 0.8rem; cursor: pointer;">
+                                Change Photo
+                                <input type="file" name="profile_pic" style="display: none;" onchange="previewProfile(this)">
+                            </label>
+                        </div>
+                        
+                        <div>
+                            <label style="display:block; font-weight:700; margin-bottom:5px;">Full Name</label>
+                            <input type="text" name="name" id="profName" required>
+                            
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                                <div>
+                                    <label style="display:block; font-weight:700; margin-bottom:5px;">Age</label>
+                                    <input type="number" name="age" id="profAge">
+                                </div>
+                                <div>
+                                    <label style="display:block; font-weight:700; margin-bottom:5px;">Years of Experience</label>
+                                    <input type="number" name="experience" id="profExp">
+                                </div>
+                            </div>
+                            
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                                <div>
+                                    <label style="display:block; font-weight:700; margin-bottom:5px;">Work Category</label>
+                                    <select name="work_type" id="profType">
+                                        <option value="Plumbing">Plumbing</option>
+                                        <option value="Electrical">Electrical</option>
+                                        <option value="Painting">Painting</option>
+                                        <option value="Carpentry">Carpentry</option>
+                                        <option value="Masonry">Masonry</option>
+                                        <option value="Welding">Welding</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label style="display:block; font-weight:700; margin-bottom:5px;">Daily Wages (₹)</label>
+                                    <input type="number" name="daily_wages" id="profWages">
+                                </div>
+                            </div>
+                            
+                            <label style="display:block; font-weight:700; margin-bottom:5px;">Main Work Description (Bio)</label>
+                            <textarea name="bio" id="profBio" rows="4" placeholder="Tell customers about your expertise..."></textarea>
+                            
+                            <button type="submit" class="btn-primary" style="width: 100%; margin-top: 1rem;">Save Profile Changes</button>
+                        </div>
+                    </div>
+                </form>
             </div>
-            <button class="btn-primary" onclick="openModal()">+ Add New Work</button>
-        </div>
-
-        <div class="grid" id="portfolioGrid">
-            <!-- Portfolio Items -->
         </div>
     </div>
 
@@ -220,8 +292,12 @@
 
         async function loadWorkerStats() {
             try {
-                const res = await fetch(`${API_BASE_URL}/auth/status`, {
-                    headers: { 'Authorization': `Bearer ${localStorage.getItem('access_token')}` }
+                const current_worker_id = localStorage.getItem('user_id');
+                const token = localStorage.getItem('access_token');
+                console.log("Checking status for:", current_worker_id);
+                
+                const res = await fetch(`${API_BASE_URL}/auth/status?user_id=${current_worker_id}`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
                 });
                 const data = await res.json();
 
@@ -247,9 +323,10 @@
 
         async function loadPortfolio() {
             const grid = document.getElementById('portfolioGrid');
+            const current_worker_id = localStorage.getItem('user_id'); // Dynamic check
             grid.innerHTML = '<p>Loading your work gallery...</p>';
             try {
-                const res = await fetch(`${API_BASE_URL}/worker/portfolio?worker_id=${worker_id}`);
+                const res = await fetch(`${API_BASE_URL}/worker/portfolio?worker_id=${current_worker_id}`);
                 const data = await res.json();
                 grid.innerHTML = '';
 
@@ -280,26 +357,102 @@
         document.getElementById('workForm').onsubmit = async (e) => {
             e.preventDefault();
             const formData = new FormData(e.target);
-            formData.append('worker_id', worker_id);
+            const current_worker_id = localStorage.getItem('user_id');
+            formData.append('worker_id', current_worker_id);
 
             try {
+                console.log("Publishing work...");
                 const res = await fetch(`${API_BASE_URL}/worker/portfolio`, {
                     method: 'POST',
                     body: formData
                 });
+                
+                const result = await res.json();
                 if (res.ok) {
                     alert('Work published successfully!');
                     closeModal();
                     loadPortfolio();
                 } else {
-                    alert('Failed to publish work.');
+                    alert('Failed: ' + (result.error || result.message));
                 }
             } catch (err) {
-                alert('Connection error');
+                console.error("Publish Error:", err);
+                alert('Connection error - Your photos might be too large!');
             }
         };
 
+        // Tab Switching
+        document.querySelectorAll('.nav-link').forEach(link => {
+            link.addEventListener('click', () => {
+                const text = link.textContent;
+                if (text.includes('Logout')) return;
+
+                document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
+                link.classList.add('active');
+
+                const isProfile = text.includes('Profile');
+                const isOverview = text.includes('Overview');
+                
+                document.getElementById('overviewSection').style.display = isOverview ? 'block' : 'none';
+                document.getElementById('profileSection').style.display = isProfile ? 'block' : 'none';
+
+                if (isProfile) loadProfile();
+            });
+        });
+
+        function previewProfile(input) {
+            if (input.files && input.files[0]) {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    document.getElementById('profileImagePreview').style.backgroundImage = `url(${e.target.result})`;
+                };
+                reader.readAsDataURL(input.files[0]);
+            }
+        }
+
+        async function loadProfile() {
+            try {
+                const res = await fetch(`${API_BASE_URL}/worker/profile?worker_id=${worker_id}`);
+                const data = await res.json();
+                if (data.profile) {
+                    const p = data.profile;
+                    document.getElementById('profName').value = p.name || '';
+                    document.getElementById('profAge').value = p.age || '';
+                    document.getElementById('profExp').value = p.experience_years || '';
+                    document.getElementById('profType').value = p.work_type || 'General';
+                    document.getElementById('profWages').value = p.daily_wages || '';
+                    document.getElementById('profBio').value = p.bio || '';
+                    if (p.profile_pic_url) {
+                        document.getElementById('profileImagePreview').style.backgroundImage = `url(${IMG_BASE_URL}${p.profile_pic_url})`;
+                    }
+                }
+            } catch (e) { console.error("Error loading profile:", e); }
+        }
+
+        document.getElementById('profileForm').onsubmit = async (e) => {
+            e.preventDefault();
+            const formData = new FormData(e.target);
+            formData.append('worker_id', worker_id);
+            try {
+                const res = await fetch(`${API_BASE_URL}/worker/profile`, {
+                    method: 'POST',
+                    body: formData
+                });
+                if (res.ok) alert("Profile updated successfully!");
+                else alert("Failed to update profile");
+            } catch (e) { alert("Error saving profile"); }
+        };
+
         window.onload = () => {
+            const token = localStorage.getItem('access_token');
+            const user_id = localStorage.getItem('user_id');
+            
+            if (!token || !user_id) {
+                alert("Please login first!");
+                window.location.href = '../pages/login.html';
+                return;
+            }
+
             loadWorkerStats();
             loadPortfolio();
         };

@@ -73,7 +73,7 @@
             <div id="docGrid" style="margin-top:1.5rem; display:grid; grid-template-columns:1fr 1fr; gap:1rem;"></div>
             <div style="margin-top: 2rem; display: flex; gap: 1rem;">
                 <button class="btn-primary" id="confirmApproveBtn">Approve Provider</button>
-                <button class="btn-primary" style="background:#ef4444;" onclick="closeModal()">Reject</button>
+                <button class="btn-primary" style="background:#ef4444;" id="confirmRejectBtn">Reject</button>
             </div>
         </div>
     </div>
@@ -112,12 +112,24 @@
                 description: document.getElementById('sDesc').value,
                 link: document.getElementById('sLink').value
             };
-            const res = await fetch(`${API_BASE_URL}/admin/schemes`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(data)
-            });
-            if (res.ok) { alert('Scheme Published!'); closeSchemeModal(); e.target.reset(); loadAdminSchemes(); }
+            try {
+                const res = await fetch(`${API_BASE_URL}/admin/schemes`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                });
+                const result = await res.json();
+                if (res.ok) { 
+                    alert('Scheme Published!'); 
+                    closeSchemeModal(); 
+                    e.target.reset(); 
+                    loadAdminSchemes(); 
+                } else {
+                    alert('Error: ' + (result.message || 'Failed to publish'));
+                }
+            } catch (err) {
+                alert('Connection Error - Is the backend running?');
+            }
         };
 
         let pendingList = []; // Store list globally for review
@@ -184,6 +196,25 @@
                 } else {
                     const data = await res.json();
                     alert('Approval failed: ' + (data.message || 'Server error'));
+                }
+            } catch (err) {
+                alert('Connection error. Is the backend running?');
+            }
+        };
+
+        document.getElementById('confirmRejectBtn').onclick = async () => {
+            if (!confirm('Are you sure you want to REJECT this provider?')) return;
+            try {
+                const res = await fetch(`${API_BASE_URL}/admin/reject/${currentRole}/${currentId}`, {
+                    method: 'POST'
+                });
+                if (res.ok) {
+                    alert('Provider Rejected Successfully');
+                    closeModal();
+                    fetchPending();
+                } else {
+                    const data = await res.json();
+                    alert('Rejection failed: ' + (data.message || 'Server error'));
                 }
             } catch (err) {
                 alert('Connection error. Is the backend running?');

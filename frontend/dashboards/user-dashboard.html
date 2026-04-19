@@ -6,6 +6,8 @@
     <title>User Dashboard | BuildHub</title>
     <link rel="stylesheet" href="../css/style.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <style>
         body { background-color: #f1f5f9; display: flex; min-height: 100vh; font-family: 'Inter', sans-serif; margin:0; }
         .sidebar { width: 260px; background: #0f172a; color: white; display: flex; flex-direction: column; padding: 2rem 1.5rem; position: fixed; height: 100vh; box-sizing: border-box; }
@@ -25,6 +27,7 @@
         .p-card:hover { transform: translateY(-5px); box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1); }
         .modal { display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); z-index:2000; align-items:center; justify-content:center; backdrop-filter: blur(8px); }
         .btn-primary { background: #2563eb; color: white; border: none; padding: 12px 24px; border-radius: 12px; font-weight: 700; cursor: pointer; }
+        #atlasMap { height: 500px; width: 100%; border-radius: 15px; margin-top: 1rem; }
     </style>
 </head>
 <body>
@@ -42,6 +45,7 @@
             <div class="nav-item" onclick="showSection('equipment', this)">🛍️ Equipment</div>
             <div class="nav-item" onclick="showSection('schemes', this)">🏛️ Gov Schemes</div>
             <div class="nav-item" onclick="showSection('messages', this)">💬 Messages</div>
+            <div class="nav-item" onclick="showSection('profile', this)">👤 Profile</div>
         </div>
         <div class="nav-item" style="margin-top:auto; color:#ef4444;" onclick="logout()">🚪 Logout</div>
     </div>
@@ -49,9 +53,24 @@
     <div class="main-content">
         <div class="top-bar">
             <h2 id="pageTitle">Welcome to BuildHub</h2>
-            <div style="display:flex; align-items:center; gap:15px;">
-                <span id="userEmail" style="color:#64748b; font-size:0.9rem;">user@gmail.com</span>
-                <div style="width:40px; height:40px; background:#2563eb; color:white; border-radius:50%; display:flex; align-items:center; justify-content:center; font-weight:700;">U</div>
+            <div style="display:flex; align-items:center; gap:20px;">
+                <div id="google_translate_element"></div>
+                <script type="text/javascript">
+                    function googleTranslateElementInit() {
+                        new google.translate.TranslateElement({
+                            pageLanguage: 'en',
+                            includedLanguages: 'hi,bn,te,mr,ta,gu,kn,ml,pa,ur,as,or,sa,en',
+                            layout: google.translate.TranslateElement.InlineLayout.SIMPLE
+                        }, 'google_translate_element');
+                    }
+                </script>
+                <script type="text/javascript" src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
+                
+                <button onclick="openNearbyMap()" style="padding:10px 15px; background:#eff6ff; color:#2563eb; border:1px solid #dbeafe; border-radius:10px; font-weight:700; cursor:pointer; font-size:0.8rem;">📍 Find Near By Worker</button>
+                <div style="text-align:right;">
+                    <span id="userEmail" style="color:#64748b; font-size:0.8rem; display:block;">user@gmail.com</span>
+                </div>
+                <div id="topBarAvatar" style="width:40px; height:40px; background:#2563eb; color:white; border-radius:50%; display:flex; align-items:center; justify-content:center; font-weight:700; background-size:cover; background-position:center; border:2px solid #fff; box-shadow:0 4px 6px -1px rgba(0,0,0,0.1);">U</div>
             </div>
         </div>
 
@@ -67,6 +86,51 @@
 
         <div class="grid-container" id="mainGrid">
             <!-- Content Loads Dynamically -->
+        </div>
+
+        <!-- PROFILE SECTION -->
+        <div id="profileSection" style="display:none;" class="animate-fade-in">
+            <div class="p-card" style="max-width:850px; margin:0 auto; padding:2.5rem; background:white;">
+                <div style="display:flex; gap:3rem; align-items:start;">
+                    <div style="text-align:center;">
+                        <div id="userProfilePic" style="width:160px; height:160px; border-radius:50%; background:#f1f5f9; background-size:cover; background-position:center; margin-bottom:1.5rem; border:5px solid #fff; box-shadow:0 10px 25px -5px rgba(0,0,0,0.1);"></div>
+                        <input type="file" id="uPhotoInput" style="display:none;" onchange="previewUserPhoto(this)">
+                        <button class="btn-primary" onclick="document.getElementById('uPhotoInput').click()" style="padding:10px 20px; font-size:0.75rem; background:#0f172a;">Change Photo</button>
+                    </div>
+                    
+                    <div style="flex-grow:1;">
+                        <h2 style="margin-top:0; margin-bottom:2rem;">Your Personal <span style="color:#2563eb;">Profile</span></h2>
+                        <form id="userProfileForm">
+                            <div style="display:grid; grid-template-columns:1fr 1fr; gap:1.5rem; margin-bottom:1.5rem;">
+                                <div>
+                                    <label style="display:block; font-size:0.8rem; font-weight:700; color:#64748b; margin-bottom:8px;">Full Name</label>
+                                    <input type="text" id="uName" required placeholder="Enter your name" style="width:100%; padding:12px; border:1px solid #e2e8f0; border-radius:12px; font-family:inherit;">
+                                </div>
+                                <div>
+                                    <label style="display:block; font-size:0.8rem; font-weight:700; color:#64748b; margin-bottom:8px;">Age</label>
+                                    <input type="number" id="uAge" placeholder="Your age" style="width:100%; padding:12px; border:1px solid #e2e8f0; border-radius:12px; font-family:inherit;">
+                                </div>
+                            </div>
+                            
+                            <div style="margin-bottom:1.5rem;">
+                                <label style="display:block; font-size:0.8rem; font-weight:700; color:#64748b; margin-bottom:8px;">Bio / About You</label>
+                                <textarea id="uBio" placeholder="Tell workers or engineers about your project needs..." style="width:100%; padding:12px; border:1px solid #e2e8f0; border-radius:12px; height:100px; resize:none; font-family:inherit;"></textarea>
+                            </div>
+
+                            <div style="margin-bottom:2rem;">
+                                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+                                    <label style="font-size:0.8rem; font-weight:700; color:#64748b;">Live Location (OpenStreetMap)</label>
+                                    <button type="button" onclick="detectUserLoc()" style="font-size:0.7rem; border:none; background:#f1f5f9; padding:5px 10px; border-radius:8px; color:#2563eb; font-weight:800; cursor:pointer;">📍 Detect Live Location</button>
+                                </div>
+                                <div id="userLocMap" style="height:250px; border-radius:20px; border:1px solid #e2e8f0; overflow:hidden;"></div>
+                                <input type="hidden" id="uLat"><input type="hidden" id="uLng">
+                            </div>
+
+                            <button type="submit" class="btn-primary" style="width:100%; padding:1rem;">Save Profile Settings</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -86,9 +150,82 @@
         </div>
     </div>
 
+    <!-- Nearby Workers Map Modal -->
+    <div id="nearbyMapModal" class="modal">
+        <div style="background:white; padding:2rem; border-radius:30px; width:900px; max-height:90vh; position:relative;">
+            <span style="position:absolute; top:1.5rem; right:2rem; cursor:pointer; font-size:2rem; z-index:2001;" onclick="closeNearbyMap()">&times;</span>
+            <h2 style="margin-top:0;">Nearby Construction Workers (20km Radius)</h2>
+            <p style="color:#64748b; margin-bottom:1.5rem;">Discover skilled labor currently active in your vicinity.</p>
+            <div id="atlasMap"></div>
+        </div>
+    </div>
+
     <script>
         const API_BASE_URL = 'http://127.0.0.1:5000/api';
         const IMG_BASE_URL = 'http://127.0.0.1:5000';
+        let mainMap = null;
+
+        function closePortfolio() { document.getElementById('portfolioModal').style.display='none'; }
+        function closeProjectDetail() { document.getElementById('projectDetailModal').style.display = 'none'; }
+        
+        function closeNearbyMap() { 
+            document.getElementById('nearbyMapModal').style.display = 'none'; 
+            if(mainMap) { mainMap.remove(); mainMap = null; }
+        }
+
+        async function openNearbyMap() {
+            const modal = document.getElementById('nearbyMapModal');
+            modal.style.display = 'flex';
+            
+            if (!navigator.geolocation) {
+                alert("Geolocation is not supported by your browser");
+                return;
+            }
+
+            navigator.geolocation.getCurrentPosition(async (position) => {
+                const { latitude, longitude } = position.coords;
+                
+                // Initialize Map
+                if (!mainMap) {
+                    mainMap = L.map('atlasMap').setView([latitude, longitude], 12);
+                    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(mainMap);
+                }
+
+                // Add User Marker
+                L.marker([latitude, longitude], {icon: L.icon({
+                    iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-red.png',
+                    shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
+                    iconSize: [25, 41], iconAnchor: [12, 41], popupAnchor: [1, -34], shadowSize: [41, 41]
+                })}).addTo(mainMap).bindPopup("<b>You are here</b>").openPopup();
+
+                try {
+                    const res = await fetch(`${API_BASE_URL}/worker/nearby?lat=${latitude}&lng=${longitude}&radius=20`);
+                    const data = await res.json();
+                    
+                    data.workers.forEach(w => {
+                        const loc = w.location || {};
+                        if (loc.lat && loc.lng) {
+                            const marker = L.marker([loc.lat, loc.lng]).addTo(mainMap);
+                            marker.bindPopup(`
+                                <div style="text-align:center;">
+                                    <h4 style="margin:0;">${w.name}</h4>
+                                    <p style="margin:5px 0; color:#2563eb; font-weight:700;">${w.work_type}</p>
+                                    <p style="font-size:0.75rem; color:#64748b;">Distance: ${w.distance} km</p>
+                                    <button onclick="alert('Booked successfully for site visit!')" style="width:100%; padding:8px; background:#10b981; color:white; border:none; border-radius:8px; font-weight:700; cursor:pointer;">Near Book</button>
+                                </div>
+                            `);
+                        }
+                    });
+                } catch (e) {
+                    console.error("Error fetching nearby workers", e);
+                }
+            }, (err) => {
+                alert("Please enable location services to find nearby workers.");
+            });
+        }
+
+        let profileMap = null;
+        let profileMarker = null;
 
         function showSection(section, el) {
             document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
@@ -97,8 +234,11 @@
             const grid = document.getElementById('mainGrid');
             const header = document.getElementById('sectionHeader');
             const stats = document.getElementById('homeStats');
+            const pSec = document.getElementById('profileSection');
             
             stats.style.display = (section === 'home') ? 'grid' : 'none';
+            pSec.style.display = (section === 'profile') ? 'block' : 'none';
+            grid.style.display = (section === 'profile') ? 'none' : 'grid';
 
             if (section === 'engineers') {
                 header.textContent = "Verified Engineers";
@@ -112,9 +252,52 @@
             } else if (section === 'home') {
                 header.textContent = "Recently Uploaded Projects";
                 loadRecentProjects();
+            } else if (section === 'profile') {
+                header.textContent = "Global Profile Settings";
+                initProfileMap();
+                loadUserProfile();
             } else {
                 header.textContent = "Coming Soon";
                 grid.innerHTML = '<p>This section is currently under development.</p>';
+            }
+        }
+
+        function initProfileMap() {
+            setTimeout(() => {
+                if (!profileMap) {
+                    profileMap = L.map('userLocMap').setView([12.9716, 77.5946], 13);
+                    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(profileMap);
+                    profileMarker = L.marker([12.9716, 77.5946], { draggable: true }).addTo(profileMap);
+                    
+                    profileMarker.on('dragend', function(e) {
+                        const pos = e.target.getLatLng();
+                        document.getElementById('uLat').value = pos.lat;
+                        document.getElementById('uLng').value = pos.lng;
+                    });
+                }
+                profileMap.invalidateSize();
+            }, 500);
+        }
+
+        function detectUserLoc() {
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(pos => {
+                    const { latitude, longitude } = pos.coords;
+                    document.getElementById('uLat').value = latitude;
+                    document.getElementById('uLng').value = longitude;
+                    profileMap.setView([latitude, longitude], 15);
+                    profileMarker.setLatLng([latitude, longitude]);
+                });
+            }
+        }
+
+        function previewUserPhoto(input) {
+            if (input.files && input.files[0]) {
+                const reader = new FileReader();
+                reader.onload = e => {
+                    document.getElementById('userProfilePic').style.backgroundImage = `url(${e.target.result})`;
+                };
+                reader.readAsDataURL(input.files[0]);
             }
         }
 
@@ -173,38 +356,77 @@
             const grid = document.getElementById('mainGrid');
             grid.innerHTML = '<p>Discovering skilled hands...</p>';
             try {
-                const res = await fetch(`${API_BASE_URL}/worker/all-portfolio`);
+                const res = await fetch(`${API_BASE_URL}/worker/list-approved`);
                 const data = await res.json();
                 grid.innerHTML = '';
                 
-                if (data.portfolio && data.portfolio.length > 0) {
-                    data.portfolio.forEach(w => {
-                        const img = w.image_url ? `${IMG_BASE_URL}${w.image_url}` : '';
+                if (data.workers && data.workers.length > 0) {
+                    data.workers.forEach(w => {
+                        const profilePic = w.profile_pic_url ? `${IMG_BASE_URL}${w.profile_pic_url}` : 'https://api.dicebear.com/7.x/avataaars/svg?seed=' + w.name;
                         grid.innerHTML += `
                             <div class="p-card">
-                                <div style="height:160px; background-image:url('${img}'); background-size:cover; background-position:center; background-color:#f0f9ff;"></div>
+                                <div style="padding:1.5rem; text-align:center; border-bottom:1px solid #f1f5f9;">
+                                    <div style="width:100px; height:100px; border-radius:50%; margin:0 auto 1rem; background-image:url('${profilePic}'); background-size:cover; background-position:center; border:3px solid #f0f9ff;"></div>
+                                    <h3 style="margin:0;">${w.name}</h3>
+                                    <span style="display:inline-block; padding:4px 12px; background:#eff6ff; color:#2563eb; border-radius:20px; font-size:0.75rem; font-weight:700; margin-top:5px;">${w.work_type}</span>
+                                </div>
                                 <div style="padding:1.5rem;">
-                                    <h3 style="margin:0; font-size:1.1rem;">${w.title}</h3>
-                                    <p style="color:#64748b; font-size:0.85rem; margin-top:8px; height:40px; overflow:hidden;">${w.description}</p>
-                                    <div style="background:#f8fafc; padding:10px; border-radius:12px; margin:15px 0; display:flex; justify-content:space-between; align-items:center;">
-                                        <div>
-                                            <label style="display:block; font-size:0.7rem; color:#94a3b8; font-weight:700;">COST</label>
-                                            <span style="color:#10b981; font-weight:800;">₹${w.cost}</span>
+                                    <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:1.5rem;">
+                                        <div style="background:#f8fafc; padding:10px; border-radius:12px; text-align:center;">
+                                            <label style="display:block; font-size:0.6rem; color:#94a3b8; text-transform:uppercase;">Experience</label>
+                                            <span style="font-weight:800; color:#0f172a;">${w.experience_years || 0} yrs</span>
                                         </div>
-                                        <div style="text-align:right;">
-                                            <label style="display:block; font-size:0.7rem; color:#94a3b8; font-weight:700;">DURATION</label>
-                                            <span style="color:#0f172a; font-weight:800;">${w.duration_days} Days</span>
+                                        <div style="background:#f8fafc; padding:10px; border-radius:12px; text-align:center;">
+                                            <label style="display:block; font-size:0.6rem; color:#94a3b8; text-transform:uppercase;">Daily Rate</label>
+                                            <span style="font-weight:800; color:#22c55e;">₹${w.daily_wages}</span>
                                         </div>
                                     </div>
-                                    <button onclick="alert('Inquiry sent to worker!')" style="width:100%; padding:12px; background:#0f172a; color:white; border:none; border-radius:12px; font-weight:700; cursor:pointer; transition:0.2s;">Hire for this Job</button>
+                                    <p style="color:#64748b; font-size:0.8rem; height:40px; overflow:hidden; margin-bottom:1.5rem;">${w.bio || 'Professional ' + w.work_type + ' providing quality service.'}</p>
+                                    <div style="display:flex; gap:10px;">
+                                        <button onclick="viewWorkerPortfolio('${w.user_id}', '${w.name}')" style="flex:1; padding:12px; background:#eff6ff; color:#2563eb; border:none; border-radius:12px; font-weight:700; cursor:pointer;">View Work</button>
+                                        <button onclick="alert('Booking request sent to ${w.name}')" style="flex:1; padding:12px; background:#2563eb; color:white; border:none; border-radius:12px; font-weight:700; cursor:pointer;">Hire Me</button>
+                                    </div>
                                 </div>
                             </div>
                         `;
                     });
                 } else {
-                    grid.innerHTML = '<p style="grid-column:1/-1; text-align:center;">No worker services listed yet.</p>';
+                    grid.innerHTML = '<p style="grid-column:1/-1; text-align:center;">No approved workers available right now.</p>';
                 }
-            } catch (e) { grid.innerHTML = '<p>Error loading worker services.</p>'; }
+            } catch (e) { grid.innerHTML = '<p>Error loading workers.</p>'; }
+        }
+
+        async function viewWorkerPortfolio(id, name) {
+            const modal = document.getElementById('portfolioModal');
+            const content = document.getElementById('portfolioContent');
+            modal.style.display = 'flex';
+            content.innerHTML = '<p>Loading gallery...</p>';
+            try {
+                const res = await fetch(`${API_BASE_URL}/worker/portfolio?worker_id=${id}`);
+                const data = await res.json();
+                if (data.portfolio && data.portfolio.length > 0) {
+                    content.innerHTML = `<h2 style="margin-bottom:0;">Work Gallery of ${name}</h2><p style="color:#64748b; margin-bottom:2rem;">Browse previous professional projects.</p><div id="pGrid" style="display:grid; grid-template-columns:1fr 1fr; gap:1.5rem;"></div>`;
+                    const pGrid = document.getElementById('pGrid');
+                    data.portfolio.forEach(p => {
+                        const img = p.image_url ? `${IMG_BASE_URL}${p.image_url}` : '';
+                        pGrid.innerHTML += `
+                            <div style="background:white; border:1px solid #e2e8f0; border-radius:24px; overflow:hidden;">
+                                <div style="height:140px; background-image:url('${img}'); background-size:cover; background-position:center;"></div>
+                                <div style="padding:1rem;">
+                                    <h4 style="margin:0;">${p.title}</h4>
+                                    <p style="font-size:0.75rem; color:#64748b; margin:5px 0;">${p.description}</p>
+                                    <div style="display:flex; justify-content:space-between; font-size:0.75rem; border-top:1px solid #f1f5f9; padding-top:10px; margin-top:10px;">
+                                        <span style="font-weight:700; color:#2563eb;">₹ ${p.cost}</span>
+                                        <span style="color:#94a3b8;">⏱️ ${p.duration_days} Days</span>
+                                    </div>
+                                </div>
+                            </div>
+                        `;
+                    });
+                } else {
+                    content.innerHTML = `<h2>Gallary of ${name}</h2><p>No work samples uploaded yet.</p>`;
+                }
+            } catch (e) { content.innerHTML = '<p>Error loading gallery.</p>'; }
         }
 
         async function loadSchemes() {
@@ -286,10 +508,135 @@
             `;
         }
 
+        async function loadRecentProjects() {
+            const grid = document.getElementById('mainGrid');
+            grid.innerHTML = '<p>Discovering new builds...</p>';
+            try {
+                const res = await fetch(`${API_BASE_URL}/engineer/all-projects`);
+                const data = await res.json();
+                grid.innerHTML = '';
+                if (data.projects && data.projects.length > 0) {
+                    data.projects.forEach(p => {
+                        const img = p.images && p.images.length > 0 ? `${IMG_BASE_URL}${p.images[0]}` : '';
+                        const pJson = encodeURIComponent(JSON.stringify(p));
+                        grid.innerHTML += `
+                            <div class="p-card" onclick="openProjectDetail('${pJson}')" style="cursor:pointer;">
+                                <div style="height:180px; background-image:url('${img}'); background-size:cover; background-position:center; background-color:#f1f5f9;"></div>
+                                <div style="padding:1.5rem;">
+                                    <h3 style="margin:0;">${p.title}</h3>
+                                    <p style="color:#64748b; font-size:0.85rem; margin-top:5px;">📍 ${p.location} • ₹${p.cost}L</p>
+                                    <div style="display:flex; justify-content:space-between; align-items:center; margin-top:15px;">
+                                        <span style="color:#2563eb; font-weight:700; font-size:0.85rem;">View Gallery →</span>
+                                        <button onclick="event.stopPropagation(); viewPortfolio('${p.engineer_id}')" style="padding:4px 8px; background:#f1f5f9; border:none; border-radius:5px; color:#64748b; font-size:0.7rem; cursor:pointer;">Profile</button>
+                                    </div>
+                                </div>
+                            </div>
+                        `;
+                    });
+                } else {
+                    grid.innerHTML = '<p style="grid-column:1/-1; text-align:center;">No recent projects featured yet.</p>';
+                }
+            } catch (e) { grid.innerHTML = '<p>Error loading recent gallery.</p>'; }
+        }
+
+        async function loadUserProfile() {
+            const user_id = localStorage.getItem('user_id');
+            if(!user_id) return;
+            try {
+                const res = await fetch(`${API_BASE_URL}/auth/profile?user_id=${user_id}`);
+                const data = await res.json();
+                if (data.profile) {
+                    const p = data.profile;
+                    const nameField = document.getElementById('uName');
+                    if(nameField) nameField.value = p.full_name || '';
+                    
+                    const ageField = document.getElementById('uAge');
+                    if(ageField) ageField.value = p.age || '';
+                    
+                    const bioField = document.getElementById('uBio');
+                    if(bioField) bioField.value = p.bio || '';
+                    
+                    if (p.profile_pic_url) {
+                        const imgUrl = `${IMG_BASE_URL}${p.profile_pic_url}`;
+                        if(document.getElementById('userProfilePic')) document.getElementById('userProfilePic').style.backgroundImage = `url(${imgUrl})`;
+                        
+                        const topAvatar = document.getElementById('topBarAvatar');
+                        topAvatar.style.backgroundImage = `url(${imgUrl})`;
+                        topAvatar.textContent = ''; // Remove the 'U' letter
+                    } else if (p.full_name) {
+                         const topAvatar = document.getElementById('topBarAvatar');
+                         topAvatar.textContent = p.full_name.charAt(0).toUpperCase();
+                    }
+                    
+                    if (p.location && p.location.lat && p.location.lng && profileMap) {
+                        const lat = parseFloat(p.location.lat);
+                        const lng = parseFloat(p.location.lng);
+                        document.getElementById('uLat').value = lat;
+                        document.getElementById('uLng').value = lng;
+                        
+                        if(profileMarker) {
+                            profileMap.setView([lat, lng], 15);
+                            profileMarker.setLatLng([lat, lng]);
+                        }
+                    }
+                }
+            } catch (e) {
+                console.error("Error loading user profile", e);
+            }
+        }
+
+        document.getElementById('userProfileForm').onsubmit = async (e) => {
+            e.preventDefault();
+            const user_id = localStorage.getItem('user_id');
+            const formData = new FormData();
+            
+            formData.append('user_id', user_id);
+            formData.append('name', document.getElementById('uName').value);
+            formData.append('age', document.getElementById('uAge').value);
+            formData.append('bio', document.getElementById('uBio').value);
+            formData.append('lat', document.getElementById('uLat').value);
+            formData.append('lng', document.getElementById('uLng').value);
+            
+            const photoFile = document.getElementById('uPhotoInput').files[0];
+            if (photoFile) formData.append('photo', photoFile);
+
+            try {
+                const res = await fetch(`${API_BASE_URL}/auth/profile`, {
+                    method: 'POST',
+                    body: formData
+                });
+                if (res.ok) {
+                    alert('Profile updated successfully! ✨');
+                    loadUserProfile();
+                } else {
+                    alert('Failed to update profile.');
+                }
+            } catch (err) {
+                console.error("Profile update fetch error:", err);
+                alert('Connection error - Is the backend running? Check console for details.');
+            }
+        };
+
         function closePortfolio() { document.getElementById('portfolioModal').style.display = 'none'; }
         function closeProjectDetail() { document.getElementById('projectDetailModal').style.display = 'none'; }
         function logout() { localStorage.clear(); window.location.href = '../index.html'; }
-        window.onload = () => { showSection('home'); };
+        
+        window.onload = () => {
+            const token = localStorage.getItem('access_token');
+            const user_email = localStorage.getItem('user_email');
+            
+            if (!token) {
+                window.location.href = '../pages/login.html';
+                return;
+            }
+            
+            if (user_email) {
+                document.getElementById('userEmail').textContent = user_email;
+            }
+
+            loadUserProfile(); // Load avatar first
+            showSection('home');
+        };
     </script>
 </body>
 </html>

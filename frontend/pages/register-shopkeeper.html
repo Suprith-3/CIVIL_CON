@@ -13,6 +13,7 @@
         .form-group.full { grid-column: span 2; }
         .form-control { width: 100%; padding: 0.75rem; border-radius: var(--radius); border: 1px solid var(--border); }
         #map { height: 250px; border-radius: var(--radius); margin: 0.5rem 0; border: 1px solid var(--border); }
+        @keyframes spin { to { transform: rotate(360deg); } }
     </style>
 </head>
 <body>
@@ -20,6 +21,8 @@
         <div class="card register-container">
             <h2>Shopkeeper Registration</h2>
             <p style="color: #64748b; margin-bottom: 2rem;">Register your shop to start selling building materials.</p>
+
+            <div id="errorBox" style="display: none; background: #fee2e2; color: #dc2626; padding: 1rem; border-radius: 12px; margin-bottom: 1.5rem; font-size: 0.9rem; font-weight: 500; border: 1px solid #fecaca;"></div>
 
             <form id="registerForm">
                 <div id="step1">
@@ -63,7 +66,10 @@
                             <input type="text" name="aadhar_num" class="form-control" required>
                         </div>
                         <div class="form-group full">
-                            <label>Shop Location</label>
+                            <div style="display: flex; justify-content: space-between; align-items: center;">
+                                <label>Shop Location</label>
+                                <button type="button" onclick="detectLocation()" style="font-size: 0.75rem; background: #0f172a; color: white; border: none; padding: 4px 10px; border-radius: 20px; cursor: pointer;">📍 Detect Live Location</button>
+                            </div>
                             <div id="map"></div>
                             <input type="hidden" name="lat" id="lat">
                             <input type="hidden" name="lng" id="lng">
@@ -80,7 +86,10 @@
                     </div>
                     <div style="display: flex; gap: 1rem; margin-top: 2rem;">
                         <button type="button" onclick="nextStep(1)" class="btn" style="flex: 1; border: 1px solid var(--border);">Back</button>
-                        <button type="submit" class="btn btn-primary" style="flex: 1;">Submit for Approval</button>
+                        <button type="submit" class="btn btn-primary" style="flex: 1;">
+                            <span id="spinner" style="display: none; width: 15px; height: 15px; border: 2px solid #fff; border-top-color: transparent; border-radius: 50%; animation: spin 0.8s linear infinite; margin-right: 8px;"></span>
+                            <span id="btnText">Submit for Approval</span>
+                        </button>
                     </div>
                 </div>
             </form>
@@ -91,15 +100,39 @@
     <script type="module">
         import { initRegister } from '../js/auth.js';
         
+        let map, marker;
+        
         window.nextStep = (s) => {
             document.getElementById('step1').style.display = s === 1 ? 'block' : 'none';
             document.getElementById('step2').style.display = s === 2 ? 'block' : 'none';
-            if(s === 2) setTimeout(() => map.invalidateSize(), 100);
+            if(s === 2) {
+                setTimeout(() => {
+                    map.invalidateSize();
+                    detectLocation(); // Auto-detect when opening step 2
+                }, 100);
+            }
         };
 
-        const map = L.map('map').setView([12.9716, 77.5946], 13);
+        map = L.map('map').setView([12.9716, 77.5946], 13);
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
-        let marker;
+        
+        window.detectLocation = () => {
+            if (!navigator.geolocation) {
+                alert("Geolocation is not supported by your browser");
+                return;
+            }
+            navigator.geolocation.getCurrentPosition((position) => {
+                const { latitude, longitude } = position.coords;
+                map.setView([latitude, longitude], 16);
+                if (marker) map.removeLayer(marker);
+                marker = L.marker([latitude, longitude]).addTo(map);
+                document.getElementById('lat').value = latitude;
+                document.getElementById('lng').value = longitude;
+            }, (error) => {
+                console.warn("Location access denied or unavailable.");
+            });
+        };
+
         map.on('click', (e) => {
             if (marker) map.removeLayer(marker);
             marker = L.marker(e.latlng).addTo(map);

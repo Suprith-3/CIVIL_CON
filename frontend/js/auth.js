@@ -35,6 +35,7 @@ export function initLogin(role) {
             localStorage.setItem('access_token', data.access_token);
             localStorage.setItem('refresh_token', data.refresh_token);
             localStorage.setItem('user_type', data.user_type || (data.user && data.user.user_type));
+            localStorage.setItem('user_id', data.user.id); // Fixed: Saving user_id
             localStorage.setItem('user_email', email);
 
             // Redirect based on role

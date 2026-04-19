@@ -54,13 +54,21 @@ nav {
     display: flex;
     align-items: center;
     gap: 10px;
-    color: #1a202c;
+    color: #0f172a;
     cursor: pointer;
     user-select: none;
 }
 
 .logo span {
     color: #10b981;
+}
+
+/* Dashboard Sidebar & Auth Sidebar Logo */
+.sidebar .logo, 
+.sidebar .logo span,
+.auth-sidebar .logo,
+.auth-sidebar .logo span {
+    color: white !important;
 }
 
 .nav-links {
