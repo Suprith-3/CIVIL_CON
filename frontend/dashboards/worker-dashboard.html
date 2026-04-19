@@ -154,28 +154,31 @@
         </svg>
     </a>
 
-    <div class="sidebar">
+            <div class="sidebar">
         <div class="logo"
             style="font-size: 1.5rem; font-weight: 800; margin-bottom: 3rem; display: flex; align-items: center; gap: 10px;">
             🏗️ Worker<span>Hub</span></div>
-        <div class="nav-link active">🏠 Overview</div>
-        <div class="nav-link">💬 Inquiries</div>
-        <div class="nav-link">⚙️ Profile</div>
+        <div class="nav-link active" onclick="showSection('overview', this)">🏠 Overview</div>
+        <div class="nav-link" onclick="showSection('inquiries', this)">💬 Inquiries</div>
+        <div class="nav-link" onclick="showSection('profile', this)">⚙️ Profile</div>
         <div class="nav-link" style="margin-top: auto; color: #ef4444;" onclick="logout()">🚪 Logout</div>
     </div>
 
     <div class="main-content">
-        <div id="google_translate_element" style="margin-bottom: 1rem;"></div>
-        <script type="text/javascript">
-            function googleTranslateElementInit() {
-                new google.translate.TranslateElement({
-                    pageLanguage: 'en',
-                    includedLanguages: 'hi,bn,te,mr,ta,gu,kn,ml,pa,ur,as,or,sa,en',
-                    layout: google.translate.TranslateElement.InlineLayout.SIMPLE
-                }, 'google_translate_element');
-            }
-        </script>
-        <script type="text/javascript" src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
+        <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 2rem;">
+            <div>
+                <div id="google_translate_element" style="margin-bottom: 1rem;"></div>
+                <h1 id="welcomeGreeting" style="margin:0;">Welcome Back, <span style="color: #2563eb;">Worker</span>!</h1>
+            </div>
+            
+            <!-- Notification Bell -->
+            <div style="position: relative; cursor: pointer;" onclick="showSection('inquiries', document.querySelector('.nav-link:nth-child(3)'))">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" style="width:32px; height:32px; color: #1e293b;">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M14.857 17.082a23.848 23.848 0 0 0 5.454-1.31c.197-.058.33-.232.33-.437 0-.684-.145-1.347-.408-1.947a3.508 3.508 0 0 1-1.166-1.627 3.505 3.505 0 0 1-.426-1.648V8.411c0-2.435-1.114-4.573-2.884-5.908a3.136 3.136 0 0 0-4.053 0C10.02 2.503 8.906 4.641 8.906 7.076V10.1c0 .584-.153 1.144-.426 1.648a3.508 3.508 0 0 1-1.166 1.627c-.263.6-.408 1.263-.408 1.947 0 .205.133.379.33.437a23.848 23.848 0 0 0 5.454 1.31m4.33 0c.342.333.646.709.907 1.121m-9.33-1.121c-.342.333-.646.709-.907 1.121m12.138 0a.658.658 0 0 1-.54 1.057H7.057a.658.658 0 0 1-.54-1.057m15.608 0a52.39 52.39 0 0 1-10.272 2.255 52.39 52.39 0 0 1-10.272-2.255" />
+                </svg>
+                <span id="bookingBadge" style="display:none; position: absolute; top: -5px; right: -5px; background: #ef4444; color: white; font-size: 0.65rem; padding: 2px 6px; border-radius: 50%; font-weight: 800; border: 2px solid white;">0</span>
+            </div>
+        </div>
 
         <!-- Overview Section -->
         <div id="overviewSection">
@@ -198,6 +201,15 @@
             <div class="grid" id="portfolioGrid">
                 <!-- Portfolio Items -->
             </div>
+        </div>
+
+        <!-- Inquiries Section -->
+        <div id="inquiriesSection" style="display:none;">
+            <div style="margin-bottom: 2rem;">
+                <h1 style="margin:0;">Active <span style="color: #2563eb;">Bookings & Hub</span></h1>
+                <p style="color: #64748b;">Track your 85% milestone payments and mark jobs as complete.</p>
+            </div>
+            <div id="bookingList" class="grid"></div>
         </div>
 
         <!-- Profile Section -->
@@ -381,24 +393,107 @@
             }
         };
 
-        // Tab Switching
-        document.querySelectorAll('.nav-link').forEach(link => {
-            link.addEventListener('click', () => {
-                const text = link.textContent;
-                if (text.includes('Logout')) return;
+        // Tab Switching & Section Loading
+        function showSection(section, el) {
+            document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
+            if(el) el.classList.add('active');
 
-                document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
-                link.classList.add('active');
+            document.getElementById('overviewSection').style.display = (section === 'overview') ? 'block' : 'none';
+            document.getElementById('inquiriesSection').style.display = (section === 'inquiries') ? 'block' : 'none';
+            document.getElementById('profileSection').style.display = (section === 'profile') ? 'block' : 'none';
 
-                const isProfile = text.includes('Profile');
-                const isOverview = text.includes('Overview');
+            if (section === 'overview') loadPortfolio();
+            else if (section === 'inquiries') loadBookings();
+            else if (section === 'profile') loadProfile();
+        }
+
+        async function loadBookings() {
+            const list = document.getElementById('bookingList');
+            const badge = document.getElementById('bookingBadge');
+            list.innerHTML = '<p>Loading active projects...</p>';
+            try {
+                const token = localStorage.getItem('access_token');
+                const res = await fetch(`${API_BASE_URL}/worker/list-bookings?role=worker`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                const data = await res.json();
+                list.innerHTML = '';
                 
-                document.getElementById('overviewSection').style.display = isOverview ? 'block' : 'none';
-                document.getElementById('profileSection').style.display = isProfile ? 'block' : 'none';
+                if (data.bookings && data.bookings.length > 0) {
+                    // Update badge for new/pending bookings
+                    const pendingCount = data.bookings.filter(b => b.status === 'paid_partial').length;
+                    if(pendingCount > 0) {
+                        badge.style.display = 'block';
+                        badge.textContent = pendingCount;
+                    } else {
+                        badge.style.display = 'none';
+                    }
 
-                if (isProfile) loadProfile();
-            });
-        });
+                    data.bookings.forEach(b => {
+                        const user = b.users || {};
+                        const upfront = b.total_amount * 0.85;
+                        const balance = b.total_amount * 0.15;
+                        
+                        // Create Google Maps link
+                        const mapUrl = (user.latitude && user.longitude) 
+                            ? `https://www.google.com/maps?q=${user.latitude},${user.longitude}`
+                            : `https://www.google.com/maps/search/${encodeURIComponent(user.hotel_address || '')}`;
+
+                        list.innerHTML += `
+                            <div class="card" style="border-left: 5px solid ${b.status === 'completed' ? '#f59e0b' : '#2563eb'}; margin-bottom:1.5rem; padding: 1.5rem;">
+                                <div style="display:flex; justify-content:space-between; align-items:start;">
+                                    <div>
+                                        <h3 style="margin:0;">Project: ${b.title}</h3>
+                                        <p style="font-size:0.9rem; color:#1e293b; margin:10px 0; font-weight:700;">👤 Customer: ${user.full_name || 'Anonymous'}</p>
+                                    </div>
+                                    <span style="font-size:0.7rem; font-weight:800; background:#e2e8f0; padding:5px 10px; border-radius:5px; text-transform:uppercase;">${b.status}</span>
+                                </div>
+
+                                <div style="background:#f8fafc; padding:15px; border-radius:12px; border: 1px solid #e2e8f0; margin:1rem 0;">
+                                    <p style="margin:0 0 10px 0; font-size:0.85rem;">📍 <b>Work Site:</b> ${user.hotel_address || 'Address not provided'}</p>
+                                    <div style="display:flex; gap:10px;">
+                                        <a href="${mapUrl}" target="_blank" style="text-decoration:none; font-size:0.75rem; color:#2563eb; font-weight:700;">🗺️ View on Map</a>
+                                        <a href="tel:${user.contact_number}" style="text-decoration:none; font-size:0.75rem; color:#16a34a; font-weight:700;">📞 Call: ${user.contact_number || 'N/A'}</a>
+                                    </div>
+                                </div>
+
+                                <div style="background:#f1f5f9; padding:15px; border-radius:15px; margin-bottom:1rem;">
+                                    <div style="display:flex; justify-content:space-between; font-size:0.85rem;">
+                                        <span>Total Contract:</span> <span style="font-weight:700;">₹${b.total_amount}</span>
+                                    </div>
+                                    <div style="display:flex; justify-content:space-between; font-size:0.85rem; color:#16a34a; margin-top:5px;">
+                                        <span>Initial Payment (85%):</span> <span>₹${upfront.toFixed(2)}</span>
+                                    </div>
+                                </div>
+
+                                ${b.status === 'paid_partial' ? `
+                                    <button onclick="markComplete('${b.id}')" class="btn-primary" style="width:100%; background:#10b981; font-size:0.8rem; height: 45px;">🏁 Finished? Mark as Complete</button>
+                                ` : ''}
+                            </div>
+                        `;
+                    });
+                } else {
+                    list.innerHTML = '<p style="grid-column: 1/-1; text-align: center; color: #94a3b8;">No bookings yet.</p>';
+                    badge.style.display = 'none';
+                }
+            } catch (e) { list.innerHTML = '<p>Error loading bookings.</p>'; }
+        }
+
+        async function markComplete(bookingId) {
+            if (!confirm("Confirm Project Completion? The user will be prompted to release the final 15% payment!")) return;
+            try {
+                const token = localStorage.getItem('access_token');
+                const res = await fetch(`${API_BASE_URL}/worker/complete-job`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+                    body: JSON.stringify({ booking_id: bookingId })
+                });
+                if (res.ok) {
+                    alert("Project Marked as Complete! 🏗️🏁");
+                    loadBookings();
+                }
+            } catch(e) { alert("Failed to update status."); }
+        }
 
         function previewProfile(input) {
             if (input.files && input.files[0]) {
@@ -455,6 +550,7 @@
 
             loadWorkerStats();
             loadPortfolio();
+            loadBookings(); // Initialize the bell badge
         };
     </script>
 </body>

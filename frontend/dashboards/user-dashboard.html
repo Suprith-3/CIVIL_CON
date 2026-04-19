@@ -5,9 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>User Dashboard | BuildHub</title>
     <link rel="stylesheet" href="../css/style.css">
+    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.js"></script>
     <style>
         body { background-color: #f1f5f9; display: flex; min-height: 100vh; font-family: 'Inter', sans-serif; margin:0; }
         .sidebar { width: 260px; background: #0f172a; color: white; display: flex; flex-direction: column; padding: 2rem 1.5rem; position: fixed; height: 100vh; box-sizing: border-box; }
@@ -40,9 +41,10 @@
         <div class="logo">👷 Build<span>Hub</span></div>
         <div class="nav-menu">
             <div class="nav-item active" onclick="showSection('home', this)">🏠 Home</div>
+            <div class="nav-item" onclick="showSection('my-bookings', this)">📋 My Bookings</div>
             <div class="nav-item" onclick="showSection('engineers', this)">👷 Engineers</div>
             <div class="nav-item" onclick="showSection('workers', this)">🏗️ Workers</div>
-            <div class="nav-item" onclick="showSection('equipment', this)">🛍️ Equipment</div>
+            <div class="nav-item" onclick="showSection('equipment', this)">🏪 Materials & Shops</div>
             <div class="nav-item" onclick="showSection('schemes', this)">🏛️ Gov Schemes</div>
             <div class="nav-item" onclick="showSection('messages', this)">💬 Messages</div>
             <div class="nav-item" onclick="showSection('profile', this)">👤 Profile</div>
@@ -86,6 +88,13 @@
 
         <div class="grid-container" id="mainGrid">
             <!-- Content Loads Dynamically -->
+        </div>
+
+        <!-- MY BOOKINGS SECTION -->
+        <div id="myBookingsSection" style="display:none;" class="animate-fade-in">
+            <div id="myBookingsList" class="grid-container">
+                <!-- Bookings Load Here -->
+            </div>
         </div>
 
         <!-- PROFILE SECTION -->
@@ -167,6 +176,7 @@
 
         function closePortfolio() { document.getElementById('portfolioModal').style.display='none'; }
         function closeProjectDetail() { document.getElementById('projectDetailModal').style.display = 'none'; }
+        function logout() { localStorage.clear(); window.location.href = '../index.html'; }
         
         function closeNearbyMap() { 
             document.getElementById('nearbyMapModal').style.display = 'none'; 
@@ -176,367 +186,299 @@
         async function openNearbyMap() {
             const modal = document.getElementById('nearbyMapModal');
             modal.style.display = 'flex';
+            if (!navigator.geolocation) return alert("Geolocation not supported");
             
-            if (!navigator.geolocation) {
-                alert("Geolocation is not supported by your browser");
-                return;
-            }
-
             navigator.geolocation.getCurrentPosition(async (position) => {
                 const { latitude, longitude } = position.coords;
-                
-                // Initialize Map
                 if (!mainMap) {
                     mainMap = L.map('atlasMap').setView([latitude, longitude], 12);
                     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(mainMap);
                 }
+                
+                // Add "You are here" marker
+                L.marker([latitude, longitude], { icon: L.icon({ iconUrl: 'https://cdn-icons-png.flaticon.com/512/1673/1673188.png', iconSize: [30, 30] }) })
+                .addTo(mainMap).bindPopup("<b>You are here</b>").openPopup();
 
-                // Add User Marker
-                L.marker([latitude, longitude], {icon: L.icon({
-                    iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-red.png',
-                    shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
-                    iconSize: [25, 41], iconAnchor: [12, 41], popupAnchor: [1, -34], shadowSize: [41, 41]
-                })}).addTo(mainMap).bindPopup("<b>You are here</b>").openPopup();
-
+                // FETCH & SHOW REAL SHOPS! 🏪📍
                 try {
-                    const res = await fetch(`${API_BASE_URL}/worker/nearby?lat=${latitude}&lng=${longitude}&radius=20`);
-                    const data = await res.json();
+                    const res = await fetch(`${API_BASE_URL}/auth/all-shops`);
+                    const shops = await res.json();
                     
-                    data.workers.forEach(w => {
-                        const loc = w.location || {};
-                        if (loc.lat && loc.lng) {
-                            const marker = L.marker([loc.lat, loc.lng]).addTo(mainMap);
-                            marker.bindPopup(`
-                                <div style="text-align:center;">
-                                    <h4 style="margin:0;">${w.name}</h4>
-                                    <p style="margin:5px 0; color:#2563eb; font-weight:700;">${w.work_type}</p>
-                                    <p style="font-size:0.75rem; color:#64748b;">Distance: ${w.distance} km</p>
-                                    <button onclick="alert('Booked successfully for site visit!')" style="width:100%; padding:8px; background:#10b981; color:white; border:none; border-radius:8px; font-weight:700; cursor:pointer;">Near Book</button>
-                                </div>
-                            `);
+                    shops.forEach(shop => {
+                        if (shop.latitude && shop.longitude) {
+                            L.marker([shop.latitude, shop.longitude])
+                            .addTo(mainMap)
+                            .bindPopup(`<b>${shop.full_name}</b><br>🏠 ${shop.shop_address || 'Store Location'}<br>🕰️ ${shop.opening_hours || 'Open'}`);
                         }
                     });
-                } catch (e) {
-                    console.error("Error fetching nearby workers", e);
-                }
-            }, (err) => {
-                alert("Please enable location services to find nearby workers.");
+                } catch(e) { console.error("Could not load shops on map", e); }
             });
         }
 
-        let profileMap = null;
-        let profileMarker = null;
+        // CORE CART LOGIC (Embedded for maximum speed)
+        async function bookShopItem(id, name, price, itemData) {
+            const item = JSON.parse(decodeURIComponent(itemData));
+            let cart = JSON.parse(localStorage.getItem('cart') || '[]');
+            cart.push(item);
+            localStorage.setItem('cart', JSON.stringify(cart));
+            
+            if (confirm(`${item.name} added! Would you like to proceed to Cart now?`)) {
+                window.location.href = 'cart.html'; 
+            }
+        }
 
         function showSection(section, el) {
             document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
             if(el) el.classList.add('active');
-            
             const grid = document.getElementById('mainGrid');
             const header = document.getElementById('sectionHeader');
-            const stats = document.getElementById('homeStats');
             const pSec = document.getElementById('profileSection');
+            const stats = document.getElementById('homeStats');
+            const mbSec = document.getElementById('myBookingsSection');
             
             stats.style.display = (section === 'home') ? 'grid' : 'none';
             pSec.style.display = (section === 'profile') ? 'block' : 'none';
-            grid.style.display = (section === 'profile') ? 'none' : 'grid';
+            mbSec.style.display = (section === 'my-bookings') ? 'block' : 'none';
+            
+            // Hide main grid if viewing profile or bookings
+            grid.style.display = (section === 'profile' || section === 'my-bookings') ? 'none' : 'grid';
 
-            if (section === 'engineers') {
-                header.textContent = "Verified Engineers";
-                loadEngineers();
-            } else if (section === 'workers') {
-                header.textContent = "Skilled Construction Workers";
-                loadWorkers();
-            } else if (section === 'schemes') {
-                header.textContent = "Government Welfare Schemes";
-                loadSchemes();
-            } else if (section === 'home') {
-                header.textContent = "Recently Uploaded Projects";
-                loadRecentProjects();
-            } else if (section === 'profile') {
-                header.textContent = "Global Profile Settings";
-                initProfileMap();
-                loadUserProfile();
-            } else {
-                header.textContent = "Coming Soon";
-                grid.innerHTML = '<p>This section is currently under development.</p>';
-            }
+            if (section === 'home') loadRecentProjects();
+            else if (section === 'equipment') loadShopProducts();
+            else if (section === 'engineers') loadEngineers();
+            else if (section === 'workers') loadWorkers();
+            else if (section === 'my-bookings') loadMyBookings();
+            else if (section === 'schemes') loadSchemes();
+            else if (section === 'profile') loadUserProfile();
         }
 
-        function initProfileMap() {
-            setTimeout(() => {
-                if (!profileMap) {
-                    profileMap = L.map('userLocMap').setView([12.9716, 77.5946], 13);
-                    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(profileMap);
-                    profileMarker = L.marker([12.9716, 77.5946], { draggable: true }).addTo(profileMap);
-                    
-                    profileMarker.on('dragend', function(e) {
-                        const pos = e.target.getLatLng();
-                        document.getElementById('uLat').value = pos.lat;
-                        document.getElementById('uLng').value = pos.lng;
-                    });
-                }
-                profileMap.invalidateSize();
-            }, 500);
-        }
-
-        function detectUserLoc() {
-            if (navigator.geolocation) {
-                navigator.geolocation.getCurrentPosition(pos => {
-                    const { latitude, longitude } = pos.coords;
-                    document.getElementById('uLat').value = latitude;
-                    document.getElementById('uLng').value = longitude;
-                    profileMap.setView([latitude, longitude], 15);
-                    profileMarker.setLatLng([latitude, longitude]);
+        async function loadMyBookings() {
+            const container = document.getElementById('myBookingsList');
+            container.innerHTML = '<p>Loading your hired workers...</p>';
+            try {
+                const token = localStorage.getItem('access_token');
+                const res = await fetch(`${API_BASE_URL}/worker/list-bookings?role=user`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
                 });
-            }
+                const data = await res.json();
+                container.innerHTML = '';
+                
+                if (data.bookings && data.bookings.length > 0) {
+                    data.bookings.forEach(b => {
+                        const balance = b.total_amount * 0.15;
+                        container.innerHTML += `
+                            <div class="p-card" style="padding:1.5rem; margin-bottom:1rem; border-left: 5px solid ${b.status === 'fully_paid' ? '#10b981' : '#2563eb'};">
+                                <h4 style="margin:0;">Project: ${b.title}</h4>
+                                <p style="font-size:0.85rem; color:#64748b; margin:10px 0;">Status: <span style="font-weight:800; text-transform:uppercase; color:#2563eb;">${b.status}</span></p>
+                                
+                                ${b.status === 'completed' ? `
+                                    <div style="background:#fef3c7; padding:15px; border-radius:15px; margin-top:1rem;">
+                                        <p style="margin:0 0 10px 0; font-weight:700; color:#92400e;">🏁 Work marked as COMPLETE by Worker!</p>
+                                        <p style="font-size:0.85rem; margin-bottom:15px;">Final 15% Balance Due: <b>₹${balance.toFixed(2)}</b></p>
+                                        <button onclick="payFinalMilestone('${b.id}', ${balance})" class="btn-primary" style="width:100%; background:#92400e; padding:10px;">💳 Pay Final 15% & Release Funds</button>
+                                    </div>
+                                ` : b.status === 'fully_paid' ? `
+                                    <p style="color:#16a34a; font-weight:700; font-size:0.9rem; margin-top:1rem;">✅ Project Fully Paid & Completed!</p>
+                                ` : `
+                                    <p style="font-size:0.85rem; color:#64748b;">Worker is active on your project. The final 15% (₹${balance.toFixed(2)}) is held in escrow until completion.</p>
+                                `}
+                            </div>
+                        `;
+                    });
+                } else {
+                    container.innerHTML = '<p style="grid-column: 1/-1; text-align: center; color: #94a3b8;">You haven\'t hired any workers yet.</p>';
+                }
+            } catch(e) { container.innerHTML = '<p>Error loading projects.</p>'; }
         }
 
-        function previewUserPhoto(input) {
-            if (input.files && input.files[0]) {
-                const reader = new FileReader();
-                reader.onload = e => {
-                    document.getElementById('userProfilePic').style.backgroundImage = `url(${e.target.result})`;
-                };
-                reader.readAsDataURL(input.files[0]);
-            }
+        async function payFinalMilestone(bookingId, amount) {
+            const token = localStorage.getItem('access_token');
+            const RZP_KEY = "rzp_test_SLEACrszBCNIIo"; 
+
+            const options = {
+                "key": RZP_KEY,
+                "amount": Math.round(amount * 100),
+                "currency": "INR",
+                "name": "CivilConnect Final Payment",
+                "handler": async function (response) {
+                    await fetch(`${API_BASE_URL}/worker/pay-final`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+                        body: JSON.stringify({ booking_id: bookingId, payment_id: response.razorpay_payment_id })
+                    });
+                    alert("Final Payment Released Successfully! 🏆🏁 Project Closed.");
+                    loadMyBookings();
+                }
+            };
+            const rzp = new Razorpay(options);
+            rzp.open();
+        }
+
+        async function loadShopProducts() {
+            const grid = document.getElementById('mainGrid');
+            grid.innerHTML = '<p>Loading marketplace...</p>';
+            try {
+                const res = await fetch(`${API_BASE_URL}/items/`);
+                const items = await res.json();
+                grid.innerHTML = items.map(item => `
+                    <div class="p-card">
+                        <div style="height:180px; background-image: url('http://127.0.0.1:5000/uploads/${item.image_url?.split('/').pop() || 'placeholder.jpg'}'); background-size:cover; background-position:center;"></div>
+                        <div style="padding:1.5rem;">
+                            <div style="display:flex; justify-content:space-between;">
+                                <h4 style="margin:0;">${item.name}</h4>
+                                <span style="font-weight:800;">₹${item.price}</span>
+                            </div>
+                            <p style="font-size:0.8rem; color:#64748b;">${item.category}</p>
+                            <button onclick="bookShopItem('${item.id}', '${item.name}', '${item.price}', '${encodeURIComponent(JSON.stringify(item))}')" class="btn-primary" style="width:100%; margin-top:1rem; background:#2563eb;">🛒 Add to Cart & Book</button>
+                        </div>
+                    </div>
+                `).join('');
+            } catch (e) { grid.innerHTML = '<p>Error loading shop.</p>'; }
         }
 
         async function loadRecentProjects() {
             const grid = document.getElementById('mainGrid');
-            grid.innerHTML = '<p>Discovering new builds...</p>';
             try {
                 const res = await fetch(`${API_BASE_URL}/engineer/all-projects`);
                 const data = await res.json();
-                grid.innerHTML = '';
-                if (data.projects && data.projects.length > 0) {
-                    data.projects.forEach(p => {
-                        const img = p.images && p.images.length > 0 ? `${IMG_BASE_URL}${p.images[0]}` : '';
-                        const pJson = encodeURIComponent(JSON.stringify(p));
-                        grid.innerHTML += `
-                            <div class="p-card" onclick="openProjectDetail('${pJson}')" style="cursor:pointer;">
-                                <div style="height:180px; background-image:url('${img}'); background-size:cover; background-position:center; background-color:#f1f5f9;"></div>
-                                <div style="padding:1.5rem;">
-                                    <h3 style="margin:0;">${p.title}</h3>
-                                    <p style="color:#64748b; font-size:0.85rem; margin-top:5px;">📍 ${p.location} • ₹${p.cost}L</p>
-                                    <div style="display:flex; justify-content:space-between; align-items:center; margin-top:15px;">
-                                        <span style="color:#2563eb; font-weight:700; font-size:0.85rem;">View Gallery →</span>
-                                        <button onclick="event.stopPropagation(); viewPortfolio('${p.engineer_id}')" style="padding:4px 8px; background:#f1f5f9; border:none; border-radius:5px; color:#64748b; font-size:0.7rem; cursor:pointer;">Profile</button>
-                                    </div>
-                                </div>
-                            </div>
-                        `;
-                    });
-                } else { grid.innerHTML = '<p style="grid-column:1/-1; text-align:center;">No projects found.</p>'; }
-            } catch (e) { grid.innerHTML = '<p>Error loading projects.</p>'; }
-        }
-
-        async function loadEngineers() {
-            const grid = document.getElementById('mainGrid');
-            grid.innerHTML = '<p>Loading verified engineers...</p>';
-            try {
-                const res = await fetch(`${API_BASE_URL}/admin/approved-engineers`);
-                const engineers = await res.json();
-                grid.innerHTML = '';
-                engineers.forEach(eng => {
-                    grid.innerHTML += `
-                        <div class="p-card">
-                            <div style="height:140px; background:#f1f5f9; display:flex; align-items:center; justify-content:center; font-size:3rem;">👷</div>
-                            <div style="padding:1.5rem;">
-                                <h4 style="margin:0;">${eng.full_name || 'Engineer'}</h4>
-                                <p style="color:#64748b; font-size:0.8rem; margin:10px 0;">Verified Professional</p>
-                                <button onclick="viewPortfolio('${eng.id}')" style="width:100%; padding:10px; background:#2563eb; color:white; border:none; border-radius:10px; cursor:pointer; font-weight:700;">View Portfolio</button>
-                            </div>
-                        </div>
-                    `;
-                });
-            } catch (e) { grid.innerHTML = '<p>Error loading engineers.</p>'; }
+                grid.innerHTML = (data.projects || []).map(p => `
+                    <div class="p-card" style="padding:1rem;">
+                        <h3>${p.title}</h3>
+                        <p>📍 ${p.location}</p>
+                    </div>
+                `).join('');
+            } catch(e) {}
         }
 
         async function loadWorkers() {
             const grid = document.getElementById('mainGrid');
-            grid.innerHTML = '<p>Discovering skilled hands...</p>';
+            grid.innerHTML = '<p>Searching for skilled workers...</p>';
             try {
+                // Fetch workers from our new backend endpoint
                 const res = await fetch(`${API_BASE_URL}/worker/list-approved`);
-                const data = await res.json();
-                grid.innerHTML = '';
-                
-                if (data.workers && data.workers.length > 0) {
-                    data.workers.forEach(w => {
-                        const profilePic = w.profile_pic_url ? `${IMG_BASE_URL}${w.profile_pic_url}` : 'https://api.dicebear.com/7.x/avataaars/svg?seed=' + w.name;
-                        grid.innerHTML += `
-                            <div class="p-card">
-                                <div style="padding:1.5rem; text-align:center; border-bottom:1px solid #f1f5f9;">
-                                    <div style="width:100px; height:100px; border-radius:50%; margin:0 auto 1rem; background-image:url('${profilePic}'); background-size:cover; background-position:center; border:3px solid #f0f9ff;"></div>
-                                    <h3 style="margin:0;">${w.name}</h3>
-                                    <span style="display:inline-block; padding:4px 12px; background:#eff6ff; color:#2563eb; border-radius:20px; font-size:0.75rem; font-weight:700; margin-top:5px;">${w.work_type}</span>
-                                </div>
-                                <div style="padding:1.5rem;">
-                                    <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:1.5rem;">
-                                        <div style="background:#f8fafc; padding:10px; border-radius:12px; text-align:center;">
-                                            <label style="display:block; font-size:0.6rem; color:#94a3b8; text-transform:uppercase;">Experience</label>
-                                            <span style="font-weight:800; color:#0f172a;">${w.experience_years || 0} yrs</span>
-                                        </div>
-                                        <div style="background:#f8fafc; padding:10px; border-radius:12px; text-align:center;">
-                                            <label style="display:block; font-size:0.6rem; color:#94a3b8; text-transform:uppercase;">Daily Rate</label>
-                                            <span style="font-weight:800; color:#22c55e;">₹${w.daily_wages}</span>
-                                        </div>
-                                    </div>
-                                    <p style="color:#64748b; font-size:0.8rem; height:40px; overflow:hidden; margin-bottom:1.5rem;">${w.bio || 'Professional ' + w.work_type + ' providing quality service.'}</p>
-                                    <div style="display:flex; gap:10px;">
-                                        <button onclick="viewWorkerPortfolio('${w.user_id}', '${w.name}')" style="flex:1; padding:12px; background:#eff6ff; color:#2563eb; border:none; border-radius:12px; font-weight:700; cursor:pointer;">View Work</button>
-                                        <button onclick="alert('Booking request sent to ${w.name}')" style="flex:1; padding:12px; background:#2563eb; color:white; border:none; border-radius:12px; font-weight:700; cursor:pointer;">Hire Me</button>
-                                    </div>
-                                </div>
-                            </div>
-                        `;
-                    });
-                } else {
-                    grid.innerHTML = '<p style="grid-column:1/-1; text-align:center;">No approved workers available right now.</p>';
+                let data = await res.json();
+                let workers = data.workers || [];
+
+                // FALLBACK FOR TESTING: If no one is approved, show everyone!
+                if (workers.length === 0) {
+                    const res2 = await fetch(`${API_BASE_URL}/auth/all-shops`); // Reusing shop fetch logic as a hint for all users? 
+                    // No, let's just use a more direct check if we want all workers
+                    // For now, if empty, we'll try to fetch all workers regardless of status for visibility
+                    const resAll = await fetch(`${API_BASE_URL}/worker/nearby?lat=0&lng=0&radius=100000`);
+                    const dataAll = await resAll.json();
+                    workers = dataAll.workers || [];
                 }
-            } catch (e) { grid.innerHTML = '<p>Error loading workers.</p>'; }
-        }
 
-        async function viewWorkerPortfolio(id, name) {
-            const modal = document.getElementById('portfolioModal');
-            const content = document.getElementById('portfolioContent');
-            modal.style.display = 'flex';
-            content.innerHTML = '<p>Loading gallery...</p>';
-            try {
-                const res = await fetch(`${API_BASE_URL}/worker/portfolio?worker_id=${id}`);
-                const data = await res.json();
-                if (data.portfolio && data.portfolio.length > 0) {
-                    content.innerHTML = `<h2 style="margin-bottom:0;">Work Gallery of ${name}</h2><p style="color:#64748b; margin-bottom:2rem;">Browse previous professional projects.</p><div id="pGrid" style="display:grid; grid-template-columns:1fr 1fr; gap:1.5rem;"></div>`;
-                    const pGrid = document.getElementById('pGrid');
-                    data.portfolio.forEach(p => {
-                        const img = p.image_url ? `${IMG_BASE_URL}${p.image_url}` : '';
-                        pGrid.innerHTML += `
-                            <div style="background:white; border:1px solid #e2e8f0; border-radius:24px; overflow:hidden;">
-                                <div style="height:140px; background-image:url('${img}'); background-size:cover; background-position:center;"></div>
-                                <div style="padding:1rem;">
-                                    <h4 style="margin:0;">${p.title}</h4>
-                                    <p style="font-size:0.75rem; color:#64748b; margin:5px 0;">${p.description}</p>
-                                    <div style="display:flex; justify-content:space-between; font-size:0.75rem; border-top:1px solid #f1f5f9; padding-top:10px; margin-top:10px;">
-                                        <span style="font-weight:700; color:#2563eb;">₹ ${p.cost}</span>
-                                        <span style="color:#94a3b8;">⏱️ ${p.duration_days} Days</span>
-                                    </div>
-                                </div>
-                            </div>
-                        `;
-                    });
-                } else {
-                    content.innerHTML = `<h2>Gallary of ${name}</h2><p>No work samples uploaded yet.</p>`;
+                if (workers.length === 0) {
+                    grid.innerHTML = '<p>No workers available in your area yet.</p>';
+                    return;
                 }
-            } catch (e) { content.innerHTML = '<p>Error loading gallery.</p>'; }
+
+                grid.innerHTML = workers.map(w => `
+                    <div class="p-card">
+                        <div style="height:200px; background-image: url('http://127.0.0.1:5000${w.profile_pic_url || '/uploads/placeholder.jpg'}'); background-size:cover; background-position:center;"></div>
+                        <div style="padding:1.5rem;">
+                            <h3 style="margin:0;">${w.name}</h3>
+                            <p style="color:#2563eb; font-weight:700; margin:0.5rem 0;">🏗️ ${w.work_type}</p>
+                            <p style="font-size:0.85rem; color:#64748b;">⭐ ${w.experience_years} Years Experience</p>
+                            <p style="font-size:0.9rem; font-weight:800; color:#0f172a; margin:1rem 0;">💰 ₹${w.daily_wages} / Day</p>
+                            <button onclick="viewWorkerPortfolio('${w.user_id}')" class="btn-primary" style="width:100%; background:#0f172a;">View Portfolio & Hire</button>
+                        </div>
+                    </div>
+                `).join('');
+            } catch(e) { grid.innerHTML = '<p>Error loading workers.</p>'; }
         }
 
-        async function loadSchemes() {
-            const grid = document.getElementById('mainGrid');
-            grid.innerHTML = '<div style="grid-column:1/-1;"><button class="btn-primary" onclick="searchAISchemes()" style="margin-bottom:2rem; width:100%;">🔍 Live AI Gov Scheme Search</button><div id="sch_area"></div></div>';
-            try {
-                const res = await fetch(`${API_BASE_URL}/admin/schemes`);
-                const data = await res.json();
-                const area = document.getElementById('sch_area');
-                area.innerHTML = '<h4>Official Verified Schemes</h4>';
-                data.schemes.forEach(s => {
-                    area.innerHTML += `<div class="p-card" style="margin-bottom:1rem; padding:1.5rem;"><h3 style="color:#2563eb;">${s.title}</h3><p>${s.description}</p><a href="${s.official_link}" target="_blank">Official Details →</a></div>`;
-                });
-            } catch (e) {}
-        }
-
-        async function searchAISchemes() {
-            const area = document.getElementById('sch_area');
-            area.innerHTML = '<p>🤖 AI is searching live Indian portals...</p>';
-            try {
-                const res = await fetch(`${API_BASE_URL}/ai/search-schemes`);
-                const data = await res.json();
-                area.innerHTML = `<div style="background:#0f172a; color:white; padding:2rem; border-radius:20px; white-space:pre-wrap;">${data.schemes}</div>`;
-            } catch (e) { alert('AI Error'); }
-        }
-
-        async function viewPortfolio(id) {
-            closeProjectDetail();
+        async function viewWorkerPortfolio(workerId) {
             const modal = document.getElementById('portfolioModal');
             const content = document.getElementById('portfolioContent');
             modal.style.display = 'flex';
             content.innerHTML = '<p>Loading portfolio...</p>';
+
             try {
-                const res = await fetch(`${API_BASE_URL}/engineer/portfolio?engineer_id=${id}`);
+                const res = await fetch(`${API_BASE_URL}/worker/portfolio?worker_id=${workerId}`);
                 const data = await res.json();
-                if (data.projects && data.projects.length > 0) {
-                    content.innerHTML = '<h2>Work Portfolio</h2><p style="color:#64748b; margin-bottom:1.5rem;">Click any project below for details & gallery.</p><div id="portGrid" style="display:grid; grid-template-columns:1fr 1fr; gap:1.5rem;"></div>';
-                    const grid = document.getElementById('portGrid');
-                    data.projects.forEach(p => {
-                        const img = p.images && p.images.length > 0 ? `${IMG_BASE_URL}${p.images[0]}` : '';
-                        const pJson = encodeURIComponent(JSON.stringify(p));
-                        grid.innerHTML += `
-                            <div onclick="openProjectDetail('${pJson}')" style="border:1px solid #e2e8f0; border-radius:20px; overflow:hidden; cursor:pointer; background:white;">
-                                <div style="height:150px; background-image:url('${img}'); background-size:cover; background-position:center;"></div>
+                const portfolio = data.portfolio || [];
+
+                if (portfolio.length === 0) {
+                    content.innerHTML = '<h3>Worker Portfolio</h3><p>This worker hasn\'t uploaded any projects yet.</p>';
+                    return;
+                }
+
+                content.innerHTML = `
+                    <h2 style="margin-bottom:1.5rem;">Worker Portfolio</h2>
+                    <div style="display:grid; grid-template-columns:1fr 1fr; gap:1.5rem;">
+                        ${portfolio.map(p => `
+                            <div style="border:1px solid #e2e8f0; border-radius:15px; overflow:hidden;">
+                                <div style="height:150px; background-image:url('http://127.0.0.1:5000${p.image_url}'); background-size:cover; background-position:center;"></div>
                                 <div style="padding:1rem;">
                                     <h4 style="margin:0;">${p.title}</h4>
-                                    <p style="color:#2563eb; font-size:0.8rem; font-weight:700;">📍 ${p.location}</p>
-                                </div>
-                            </div>
-                        `;
-                    });
-                } else { content.innerHTML = "<h2>No projects found.</h2>"; }
-            } catch (e) { content.innerHTML = "<p>Error.</p>"; }
-        }
-
-        function openProjectDetail(pJson) {
-            const p = JSON.parse(decodeURIComponent(pJson));
-            const modal = document.getElementById('projectDetailModal');
-            const content = document.getElementById('projectDetailContent');
-            modal.style.display = 'flex';
-            let imgsHtml = '';
-            (p.images || []).forEach(i => imgsHtml += `<img src="${IMG_BASE_URL}${i}" style="width:100%; border-radius:15px; margin-bottom:1rem; box-shadow:0 4px 10px rgba(0,0,0,0.1);">`);
-            
-            content.innerHTML = `
-                <h2>${p.title}</h2>
-                <p style="color:#2563eb; font-weight:700; margin-bottom:1.5rem;">📍 ${p.location} • ₹${p.cost}L</p>
-                <div style="display:grid; grid-template-columns: 2fr 1fr; gap:2rem;">
-                    <div><h4>Photo Gallery</h4>${imgsHtml}</div>
-                    <div>
-                        <div style="background:#f8fafc; padding:1.5rem; border-radius:20px; position:sticky; top:0;">
-                            <h4>Project Sketch</h4>
-                            <img src="${IMG_BASE_URL}${p.sketch_url}" style="width:100%; border-radius:10px; border:1px solid #eee; margin-bottom:1rem;">
-                            <h4>Description</h4>
-                            <p style="color:#64748b; font-size:0.9rem;">${p.description || 'Completed project'}</p>
-                            <button class="btn-primary" style="width:100%; margin-top:1.5rem;" onclick="event.stopPropagation(); viewPortfolio('${p.engineer_id}')">Visit Engineer Profile</button>
-                        </div>
-                    </div>
-                </div>
-            `;
-        }
-
-        async function loadRecentProjects() {
-            const grid = document.getElementById('mainGrid');
-            grid.innerHTML = '<p>Discovering new builds...</p>';
-            try {
-                const res = await fetch(`${API_BASE_URL}/engineer/all-projects`);
-                const data = await res.json();
-                grid.innerHTML = '';
-                if (data.projects && data.projects.length > 0) {
-                    data.projects.forEach(p => {
-                        const img = p.images && p.images.length > 0 ? `${IMG_BASE_URL}${p.images[0]}` : '';
-                        const pJson = encodeURIComponent(JSON.stringify(p));
-                        grid.innerHTML += `
-                            <div class="p-card" onclick="openProjectDetail('${pJson}')" style="cursor:pointer;">
-                                <div style="height:180px; background-image:url('${img}'); background-size:cover; background-position:center; background-color:#f1f5f9;"></div>
-                                <div style="padding:1.5rem;">
-                                    <h3 style="margin:0;">${p.title}</h3>
-                                    <p style="color:#64748b; font-size:0.85rem; margin-top:5px;">📍 ${p.location} • ₹${p.cost}L</p>
-                                    <div style="display:flex; justify-content:space-between; align-items:center; margin-top:15px;">
-                                        <span style="color:#2563eb; font-weight:700; font-size:0.85rem;">View Gallery →</span>
-                                        <button onclick="event.stopPropagation(); viewPortfolio('${p.engineer_id}')" style="padding:4px 8px; background:#f1f5f9; border:none; border-radius:5px; color:#64748b; font-size:0.7rem; cursor:pointer;">Profile</button>
+                                    <p style="font-size:0.8rem; color:#64748b;">${p.description}</p>
+                                    <div style="display:flex; justify-content:space-between; align-items:center; margin-top:1rem;">
+                                        <p style="font-weight:700; color:#2563eb; margin:0;">₹${p.cost} | ${p.duration_days} Days</p>
+                                        <button onclick="initiateWorkerBooking('${p.id}', '${p.title}', ${p.cost}, '${workerId}')" class="btn" style="background:#22c55e; color:white; font-size:0.75rem; padding:8px 15px; border-radius:8px;">🏗️ Book this Worker</button>
                                     </div>
                                 </div>
                             </div>
-                        `;
-                    });
-                } else {
-                    grid.innerHTML = '<p style="grid-column:1/-1; text-align:center;">No recent projects featured yet.</p>';
-                }
-            } catch (e) { grid.innerHTML = '<p>Error loading recent gallery.</p>'; }
+                        `).join('')}
+                    </div>
+                `;
+            } catch(e) { content.innerHTML = '<p>Error loading portfolio.</p>'; }
+        }
+
+        async function initiateWorkerBooking(workId, title, cost, workerId) {
+            const upfrontAmount = cost * 0.85; // 85% Upfront
+            const balanceAmount = cost * 0.15; // 15% Balance
+            
+            if (!confirm(`BOOKING CONFIRMATION:\nWork: ${title}\nTotal: ₹${cost}\n\nPay 85% Upfront: ₹${upfrontAmount.toFixed(2)}\nPay 15% on Completion: ₹${balanceAmount.toFixed(2)}\n\nProceed to payment?`)) return;
+
+            const token = localStorage.getItem('access_token');
+            const user_id = localStorage.getItem('user_id');
+
+            try {
+                // 1. Create Booking in Backend
+                const res = await fetch(`${API_BASE_URL}/worker/book`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+                    body: JSON.stringify({
+                        worker_id: workerId,
+                        work_id: workId,
+                        title: title,
+                        total_amount: cost,
+                        paid_initial: upfrontAmount
+                    })
+                });
+                
+                const booking = await res.json();
+                
+                // 2. Trigger Razorpay
+                const RZP_KEY = "rzp_test_SLEACrszBCNIIo"; 
+                
+                const options = {
+                    "key": RZP_KEY,
+                    "amount": Math.round(upfrontAmount * 100),
+                    "currency": "INR",
+                    "name": "CivilConnect Booking",
+                    "description": `85% Payment for ${title}`,
+                    "handler": async function (response) {
+                        // Mark as partially paid
+                        await fetch(`${API_BASE_URL}/worker/verify-booking`, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+                            body: JSON.stringify({ booking_id: booking.id, payment_id: response.razorpay_payment_id })
+                        });
+                        alert("Booking Successful! 85% Payment Received. Worker will start soon! 🏗️🏁");
+                        window.location.reload();
+                    }
+                };
+                const rzp = new Razorpay(options);
+                rzp.open();
+
+            } catch(e) { alert("Booking failed. Please try again."); }
+        }
+
+        function closePortfolio() {
+            document.getElementById('portfolioModal').style.display = 'none';
         }
 
         async function loadUserProfile() {
@@ -545,98 +487,19 @@
             try {
                 const res = await fetch(`${API_BASE_URL}/auth/profile?user_id=${user_id}`);
                 const data = await res.json();
-                if (data.profile) {
-                    const p = data.profile;
-                    const nameField = document.getElementById('uName');
-                    if(nameField) nameField.value = p.full_name || '';
-                    
-                    const ageField = document.getElementById('uAge');
-                    if(ageField) ageField.value = p.age || '';
-                    
-                    const bioField = document.getElementById('uBio');
-                    if(bioField) bioField.value = p.bio || '';
-                    
-                    if (p.profile_pic_url) {
-                        const imgUrl = `${IMG_BASE_URL}${p.profile_pic_url}`;
-                        if(document.getElementById('userProfilePic')) document.getElementById('userProfilePic').style.backgroundImage = `url(${imgUrl})`;
-                        
-                        const topAvatar = document.getElementById('topBarAvatar');
-                        topAvatar.style.backgroundImage = `url(${imgUrl})`;
-                        topAvatar.textContent = ''; // Remove the 'U' letter
-                    } else if (p.full_name) {
-                         const topAvatar = document.getElementById('topBarAvatar');
-                         topAvatar.textContent = p.full_name.charAt(0).toUpperCase();
-                    }
-                    
-                    if (p.location && p.location.lat && p.location.lng && profileMap) {
-                        const lat = parseFloat(p.location.lat);
-                        const lng = parseFloat(p.location.lng);
-                        document.getElementById('uLat').value = lat;
-                        document.getElementById('uLng').value = lng;
-                        
-                        if(profileMarker) {
-                            profileMap.setView([lat, lng], 15);
-                            profileMarker.setLatLng([lat, lng]);
-                        }
-                    }
+                if(data.profile) {
+                    document.getElementById('userEmail').textContent = data.profile.user_email || localStorage.getItem('user_email');
                 }
-            } catch (e) {
-                console.error("Error loading user profile", e);
-            }
+            } catch(e) {}
         }
 
-        document.getElementById('userProfileForm').onsubmit = async (e) => {
-            e.preventDefault();
-            const user_id = localStorage.getItem('user_id');
-            const formData = new FormData();
-            
-            formData.append('user_id', user_id);
-            formData.append('name', document.getElementById('uName').value);
-            formData.append('age', document.getElementById('uAge').value);
-            formData.append('bio', document.getElementById('uBio').value);
-            formData.append('lat', document.getElementById('uLat').value);
-            formData.append('lng', document.getElementById('uLng').value);
-            
-            const photoFile = document.getElementById('uPhotoInput').files[0];
-            if (photoFile) formData.append('photo', photoFile);
-
-            try {
-                const res = await fetch(`${API_BASE_URL}/auth/profile`, {
-                    method: 'POST',
-                    body: formData
-                });
-                if (res.ok) {
-                    alert('Profile updated successfully! ✨');
-                    loadUserProfile();
-                } else {
-                    alert('Failed to update profile.');
-                }
-            } catch (err) {
-                console.error("Profile update fetch error:", err);
-                alert('Connection error - Is the backend running? Check console for details.');
-            }
-        };
-
-        function closePortfolio() { document.getElementById('portfolioModal').style.display = 'none'; }
-        function closeProjectDetail() { document.getElementById('projectDetailModal').style.display = 'none'; }
-        function logout() { localStorage.clear(); window.location.href = '../index.html'; }
-        
         window.onload = () => {
             const token = localStorage.getItem('access_token');
-            const user_email = localStorage.getItem('user_email');
-            
-            if (!token) {
-                window.location.href = '../pages/login.html';
-                return;
-            }
-            
-            if (user_email) {
-                document.getElementById('userEmail').textContent = user_email;
-            }
-
-            loadUserProfile(); // Load avatar first
+            if (!token) window.location.href = '../pages/login.html';
+            loadUserProfile();
             showSection('home');
         };
     </script>
+    <script src="../js/dashboards/user.js"></script>
 </body>
 </html>

@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Checkout | BuildHub</title>
+    <link rel="stylesheet" href="../css/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+    <style>
+        body { background-color: #f1f5f9; font-family: 'Inter', sans-serif; margin: 0; padding: 2rem 5rem; }
+        .nav { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #e2e8f0; padding-bottom: 1rem; margin-bottom: 2rem; }
+        .logo { font-size: 1.5rem; font-weight: 800; color: #0f172a; }
+        .title { color: #22c55e; font-size: 2.5rem; font-weight: 800; margin-bottom: 0.5rem; }
+        .subtitle { color: #64748b; font-size: 1rem; margin-bottom: 2rem; }
+        
+        .checkout-grid { display: flex; gap: 3rem; }
+        .left-col { flex: 2; display: flex; flex-direction: column; gap: 1.5rem; }
+        .right-col { flex: 1; }
+        
+        .card { background: white; border-radius: 20px; padding: 2rem; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); }
+        .card-header { display: flex; align-items: center; gap: 10px; font-weight: 800; font-size: 1.25rem; color: #0f172a; margin-bottom: 1.5rem; }
+        
+        .input-field { width: 100%; border: 1px solid #e2e8f0; padding: 12px; border-radius: 8px; margin-top: 10px; font-family: 'Inter'; box-sizing: border-box; resize: vertical; min-height: 80px;}
+        
+        .payment-methods { display: flex; gap: 1rem; }
+        .pay-method { flex: 1; border: 2px solid #e2e8f0; border-radius: 12px; padding: 1.5rem; text-align: center; cursor: pointer; transition: 0.2s; }
+        .pay-method.active, .pay-method:hover { border-color: #22c55e; background: #f0fdf4; }
+        .pay-title { font-weight: 700; color: #0f172a; margin-bottom: 5px; }
+        .pay-sub { font-size: 0.8rem; color: #64748b; }
+        
+        .final-amount { font-size: 3rem; font-weight: 800; color: #0f172a; margin: 1rem 0; }
+        .btn-order { background: #2563eb; color: white; width: 100%; border: none; padding: 15px; border-radius: 12px; font-weight: 700; font-size: 1rem; cursor: pointer; transition: 0.2s; margin-top: 2rem; }
+        .btn-order:hover { background: #1d4ed8; }
+        .secure-badge { background: #f8fafc; padding: 12px; text-align: center; border-radius: 8px; font-weight: 600; font-size: 0.8rem; color: #475569; margin-top: 1rem; }
+    </style>
+</head>
+<body>
+    <div class="nav">
+        <div class="logo">👷 Build<span>Hub</span></div>
+        <button class="btn-link" onclick="window.location.href='cart.html'" style="background:none; border:none; cursor:pointer; font-weight:600;">Back to Cart</button>
+    </div>
+
+    <h1 class="title">Checkout</h1>
+    <p class="subtitle">Complete your order by providing delivery details and payment method.</p>
+
+    <div class="checkout-grid">
+        <div class="left-col">
+            <div class="card">
+                <div class="card-header">🚚 Delivery Address</div>
+                <label style="font-size: 0.9rem; font-weight: 600; color: #475569;">Full Delivery Address</label>
+                <textarea id="addressInput" class="input-field" placeholder="House No, Village, Mandal, District, Pincode"></textarea>
+            </div>
+            
+            <div class="card">
+                <div class="card-header">💳 Payment Method</div>
+                <div class="payment-methods">
+                    <div class="pay-method" id="pay-cod" onclick="selectPayment('cod')">
+                        <div style="font-size: 1.5rem; margin-bottom: 0.5rem;">💵</div>
+                        <div class="pay-title">Cash on Delivery</div>
+                        <div class="pay-sub">Pay when you receive</div>
+                    </div>
+                    <div class="pay-method active" id="pay-online" onclick="selectPayment('online')">
+                        <div style="font-size: 1.5rem; margin-bottom: 0.5rem;">🛡️</div>
+                        <div class="pay-title">Online Payment</div>
+                        <div class="pay-sub">Razorpay Secured</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="right-col">
+            <div class="card">
+                <div style="font-weight: 800; font-size: 1.25rem;">Final Amount</div>
+                <div class="final-amount" id="finalAmount">₹0.0</div>
+                <p style="font-size: 0.8rem; color: #64748b;">Including all taxes and free delivery.</p>
+                
+                <button class="btn-order" onclick="placeOrder()">Place Order ✓</button>
+                <div class="secure-badge">🔒 100% Secure Checkout</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Need app endpoints -->
+    <script src="../js/auth.js"></script> 
+    
+    <script>
+        const API_BASE_URL = 'http://127.0.0.1:5000/api';
+        const RAZORPAY_KEY_ID = 'rzp_test_SLEACrszBCNIIo';
+        let paymentMode = 'online';
+        let cart = [];
+        let total = 0;
+
+        window.onload = () => {
+            const cartJSON = localStorage.getItem('cart') || '[]';
+            cart = JSON.parse(cartJSON);
+            
+            if (cart.length === 0) {
+                alert("Cart is empty!");
+                window.location.href = 'cart.html';
+                return;
+            }
+
+            total = cart.reduce((sum, item) => sum + parseFloat(item.price), 0);
+            document.getElementById('finalAmount').textContent = `₹${total}`;
+        };
+
+        function selectPayment(mode) {
+            paymentMode = mode;
+            document.getElementById('pay-cod').classList.remove('active');
+            document.getElementById('pay-online').classList.remove('active');
+            document.getElementById(`pay-${mode}`).classList.add('active');
+        }
+
+        async function placeOrder() {
+            const address = document.getElementById('addressInput').value;
+            if (!address) return alert("Please enter delivery address!");
+            
+            const token = localStorage.getItem('access_token');
+            if (!token) return alert("Please login first");
+
+            try {
+                // 1. Create Order on Backend
+                const response = await fetch(`${API_BASE_URL}/orders/create`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({
+                        items: cart,
+                        amount: total,
+                        address: address,
+                        payment_method: paymentMode
+                    })
+                });
+
+                const data = await response.json();
+                if (!response.ok) throw new Error(data.error);
+
+                if (paymentMode === 'online') {
+                    // Trigger Razorpay
+                    const options = {
+                        key: RAZORPAY_KEY_ID, 
+                        amount: data.amount,
+                        currency: "INR",
+                        name: "BuildHub Checkout",
+                        description: "Construction Materials",
+                        order_id: data.id,
+                        handler: async function (response) {
+                            // Verify Payment
+                            const verifyRes = await fetch(`${API_BASE_URL}/orders/verify`, {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+                                body: JSON.stringify({
+                                    order_id: data.order_id,
+                                    razorpay_payment_id: response.razorpay_payment_id,
+                                    razorpay_signature: response.razorpay_signature
+                                })
+                            });
+                            const result = await verifyRes.json();
+                            if(result.success) {
+                                alert("Payment successful!");
+                                localStorage.removeItem('cart');
+                                window.location.href = 'my-orders.html';
+                            }
+                        },
+                        theme: { color: "#2563eb" }
+                    };
+                    const rzp = new Razorpay(options);
+                    rzp.open();
+                } else {
+                    // COD
+                    alert("Order placed successfully via COD!");
+                    localStorage.removeItem('cart');
+                    window.location.href = 'my-orders.html';
+                }
+            } catch (err) {
+                console.error(err);
+                alert("Failed to create order: " + err.message);
+            }
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Orders | BuildHub</title>
+    <link rel="stylesheet" href="../css/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        body { background-color: #f1f5f9; font-family: 'Inter', sans-serif; margin: 0; padding: 2rem 5rem; }
+        .nav { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #e2e8f0; padding-bottom: 1rem; margin-bottom: 2rem; }
+        .logo { font-size: 1.5rem; font-weight: 800; color: #0f172a; }
+        .title { color: #22c55e; font-size: 2.5rem; font-weight: 800; margin-bottom: 0.5rem; }
+        .subtitle { color: #64748b; font-size: 1rem; margin-bottom: 2rem; }
+        
+        .order-card { background: white; border-radius: 20px; padding: 2rem; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); margin-bottom: 2rem; }
+        .order-header { display: flex; justify-content: space-between; margin-bottom: 20px; font-size: 0.9rem; color: #475569; padding-bottom: 15px; border-bottom: 1px solid #e2e8f0; }
+        .header-item { display: flex; flex-direction: column; gap: 5px; }
+        .header-val { color: #0f172a; font-weight: 700; font-size: 1rem; }
+        
+        .tracking-status { font-size: 1.25rem; font-weight: 800; color: #0f172a; margin-bottom: 10px; }
+        .tracking-msg { color: #64748b; font-size: 0.9rem; margin-bottom: 20px; }
+        
+        .info-box { background: #f1f5f9; border-radius: 8px; padding: 10px 15px; font-weight: 600; font-size: 0.85rem; color: #0f172a; display: inline-block; margin-bottom: 2rem; }
+        
+        /* Progress Bar */
+        .progress-container { display: flex; justify-content: space-between; align-items: center; position: relative; margin-top: 3rem; margin-bottom: 1rem; }
+        .progress-line { position: absolute; top: 15px; left: 0; width: 100%; height: 2px; background: #e2e8f0; z-index: 1; }
+        .progress-line-active { position: absolute; top: 15px; left: 0; height: 2px; background: #2563eb; z-index: 2; transition: width 0.5s ease; }
+        
+        .step { position: relative; z-index: 3; display: flex; flex-direction: column; align-items: center; gap: 10px; }
+        .step-icon { width: 32px; height: 32px; border-radius: 50%; background: white; border: 2px solid #e2e8f0; display: flex; align-items: center; justify-content: center; font-size: 0.8rem; font-weight: bold; }
+        .step.active .step-icon { background: #2563eb; color: white; border-color: #2563eb; }
+        .step.completed .step-icon { background: #dbfafe; color: #0284c7; border-color: #0284c7; content: "✓"; }
+        .step-label { font-size: 0.75rem; font-weight: 700; color: #64748b; text-transform: uppercase; }
+        .step.active .step-label { color: #0f172a; }
+
+        .btn-track { background: #1d4ed8; color: white; padding: 10px 20px; border-radius: 8px; border: none; font-weight: 700; cursor: pointer; float:right; }
+    </style>
+</head>
+<body>
+    <div class="nav">
+        <div class="logo">👷 Build<span>Hub</span></div>
+        <button class="btn-link" onclick="window.location.href='user-dashboard.html'" style="background:none; border:none; cursor:pointer; font-weight:600; color:#0f172a;">Back to Dashboard</button>
+    </div>
+
+    <h1 class="title">My Orders</h1>
+    <p class="subtitle" style="color: #64748b;">Track and manage your recent purchases from BuildHub partners.</p>
+
+    <div id="ordersContainer">
+        <p style="text-align: center; color: #64748b; padding: 3rem;">Loading your orders...</p>
+    </div>
+
+    <!-- Need app endpoints -->
+    <script src="../js/auth.js"></script> 
+    
+    <script>
+        const API_BASE_URL = 'http://127.0.0.1:5000/api';
+        window.onload = async () => {
+            const token = localStorage.getItem('access_token');
+            if (!token) {
+                window.location.href = '../pages/login.html';
+                return;
+            }
+
+            try {
+                const res = await fetch(`${API_BASE_URL}/orders/my-orders`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                const orders = await res.json();
+                
+                const container = document.getElementById('ordersContainer');
+                
+                if (orders.length === 0) {
+                    container.innerHTML = '<p style="text-align: center; color: #64748b; padding: 3rem;">You have not placed any orders yet.</p>';
+                    return;
+                }
+
+                container.innerHTML = orders.map((order, index) => {
+                    // Logic for progress bar
+                    const statuses = ['ordered', 'accepted', 'shipped', 'delivered'];
+                    const currentIdx = statuses.indexOf(order.status) || 0;
+                    const progressPercent = (currentIdx / 3) * 100;
+                    
+                    return `
+                        <div class="order-card">
+                            <div class="order-header">
+                                <div class="header-item">
+                                    <span>ORDER PLACED</span>
+                                    <span class="header-val">${new Date(order.created_at).toLocaleDateString()}</span>
+                                </div>
+                                <div class="header-item">
+                                    <span>TOTAL</span>
+                                    <span class="header-val">₹${order.amount}</span>
+                                </div>
+                                <div class="header-item">
+                                    <span>SHIP TO</span>
+                                    <span class="header-val" style="width: 200px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${order.address}</span>
+                                </div>
+                                <div class="header-item" style="text-align: right;">
+                                    <span>ORDER #${order.id.slice(0, 8).toUpperCase()}</span>
+                                    <a href="#" style="color: #2563eb; font-weight: 600; text-decoration: none;">View order details</a>
+                                </div>
+                            </div>
+                            
+                            <button class="btn-track">Track Package</button>
+
+                            <div class="tracking-status">${order.status.charAt(0).toUpperCase() + order.status.slice(1)}</div>
+                            <div class="tracking-msg">You will receive a notification once the status changes.</div>
+                            
+                            <div class="info-box">
+                                ${order.tracking_id ? 
+                                    `🔥 Tracking ID: <b>${order.tracking_id}</b>` : 
+                                    `⏳ Tracking ID usually appears within 24 hours`}
+                            </div>
+                            
+                            <div class="progress-container">
+                                <div class="progress-line"></div>
+                                <div class="progress-line-active" style="width: ${progressPercent}%"></div>
+                                
+                                ${statuses.map((s, i) => `
+                                    <div class="step ${i <= currentIdx ? (i < currentIdx ? 'completed' : 'active') : ''}">
+                                        <div class="step-icon">${i < currentIdx ? '✓' : (i===0?'🛒':i===1?'📦':i===2?'🚚':'🏠')}</div>
+                                        <div class="step-label">${s}</div>
+                                    </div>
+                                `).join('')}
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+            } catch (err) {
+                console.error(err);
+                document.getElementById('ordersContainer').innerHTML = '<p style="color: red;">Failed to fetch orders.</p>';
+            }
+        };
+    </script>
+</body>
+</html>

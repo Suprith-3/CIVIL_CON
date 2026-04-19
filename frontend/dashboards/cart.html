@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Your Cart | BuildHub</title>
+    <link rel="stylesheet" href="../css/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        body { background-color: #f1f5f9; font-family: 'Inter', sans-serif; margin: 0; padding: 2rem 5rem; }
+        .nav { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #e2e8f0; padding-bottom: 1rem; margin-bottom: 2rem; }
+        .logo { font-size: 1.5rem; font-weight: 800; color: #0f172a; }
+        .title { color: #22c55e; font-size: 2.5rem; font-weight: 800; margin-bottom: 0.5rem; }
+        .subtitle { color: #64748b; font-size: 1rem; margin-bottom: 2rem; }
+        
+        .cart-container { display: flex; gap: 3rem; }
+        .cart-items { flex: 2; background: white; border-radius: 20px; padding: 1.5rem; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); }
+        .summary-card { flex: 1; background: white; border-radius: 20px; padding: 2rem; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); height: fit-content; }
+        
+        .item-row { display: flex; align-items: center; justify-content: space-between; padding: 1rem 0; border-bottom: 1px solid #f1f5f9; }
+        .item-info { display: flex; align-items: center; gap: 1rem; flex: 2; }
+        .item-info img { width: 50px; height: 50px; border-radius: 8px; object-fit: cover; }
+        .item-qty { background: #dcfce7; color: #166534; padding: 4px 12px; border-radius: 20px; font-weight: 600; }
+        .item-price, .item-total { flex: 1; text-align: center; font-weight: 600; color: #0f172a; }
+        .item-total { color: #22c55e; }
+
+        .summary-row { display: flex; justify-content: space-between; margin-bottom: 1rem; color: #334155; font-weight: 600; }
+        .total-row { border-top: 2px solid #f1f5f9; padding-top: 1rem; font-size: 1.25rem; color: #0f172a; font-weight: 800; margin-bottom: 1.5rem; }
+        
+        .btn-checkout { background: #2563eb; color: white; width: 100%; border: none; padding: 15px; border-radius: 12px; font-weight: 700; font-size: 1rem; cursor: pointer; transition: 0.2s; }
+        .btn-checkout:hover { background: #1d4ed8; }
+        .btn-link { background: none; border: none; color: #64748b; width: 100%; padding: 10px; margin-top: 10px; cursor: pointer; font-weight: 600; }
+        
+        .header-labels { display: flex; background: #dcfce7; padding: 1rem; border-radius: 12px; color: #166534; font-weight: 700; font-size: 0.8rem; }
+        .hdr-product { flex: 2; } .hdr-qty { width: 80px; text-align:center; } .hdr-price, .hdr-total { flex: 1; text-align: center; }
+    </style>
+</head>
+<body>
+    <div class="nav">
+        <div class="logo">👷 Build<span>Hub</span></div>
+        <button class="btn-link" onclick="window.location.href='user-dashboard.html'" style="width:auto; color:#0f172a;">Back to Dashboard</button>
+    </div>
+
+    <h1 class="title">Your Shopping Cart</h1>
+    <p class="subtitle">Review your selected construction materials before checkout.</p>
+
+    <div class="cart-container">
+        <div class="cart-items" id="cartContent">
+            <div class="header-labels">
+                <span class="hdr-product">PRODUCT</span>
+                <span class="hdr-qty">QUANTITY</span>
+                <span class="hdr-price">PRICE</span>
+                <span class="hdr-total">TOTAL</span>
+            </div>
+            <div id="cartItemsList"></div>
+        </div>
+
+        <div class="summary-card">
+            <h3 style="margin-top:0; font-size:1.5rem; margin-bottom:1.5rem;">Order Summary</h3>
+            <div class="summary-row">
+                <span>Subtotal</span>
+                <span id="subtotal">₹0.0</span>
+            </div>
+            <div class="summary-row">
+                <span>Delivery</span>
+                <span>FREE</span>
+            </div>
+            <div class="summary-row total-row">
+                <span>Total Amount</span>
+                <span id="totalAmount">₹0.0</span>
+            </div>
+            <button class="btn-checkout" onclick="window.location.href='checkout.html'">Proceed to Checkout →</button>
+            <button class="btn-link" onclick="window.location.href='user-dashboard.html'">← Continue Shopping</button>
+        </div>
+    </div>
+
+    <script>
+        window.onload = () => {
+            const cartJSON = localStorage.getItem('cart') || '[]';
+            const cart = JSON.parse(cartJSON);
+            const list = document.getElementById('cartItemsList');
+            let total = 0;
+
+            if (cart.length === 0) {
+                list.innerHTML = '<p style="padding: 2rem; text-align: center; color: #64748b;">Your cart is empty.</p>';
+            } else {
+                // Group items by ID
+                const grouped = cart.reduce((acc, item) => {
+                    if (!acc[item.id]) {
+                        acc[item.id] = { ...item, qty: 1 };
+                    } else {
+                        acc[item.id].qty += 1;
+                    }
+                    return acc;
+                }, {});
+
+                let html = '';
+                for (const key in grouped) {
+                    const item = grouped[key];
+                    const itemTotal = item.price * item.qty;
+                    total += itemTotal;
+                    
+                    const imgUrl = item.image_url ? `http://127.0.0.1:5000/uploads/${item.image_url.split('/').pop()}` : 'placeholder.jpg';
+
+                    html += `
+                        <div class="item-row">
+                            <div class="item-info">
+                                <img src="${imgUrl}" alt="img" onerror="this.src='/api/uploads/placeholder.jpg'">
+                                <div>
+                                    <h4 style="margin:0; color:#0f172a;">${item.name}</h4>
+                                    <span style="font-size:0.8rem; color:#64748b;">${item.category || 'Material'}</span>
+                                </div>
+                            </div>
+                            <div class="hdr-qty"><span class="item-qty">${item.qty}</span></div>
+                            <div class="hdr-price item-price">₹${item.price}</div>
+                            <div class="hdr-total item-total">₹${itemTotal}</div>
+                        </div>
+                    `;
+                }
+                list.innerHTML = html;
+            }
+
+            document.getElementById('subtotal').textContent = `₹${total}`;
+            document.getElementById('totalAmount').textContent = `₹${total}`;
+        };
+    </script>
+</body>
+</html>

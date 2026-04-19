@@ -1,32 +1,167 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Shopkeeper Dashboard | Civil Hub</title>
     <link rel="stylesheet" href="../css/style.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <style>
-        body { display: flex; background: #f8fafc; }
-        .sidebar { width: 260px; height: 100vh; background: #1e293b; color: white; position: fixed; padding: 2rem 1rem; }
-        .main { margin-left: 260px; flex: 1; padding: 2rem; }
-        .nav-link { padding: 0.75rem 1rem; display: block; color: #94a3b8; text-decoration: none; border-radius: 8px; margin-bottom: 0.5rem; cursor: pointer; }
-        .nav-link.active { background: #334155; color: white; }
-        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); align-items: center; justify-content: center; z-index: 1000; }
-        .modal-content { background: white; padding: 2rem; border-radius: 12px; width: 500px; max-width: 90%; }
-        .status-pill { padding: 4px 12px; border-radius: 20px; font-size: 0.75rem; font-weight: 600; }
-        .status-approved { background: #dcfce7; color: #166534; }
-        .status-pending { background: #fef3c7; color: #92400e; }
+        body {
+            display: flex;
+            background: #f8fafc;
+        }
+
+        .sidebar {
+            width: 260px;
+            height: 100vh;
+            background: #1e293b;
+            color: white;
+            position: fixed;
+            padding: 2rem 1rem;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 800;
+            margin-bottom: 2rem;
+            padding: 0 1rem;
+            color: #fff;
+        }
+
+        .logo span {
+            color: #3b82f6;
+        }
+
+        .main {
+            margin-left: 260px;
+            flex: 1;
+            padding: 2rem;
+        }
+
+        .nav-link {
+            padding: 0.75rem 1rem;
+            display: block;
+            color: #94a3b8;
+            text-decoration: none;
+            border-radius: 8px;
+            margin-bottom: 0.5rem;
+            cursor: pointer;
+        }
+
+        .nav-link.active {
+            background: #334155;
+            color: white;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(15, 23, 42, 0.6);
+            backdrop-filter: blur(8px);
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+
+        .modal-content {
+            background: #ffffff;
+            padding: 2.5rem;
+            border-radius: 20px;
+            width: 550px;
+            max-width: 95%;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+            border: 1px solid rgba(255, 255, 255, 0.4);
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            font-size: 0.875rem;
+            color: #1e293b;
+        }
+
+        .form-control-premium {
+            width: 100%;
+            padding: 0.8rem 1rem;
+            border-radius: 12px;
+            border: 2px solid #f1f5f9;
+            background: #f8fafc;
+            transition: all 0.3s ease;
+            font-family: inherit;
+        }
+
+        .form-control-premium:focus {
+            outline: none;
+            border-color: #3b82f6;
+            background: #fff;
+            box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1);
+        }
+
+        .btn-gradient {
+            background: linear-gradient(135deg, #2563eb 0%, #3b82f6 100%);
+            color: white;
+            border: none;
+            padding: 1rem;
+            border-radius: 12px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(37, 99, 235, 0.3);
+        }
+
+        .btn-gradient:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(37, 99, 235, 0.4);
+        }
+
+        .status-pill {
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        .status-approved {
+            background: #dcfce7;
+            color: #166534;
+        }
+
+        .status-pending {
+            background: #fef3c7;
+            color: #92400e;
+        }
+        #profileMap {
+            height: 400px;
+            width: 100%;
+            border-radius: 16px;
+            margin-top: 1rem;
+            border: 2px solid #e2e8f0;
+            z-index: 10;
+        }
     </style>
 </head>
+
 <body>
     <a href="../index.html" class="home-btn" title="Go to Home">
-        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" d="m2.25 12 8.954-8.955c.44-.439 1.152-.439 1.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75M8.25 21h8.25" />
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+            stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round"
+                d="m2.25 12 8.954-8.955c.44-.439 1.152-.439 1.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75M8.25 21h8.25" />
         </svg>
     </a>
     <div class="sidebar">
-        <div class="logo">🏪 Shop<span>Hub</span></div>
+        <div class="logo">🏪 Shop<span> Hub</span></div>
         <div class="nav-link active" onclick="showTab('inventory')">📦 Inventory</div>
         <div class="nav-link" onclick="showTab('orders')">📋 Orders</div>
         <div class="nav-link" onclick="showTab('profile')">🏪 Shop Profile</div>
@@ -40,10 +175,10 @@
                 <span id="shopStatus" class="status-pill status-pending">Status: Pending Approval</span>
             </div>
             <div style="display:flex; align-items:center; gap:1rem;">
-                <div id="google_translate_element"></div>
+                <!-- <div id="google_translate_element"></div> -->
                 <button class="btn btn-primary" id="addBtn" onclick="toggleModal(true)">+ Add Product</button>
             </div>
-            <script type="text/javascript">
+            <!-- <script type="text/javascript">
                 function googleTranslateElementInit() {
                     new google.translate.TranslateElement({
                         pageLanguage: 'en',
@@ -52,14 +187,88 @@
                     }, 'google_translate_element');
                 }
             </script>
-            <script type="text/javascript" src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
+            <script type="text/javascript"
+                src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script> -->
         </header>
 
         <div id="inventoryTab" class="tab-content">
             <div class="card">
                 <h3>Product Listings</h3>
-                <div id="productList" style="margin-top: 1.5rem; display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 1rem;">
+                <div id="productList"
+                    style="margin-top: 1.5rem; display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 1rem;">
                     <!-- Products will be listed here -->
+                </div>
+            </div>
+        </div>
+
+        <div id="ordersTab" class="tab-content" style="display:none;">
+            <div class="card">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem;">
+                    <h3>Customer Orders</h3>
+                    <button class="btn" style="background:#f1f5f9; color:#475569; font-weight:600;" onclick="loadOrders()">🔄 Refresh Orders</button>
+                </div>
+                <div style="overflow-x:auto;">
+                    <table style="width:100%; border-collapse:collapse; text-align:left;">
+                        <thead style="background:#f8fafc; color:#64748b; font-size:0.8rem; text-transform:uppercase;">
+                            <tr>
+                                <th style="padding:1rem;">Order ID</th>
+                                <th style="padding:1rem;">Items</th>
+                                <th style="padding:1rem;">Total</th>
+                                <th style="padding:1rem;">Address</th>
+                                <th style="padding:1rem;">Status</th>
+                                <th style="padding:1rem; text-align:right;">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="shopOrdersList">
+                            <!-- Orders will populate here -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <div id="profileTab" class="tab-content" style="display:none;">
+            <div class="card">
+                <h2 style="margin-top:0;">📡 Shop Profile & Live Location</h2>
+                <p style="color:#64748b; margin-bottom:2rem;">Register your shop on our live map so customers can find you instantly.</p>
+                
+                <div style="display:grid; grid-template-columns: 1fr 1.5fr; gap:2rem;">
+                    <div>
+                        <div style="margin-bottom:1.5rem;">
+                            <label class="form-label">Shop Contact Number</label>
+                            <input type="text" id="profContact" class="form-control-premium" placeholder="+91 00000 00000">
+                        </div>
+                        <div style="margin-bottom:1.5rem;">
+                            <label class="form-label">Opening Hours</label>
+                            <input type="text" id="profHours" class="form-control-premium" placeholder="e.g. 9:00 AM - 9:00 PM">
+                        </div>
+                        <div style="margin-bottom:1.5rem;">
+                            <label class="form-label">Shop Address (Physical)</label>
+                            <textarea id="profAddress" class="form-control-premium" style="min-height:100px;" placeholder="Full Shop Address"></textarea>
+                        </div>
+
+                        <div style="margin-bottom:1.5rem;">
+                            <label class="form-label">📸 Shop Photos Gallery (Multiple)</label>
+                            <div style="background:#f8fafc; border:2px dashed #e2e8f0; border-radius:12px; padding:1rem; text-align:center;">
+                                <input type="file" id="shopImageInput" multiple accept="image/*" style="display:none;" onchange="previewShopGallery()">
+                                <button type="button" class="btn" style="background:#fff; border:1px solid #e2e8f0; padding:0.5rem 1rem;" onclick="document.getElementById('shopImageInput').click()">📁 Select Photos</button>
+                                <div id="shopGalleryList" style="display:flex; gap:0.5rem; margin-top:1rem; overflow-x:auto; padding-bottom:0.5rem;">
+                                    <!-- Previews will show here -->
+                                </div>
+                            </div>
+                        </div>
+
+                        <button class="btn-gradient" style="width:100%;" onclick="saveShopProfile()">Save Shop Profile ✓</button>
+                    </div>
+                    
+                    <div>
+                        <div style="display:flex; justify-content:space-between; align-items:center;">
+                            <label class="form-label">🏠 Pin Live Location (Click on Map)</label>
+                            <button class="btn" style="background:#2563eb; color:white; font-size:0.75rem; padding:4px 12px; border-radius:6px; margin-bottom:0.5rem;" onclick="getLiveLocation()">📍 Use Live GPS</button>
+                        </div>
+                        <div id="profileMap"></div>
+                        <p style="font-size:0.8rem; color:#64748b; margin-top:0.5rem;">📍 Current Lat/Lng: <span id="latLngDisplay">Not Set</span></p>
+                    </div>
                 </div>
             </div>
         </div>
@@ -67,55 +276,327 @@
 
     <!-- Add Product Modal -->
     <div class="modal" id="addModal">
-        <div class="modal-content card">
-            <h3>Add New Product</h3>
-            <form id="productForm" style="margin-top: 1rem;">
-                <div style="margin-bottom: 1rem;">
-                    <label>Product Name</label>
-                    <input type="text" name="name" class="form-control" required>
+        <div class="modal-content">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+                <h2 style="color: #0f172a; font-weight: 800;">✨ Add New Product</h2>
+                <div style="width: 40px; height: 40px; background: #f1f5f9; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer;" onclick="toggleModal(false)">
+                    <svg width="20" height="20" fill="none" stroke="#64748b" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
                 </div>
-                <div style="margin-bottom: 1rem;">
-                    <label>Price (₹)</label>
-                    <input type="number" name="price" class="form-control" required>
+            </div>
+            <div id="productForm" style="display: flex; flex-direction: column; gap: 1.25rem;">
+                <div id="mediaSection" style="background: #f8fafc; border: 2px dashed #e2e8f0; border-radius: 16px; padding: 1.5rem; text-align: center; position: relative; margin-bottom: 1rem;">
+                    <p style="font-size: 0.9rem; font-weight: 700; color: #0f172a; margin-bottom: 1rem;">📸 Step 1: Product Photo</p>
+                    <div id="mediaPlaceholder">
+                        <div style="display: flex; gap: 1rem; justify-content: center;">
+                            <button type="button" class="btn" style="background: #fff; border: 1px solid #e2e8f0; padding: 0.8rem 1.5rem; border-radius: 12px; font-weight:600;" onclick="document.getElementById('productImgInput').click()">📁 Files</button>
+                            <button type="button" id="cameraBtn" class="btn" style="background: #2563eb; color: white; padding: 0.8rem 1.5rem; border-radius: 12px; font-weight:600;">📸 Camera</button>
+                        </div>
+                    </div>
+                    <input type="file" name="product_img" id="productImgInput" accept="image/*" style="display:none;">
+                    <div id="cameraContainer" style="display:none; margin-top: 1.5rem;">
+                        <video id="video" width="100%" height="auto" autoplay style="border-radius: 16px; background: #000;"></video>
+                        <button type="button" id="captureBtn" class="btn-gradient" style="width: 100%; margin-top: 1rem; padding: 1rem; border-radius: 12px;">Capture Image</button>
+                    </div>
+                    <img id="imgPreview" style="display:none; width:100%; height:200px; object-fit:cover; border-radius:16px; margin-top:1rem; border: 4px solid #fff; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);">
                 </div>
-                <div style="margin-bottom: 1rem;">
-                    <label>Category</label>
-                    <select name="category" class="form-control">
-                        <option>Cement</option>
-                        <option>Steel</option>
-                        <option>Tools</option>
-                        <option>Machinery</option>
-                        <option>Bricks</option>
-                    </select>
+
+                <p style="font-size: 0.9rem; font-weight: 700; color: #0f172a; margin-bottom: 0.5rem;">📝 Step 2: Product Details</p>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                    <div>
+                        <label class="form-label">Product Name</label>
+                        <input type="text" name="name" class="form-control-premium" placeholder="e.g. Premium Cement" required>
+                    </div>
+                    <div>
+                        <label class="form-label">Price (₹)</label>
+                        <input type="number" name="price" class="form-control-premium" placeholder="0.00" required>
+                    </div>
                 </div>
-                <div style="margin-bottom: 1rem;">
-                    <label>Type</label>
-                    <select name="item_type" class="form-control">
-                        <option value="buy">For Sale</option>
-                        <option value="rent">For Rent</option>
-                    </select>
+
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                    <div>
+                        <label class="form-label">Category</label>
+                        <select name="category" class="form-control-premium">
+                            <option>Cement & Concrete</option>
+                            <option>Steel & Rebars</option>
+                            <option>Bricks & Blocks</option>
+                            <option>Sand & Aggregate</option>
+                            <option>Electrical Supplies</option>
+                            <option>Plumbing & Sanitary</option>
+                            <option>Painting & Putty</option>
+                            <option>Tiles & Marble</option>
+                            <option>Roofing & Waterproofing</option>
+                            <option>Wood & Plywood</option>
+                            <option>Hardware & Fixings</option>
+                            <option>Glass & Aluminum</option>
+                            <option>Construction Tools</option>
+                            <option>Heavy Machinery</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="form-label">Availability Type</label>
+                        <select name="item_type" class="form-control-premium">
+                            <option value="sell">For Sale</option>
+                            <option value="rent">For Rent</option>
+                        </select>
+                    </div>
                 </div>
-                <div style="display: flex; gap: 1rem;">
-                    <button type="button" class="btn" style="flex: 1; border: 1px solid #ddd;" onclick="toggleModal(false)">Cancel</button>
-                    <button type="submit" class="btn btn-primary" style="flex: 1;">List Item</button>
+
+                <div id="visionStatus" style="display:none; padding: 1rem; border-radius: 12px; font-size: 0.85rem; font-weight: 600; text-align: center; border: 1px solid transparent; margin-bottom: 1rem;"></div>
+
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-top: 1rem;">
+                    <button type="button" class="btn" style="background: #f1f5f9; color: #475569; font-weight: 600; padding: 1rem; border-radius: 12px;" onclick="toggleModal(false)">Cancel</button>
+                    <button type="button" id="submitProductBtn" class="btn-gradient" style="opacity: 0.5; cursor: not-allowed;" disabled>List Product Now</button>
                 </div>
-            </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Update Order Modal -->
+    <div class="modal" id="updateOrderModal">
+        <div class="modal-content">
+            <h2 style="margin-top:0; color:#0f172a;">📦 Update Order Processing</h2>
+            <p style="color:#64748b; font-size:0.9rem; margin-bottom:1.5rem;">Update the status and provide a tracking number for the customer.</p>
+            
+            <input type="hidden" id="editOrderId">
+            
+            <label class="form-label">Order Status</label>
+            <select id="editOrderStatus" class="form-control-premium" style="margin-bottom:1.25rem;">
+                <option value="ordered">Ordered</option>
+                <option value="accepted">Accepted</option>
+                <option value="shipped">Shipped</option>
+                <option value="delivered">Delivered</option>
+            </select>
+            
+            <label class="form-label">Tracking ID / Note</label>
+            <input type="text" id="editTrackingId" class="form-control-premium" placeholder="e.g. SHIP-7890-XYZ" style="margin-bottom:2rem;">
+            
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem;">
+                <button class="btn" style="background:#f1f5f9; padding:12px; border-radius:12px; font-weight:700;" onclick="toggleUpdateModal(false)">Cancel</button>
+                <button class="btn-gradient" style="padding:12px; border-radius:12px;" onclick="saveOrderUpdate()">Update & Notify Customer ✓</button>
+            </div>
         </div>
     </div>
 
     <script type="module">
         import { initShopDashboard } from '../js/dashboards/shopkeeper.js';
-        
+
+        let profileMap = null;
+        let profileMarker = null;
+        let currentPos = { lat: 0, lng: 0 };
+
+        window.showTab = (tabName) => {
+            document.querySelectorAll('.tab-content').forEach(tab => tab.style.display = 'none');
+            document.querySelectorAll('.nav-link').forEach(link => link.classList.remove('active'));
+            
+            document.getElementById(tabName + 'Tab').style.display = 'block';
+            event.currentTarget.classList.add('active');
+
+            if(tabName === 'profile') {
+                setTimeout(initProfileMap, 100);
+            }
+        }
+
+        async function initProfileMap() {
+            if (profileMap) return;
+            
+            // Default center
+            profileMap = L.map('profileMap').setView([12.9716, 77.5946], 13);
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(profileMap);
+
+            // AUTO-LOAD SAVED DATA! 📡🧠
+            try {
+                const token = localStorage.getItem('access_token');
+                const user_id = localStorage.getItem('user_id');
+                const res = await fetch(`http://127.0.0.1:5000/api/auth/profile?user_id=${user_id}`);
+                const { profile } = await res.json();
+                
+                if (profile) {
+                    document.getElementById('profContact').value = profile.contact_number || '';
+                    document.getElementById('profHours').value = profile.opening_hours || '';
+                    document.getElementById('profAddress').value = profile.shop_address || '';
+                    
+                    // LOAD EXISTING GALLERY! 📸
+                    const galleryList = document.getElementById('shopGalleryList');
+                    if (profile.shop_images && Array.isArray(profile.shop_images)) {
+                        profile.shop_images.forEach(url => {
+                            const img = document.createElement('img');
+                            img.src = `http://127.0.0.1:5000${url}`;
+                            img.style.width = '80px'; img.style.height = '80px'; img.style.objectFit = 'cover'; img.style.borderRadius = '8px';
+                            galleryList.appendChild(img);
+                        });
+                    }
+
+                    if (profile.latitude && profile.longitude) {
+                        const lat = profile.latitude;
+                        const lng = profile.longitude;
+                        currentPos = { lat, lng };
+                        profileMarker = L.marker([lat, lng]).addTo(profileMap);
+                        profileMap.setView([lat, lng], 15);
+                        document.getElementById('latLngDisplay').textContent = `${lat.toFixed(6)}, ${lng.toFixed(6)}`;
+                    }
+                }
+            } catch(e) { console.log("Profile auto-load failed"); }
+
+            profileMap.on('click', (e) => {
+                const { lat, lng } = e.latlng;
+                currentPos = { lat, lng };
+                
+                if (profileMarker) profileMap.removeLayer(profileMarker);
+                profileMarker = L.marker([lat, lng]).addTo(profileMap);
+                document.getElementById('latLngDisplay').textContent = `${lat.toFixed(6)}, ${lng.toFixed(6)}`;
+            });
+        }
+
+        window.previewShopGallery = () => {
+            const list = document.getElementById('shopGalleryList');
+            const files = document.getElementById('shopImageInput').files;
+            list.innerHTML = '';
+            
+            Array.from(files).forEach(file => {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    const img = document.createElement('img');
+                    img.src = e.target.result;
+                    img.style.width = '80px';
+                    img.style.height = '80px';
+                    img.style.objectFit = 'cover';
+                    img.style.borderRadius = '8px';
+                    list.appendChild(img);
+                };
+                reader.readAsDataURL(file);
+            });
+        }
+
+        window.saveShopProfile = async () => {
+            if (!currentPos || !currentPos.lat) {
+                return alert("⚠️ PLEASE PIN YOUR SHOP ON THE MAP FIRST! 📍\nClick on the map or use 'Use Live GPS' to set your location.");
+            }
+
+            const formData = new FormData();
+            formData.append('contact_number', document.getElementById('profContact').value);
+            formData.append('opening_hours', document.getElementById('profHours').value);
+            formData.append('shop_address', document.getElementById('profAddress').value);
+            formData.append('latitude', currentPos.lat);
+            formData.append('longitude', currentPos.lng);
+
+            // Append all files
+            const imageInput = document.getElementById('shopImageInput');
+            if (imageInput.files.length > 0) {
+                Array.from(imageInput.files).forEach(file => {
+                    formData.append('shop_images', file);
+                });
+            }
+
+            const token = localStorage.getItem('access_token');
+            try {
+                const res = await fetch('http://127.0.0.1:5000/api/auth/update-profile', {
+                    method: 'POST',
+                    headers: { 'Authorization': `Bearer ${token}` },
+                    body: formData
+                });
+
+                if (res.ok) {
+                    alert("Shop Profile & Multi-Photo Gallery Saved! 🏪📸✨");
+                } else {
+                    const errData = await res.json();
+                    alert(`❌ FAILED TO SAVE: ${errData.error || 'Unknown Error'}`);
+                }
+            } catch(e) {
+                alert("❌ Network Error: Could not connect to the server.");
+            }
+        }
+
+        window.getLiveLocation = () => {
+            if (!navigator.geolocation) return alert("Geolocation not supported by your browser");
+            
+            alert("Fetching live location... Please allow permission if prompted. 📡");
+            
+            navigator.geolocation.getCurrentPosition((pos) => {
+                const { latitude, longitude } = pos.coords;
+                currentPos = { lat: latitude, lng: longitude };
+                
+                // Update Map
+                if (profileMap) {
+                    profileMap.setView([latitude, longitude], 17); // Zoom in close!
+                    if (profileMarker) profileMap.removeLayer(profileMarker);
+                    profileMarker = L.marker([latitude, longitude]).addTo(profileMap);
+                }
+                
+                document.getElementById('latLngDisplay').textContent = `${latitude.toFixed(6)}, ${longitude.toFixed(6)}`;
+                alert("Location captured successfully! 📍✨");
+            }, (err) => {
+                alert("COULD NOT GET LOCATION: " + err.message);
+            }, { enableHighAccuracy: true });
+        }
+
         window.toggleModal = (show) => {
             document.getElementById('addModal').style.display = show ? 'flex' : 'none';
         }
 
-        window.logout = () => {
-            localStorage.clear();
-            window.location.href = '../index.html';
+        window.toggleUpdateModal = (show) => {
+            document.getElementById('updateOrderModal').style.display = show ? 'flex' : 'none';
+        }
+        
+        window.loadOrders = async () => {
+            const token = localStorage.getItem('access_token');
+            const res = await fetch('http://127.0.0.1:5000/api/orders/all', {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+
+            if (res.status === 401) {
+                alert("🔒 Session Expired! Please Log Out and Log In again to continue.");
+                return;
+            }
+
+            const orders = await res.json();
+            const list = document.getElementById('shopOrdersList');
+            if (orders.error) {
+                list.innerHTML = `<tr><td colspan="6" style="text-align:center; padding:2rem; color:#ef4444;">${orders.error}</td></tr>`;
+                return;
+            }
+            list.innerHTML = orders.map(o => `
+                <tr style="border-bottom:1px solid #f1f5f9;">
+                    <td style="padding:1rem; font-weight:700; color:#1e293b;">#${o.id.slice(0,8).toUpperCase()}</td>
+                    <td style="padding:1rem; font-size:0.85rem; color:#64748b;">${o.items.length} items</td>
+                    <td style="padding:1rem; font-weight:800; color:#0f172a;">₹${o.total_amount || o.amount}</td>
+                    <td style="padding:1rem; font-size:0.8rem; color:#475569; max-width:200px;">🏠 ${o.address}</td>
+                    <td style="padding:1rem;"><span class="status-pill status-pending">${o.status}</span></td>
+                    <td style="padding:1rem; text-align:right;">
+                        <button class="btn" style="background:#2563eb; color:white; padding:5px 12px; border-radius:6px; font-size:0.8rem;" onclick="openOrderUpdate('${o.id}', '${o.status}', '${o.tracking_id || ''}')">Update</button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        window.openOrderUpdate = (id, status, trackingId) => {
+            document.getElementById('editOrderId').value = id;
+            document.getElementById('editOrderStatus').value = status;
+            document.getElementById('editTrackingId').value = trackingId;
+            toggleUpdateModal(true);
+        }
+
+        window.saveOrderUpdate = async () => {
+            const id = document.getElementById('editOrderId').value;
+            const status = document.getElementById('editOrderStatus').value;
+            const trackingId = document.getElementById('editTrackingId').value;
+            const token = localStorage.getItem('access_token');
+            
+            const res = await fetch(`http://127.0.0.1:5000/api/orders/update/${id}`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+                body: JSON.stringify({ status, tracking_id: trackingId })
+            });
+
+            if(res.ok) {
+                alert("Order updated successfully!");
+                toggleUpdateModal(false);
+                loadOrders();
+            }
         }
 
         initShopDashboard();
+        loadOrders();
     </script>
 </body>
+
 </html>

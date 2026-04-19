@@ -1,6 +1,6 @@
 const API_BASE_URL = 'http://localhost:5000/api';
 
-export function initUserDashboard() {
+function initUserDashboard() {
     const userEmail = localStorage.getItem('user_email');
     if (!userEmail) {
         window.location.href = '../pages/login.html';
@@ -16,36 +16,122 @@ export function initUserDashboard() {
 }
 
 async function loadProducts() {
-    const grid = document.getElementById('featuredGrid');
-    const allGrid = document.getElementById('allGrid');
-    
     try {
         const res = await fetch(`${API_BASE_URL}/items/`);
         const items = await res.json();
 
         const renderItem = (item) => `
             <div class="product-card card">
-                <div class="product-img"></div>
+                <div class="product-img" style="background-image: url('${item.image_url || '/api/uploads/placeholder.jpg'}'); background-size: cover; background-position: center; height: 180px; border-radius: 12px; margin-bottom: 1rem;"></div>
                 <div class="product-info">
-                    <span style="font-size: 0.75rem; color: var(--primary); font-weight: 600;">${item.category}</span>
-                    <h4 style="margin: 0.25rem 0;">${item.name}</h4>
-                    <p style="font-size: 0.8rem; color: #64748b; margin-bottom: 0.5rem;">${item.description || ''}</p>
-                    <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 1rem;">
-                        <span style="font-weight: 700; color: #1e293b;">₹${item.price}${item.item_type === 'rent' ? '/day' : ''}</span>
-                        <button class="btn btn-primary" style="padding: 0.4rem 0.8rem; font-size: 0.8rem;">Add</button>
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <h4 style="margin: 0;">${item.name}</h4>
+                        <span style="font-weight: 700; color: #1e293b;">₹${item.price}</span>
                     </div>
+                    <p style="font-size: 0.75rem; color: #64748b; margin: 0.25rem 0;">${item.category}</p>
+                    <button class="btn btn-primary" style="width: 100%; margin-top: 1rem; background: #2563eb;" onclick="addToCart('${encodeURIComponent(JSON.stringify(item))}')">
+                        🛒 Add to Cart & Book
+                    </button>
                 </div>
             </div>
         `;
 
+        const grid = document.getElementById('featuredGrid');
+        const allGrid = document.getElementById('allGrid');
+
         if (items.length > 0) {
-            grid.innerHTML = items.slice(0, 3).map(renderItem).join('');
-            allGrid.innerHTML = items.map(renderItem).join('');
+            if (grid) grid.innerHTML = items.slice(0, 3).map(renderItem).join('');
+            if (allGrid) allGrid.innerHTML = items.map(renderItem).join('');
         } else {
-            grid.innerHTML = '<p>No items found.</p>';
+            if (grid) grid.innerHTML = '<p>No items found.</p>';
         }
     } catch (err) {
         console.error('Failed to load items', err);
+    }
+}
+
+// CART LOGIC
+window.addToCart = (itemData) => {
+    const item = JSON.parse(decodeURIComponent(itemData));
+    let cart = JSON.parse(localStorage.getItem('cart') || '[]');
+    cart.push(item);
+    localStorage.setItem('cart', JSON.stringify(cart));
+    
+    if (confirm(`${item.name} added! Would you like to proceed to Cart now?`)) {
+        window.location.href = 'cart.html'; 
+    }
+    updateCartCount();
+};
+
+function updateCartCount() {
+    const cart = JSON.parse(localStorage.getItem('cart') || '[]');
+    const countBadge = document.getElementById('cartCount');
+    if (countBadge) countBadge.textContent = cart.length;
+}
+
+// CHECKOUT LOGIC
+window.placeOrder = async (isOnline = false) => {
+    const cart = JSON.parse(localStorage.getItem('cart') || '[]');
+    if (cart.length === 0) return alert("Cart is empty");
+
+    const total = cart.reduce((sum, item) => sum + item.price, 0);
+    const token = localStorage.getItem('access_token');
+
+    try {
+        const res = await fetch(`${API_BASE_URL}/orders/create`, {
+            method: 'POST',
+            headers: { 
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify({
+                amount: total,
+                items: cart,
+                address: document.getElementById('deliveryAddress')?.value || "Default Address"
+            })
+        });
+
+        const order = await res.json();
+
+        if (isOnline) {
+            const options = {
+                "key": "rzp_test_SLEACrszBCNIIo", // Activated with real key
+                "amount": order.amount,
+                "currency": "INR",
+                "name": "Bhoomitra Shop",
+                "order_id": order.id,
+                "handler": function (response) {
+                    verifyPayment(response);
+                }
+            };
+            const rzp = new Razorpay(options);
+            rzp.open();
+        } else {
+            alert("Order Placed Successfully (COD)!");
+            localStorage.removeItem('cart');
+            window.location.href = 'my-orders.html';
+        }
+
+    } catch (err) {
+        alert("Order failed: " + err.message);
+    }
+};
+
+async function verifyPayment(response) {
+    const token = localStorage.getItem('access_token');
+    const res = await fetch(`${API_BASE_URL}/orders/verify`, {
+        method: 'POST',
+        headers: { 
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify(response)
+    });
+
+    if (res.ok) {
+        alert("Payment Successful!");
+        localStorage.removeItem('cart');
+        window.location.href = 'my-orders.html';
     }
 }
 
