@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Engineer Hub | BuildHub</title>
+    <link rel="stylesheet" href="../css/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        body { background-color: #f8fafc; display: flex; min-height: 100vh; color: #0f172a; font-family: 'Inter', sans-serif; margin:0; }
+        
+        /* Sidebar Fix */
+        .sidebar { 
+            width: 280px; 
+            background: linear-gradient(180deg, #ffffff 0%, #f0f9ff 100%); 
+            padding: 2.5rem 1.2rem; 
+            position: fixed; 
+            height: 100vh; 
+            display: flex; 
+            flex-direction: column !important; /* Force Vertical */
+            border-right: 1px solid #e2e8f0; 
+            box-shadow: 4px 0 15px -10px rgba(0,0,0,0.1); 
+            z-index: 1000; 
+            box-sizing: border-box;
+        }
+
+        .nav-menu {
+            display: flex !important;
+            flex-direction: column !important;
+            gap: 10px;
+            width: 100%;
+        }
+
+        .nav-link { 
+            display: flex; 
+            align-items: center; 
+            gap: 15px; 
+            padding: 14px 18px; 
+            text-decoration: none; 
+            color: #475569; 
+            border-radius: 14px; 
+            font-weight: 600; 
+            transition: all 0.3s; 
+            cursor: pointer; 
+            width: 100%;
+            box-sizing: border-box;
+            white-space: nowrap;
+        }
+        .nav-link:hover { background: rgba(37, 99, 235, 0.05); transform: translateX(5px); color: #2563eb; }
+        .nav-link.active { background: #2563eb; color: white; box-shadow: 0 10px 15px -3px rgba(37, 99, 235, 0.3); }
+        .main-content { 
+            margin-left: 280px; 
+            flex-grow: 1; 
+            padding: 2.5rem 4rem; 
+            width: calc(100% - 280px); 
+            box-sizing: border-box;
+            position: relative;
+        }
+
+        .sidebar .logo { 
+            font-size: 1.4rem; 
+            margin-bottom: 3rem; 
+            font-weight: 800; 
+            color: #0f172a; 
+            display: flex; 
+            align-items: center; 
+            gap: 10px; 
+            padding-left: 10px;
+        }
+
+        .section { display: none; }
+        .section.active { display: block; animation: fadeIn 0.4s ease-out; }
+        @keyframes fadeIn { 
+            from { opacity: 0; transform: translateY(10px); } 
+            to { opacity: 1; transform: translateY(0); } 
+        }
+
+        .card { background: white; border-radius: 24px; padding: 2rem; border: 1px solid #e2e8f0; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.05); margin-bottom: 2rem; }
+        .stats-strip { display: flex; gap: 2rem; margin-bottom: 2.5rem; }
+        .mini-stat { background: white; padding: 1.5rem; border-radius: 20px; border: 1px solid #e2e8f0; flex: 1; }
+        .mini-stat label { color: #64748b; font-size: 0.75rem; font-weight: 800; text-transform: uppercase; margin-bottom: 5px; display: block; }
+        .mini-stat .value { font-size: 1.8rem; font-weight: 800; color: #0f172a; }
+        .btn-primary { background: #2563eb; color: white; border: none; padding: 12px 24px; border-radius: 12px; font-weight: 700; cursor: pointer; transition: 0.2s; }
+        .btn-primary:hover { background: #1d4ed8; transform: translateY(-2px); }
+        input, select, textarea { width: 100%; padding: 12px; border: 1px solid #e2e8f0; border-radius: 12px; font-family: inherit; margin-bottom: 1rem; box-sizing: border-box; }
+        table { width: 100%; border-collapse: collapse; }
+        th { text-align: left; padding: 1rem; border-bottom: 2px solid #f1f5f9; color: #64748b; font-size: 0.75rem; text-transform: uppercase; }
+        td { padding: 1rem; border-bottom: 1px solid #f1f5f9; font-size: 0.9rem; }
+        .badge { padding: 4px 10px; border-radius: 999px; font-size: 0.7rem; font-weight: 800; text-transform: uppercase; }
+        .present { background: #dcfce7; color: #166534; }
+        .modal { display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.7); z-index:2000; align-items:center; justify-content:center; backdrop-filter: blur(4px); }
+    </style>
+</head>
+<body>
+    <a href="../index.html" class="home-btn" title="Go to Home">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" d="m2.25 12 8.954-8.955c.44-.439 1.152-.439 1.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75M8.25 21h8.25" />
+        </svg>
+    </a>
+    <div class="sidebar">
+        <div class="logo">👷 Engineer<span>Hub</span></div>
+        <nav class="nav-menu">
+            <div class="nav-link active" onclick="showSection('portfolio', this)">📊 Portfolio</div>
+            <div class="nav-link" onclick="showSection('messages', this)">💬 Client Messages</div>
+            <div class="nav-link" onclick="showSection('attendance', this)">👥 Laborer Attendance</div>
+            <div class="nav-link" onclick="showSection('certs', this)">📄 Certifications</div>
+            <div class="nav-link" onclick="showSection('settings', this)">⚙️ Profile Settings</div>
+        </nav>
+        <div class="nav-link" style="margin-top:auto; color:#ef4444;" onclick="logout()">🚪 Logout</div>
+    </div>
+
+    <div class="main-content">
+        <!-- PORTFOLIO -->
+        <div id="portfolio" class="section active">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:2.5rem;">
+                <div><h1 style="font-size: 2.2rem; margin:0;">Project <span style="color:#2563eb;">Portfolio</span></h1><p style="color:#64748b; margin-top:5px;">Manage your construction builds and sketches.</p></div>
+                <button class="btn-primary" onclick="openModal('projectModal')">+ Add New Project</button>
+            </div>
+            <div class="stats-strip">
+                <div class="mini-stat"><label>Live Sites</label><div class="value" id="statProjects">0</div></div>
+                <div class="mini-stat"><label>Total Valuation</label><div class="value">₹ 84.5L</div></div>
+                <div class="mini-stat"><label>Active Workers</label><div class="value" id="statWorkers">0</div></div>
+            </div>
+            <div id="portfolioGrid" style="display:grid; grid-template-columns:repeat(auto-fill, minmax(300px,1fr)); gap:2rem;"></div>
+        </div>
+
+        <!-- MESSAGES -->
+        <div id="messages" class="section">
+            <h1>Client <span style="color:#2563eb;">Inquiries</span></h1>
+            <div class="card"><p style="text-align:center; color:#64748b; padding:3rem;">No active project inquiries from clients.</p></div>
+        </div>
+
+        <!-- ATTENDANCE -->
+        <div id="attendance" class="section">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:2rem;">
+                <h1>Laborer <span style="color:#2563eb;">Attendance</span></h1>
+                <button class="btn-primary" onclick="openModal('workerModal')">+ Log Daily Status</button>
+            </div>
+            <div class="card" style="padding:0; overflow:hidden;">
+                <table><thead><tr><th>Name</th><th>Site Location</th><th>Assignment</th><th>Status</th><th>Date</th></tr></thead>
+                <tbody id="attendanceTable"></tbody></table>
+            </div>
+        </div>
+
+        <!-- CERTIFICATIONS -->
+        <div id="certs" class="section">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:2rem;">
+                <h1>Quality <span style="color:#2563eb;">Certificates</span></h1>
+                <button class="btn-primary" onclick="openModal('certModal')">+ Upload Cert</button>
+            </div>
+            <div style="display:grid; grid-template-columns:repeat(auto-fill, minmax(200px,1fr)); gap:1.5rem;" id="certGrid"></div>
+        </div>
+
+        <!-- SETTINGS -->
+        <div id="settings" class="section">
+            <h1>Profile <span style="color:#2563eb;">Settings</span></h1>
+            <div class="card" style="max-width:500px;">
+                <label style="font-weight:700;">Professional Bio</label><textarea id="bioText" rows="4"></textarea>
+                <label style="font-weight:700;">Update Password</label><input type="password" id="newPass">
+                <button class="btn-primary" style="width:100%;" onclick="alert('Profile Updated!')">Save Changes</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODALS -->
+    <div id="projectModal" class="modal"><div class="card" style="width:500px; max-height:85vh; overflow-y:auto;">
+        <div style="display:flex; justify-content:space-between; margin-bottom:1.5rem;"><h2>New Project</h2><span onclick="closeAllModals()" style="cursor:pointer; font-size:1.5rem;">&times;</span></div>
+        <form id="projectForm">
+            <input type="text" name="title" placeholder="Project Title" required>
+            <input type="number" name="cost" placeholder="Total Cost (₹)" required>
+            <input type="text" name="location" placeholder="Place / Location" required>
+            <input type="number" name="duration" placeholder="Duration (Days)" required>
+            <textarea name="description" placeholder="Project Brief..."></textarea>
+            <label>Sketch Drawing:</label><input type="file" name="sketch" required>
+            <label>Site Photos (Multiple):</label><input type="file" name="images" multiple required>
+            <button class="btn-primary" style="width:100%; padding:15px;">Publish Project</button>
+        </form>
+    </div></div>
+
+    <div id="workerModal" class="modal"><div class="card" style="width:400px;">
+        <div style="display:flex; justify-content:space-between; margin-bottom:1.5rem;"><h2>Daily Log</h2><span onclick="closeAllModals()" style="cursor:pointer; font-size:1.5rem;">&times;</span></div>
+        <form id="workerForm">
+            <input type="text" id="wName" placeholder="Laborer Name" required>
+            <input type="text" id="wLoc" placeholder="Site Name" required>
+            <input type="text" id="wTask" placeholder="Assigned Work" required>
+            <select id="wStatus"><option value="Present">Present</option><option value="Absent">Absent</option></select>
+            <button class="btn-primary" style="width:100%;">Save Log</button>
+        </form>
+    </div></div>
+
+    <div id="certModal" class="modal"><div class="card" style="width:400px;">
+        <div style="display:flex; justify-content:space-between; margin-bottom:1.5rem;"><h2>Upload Cert</h2><span onclick="closeAllModals()" style="cursor:pointer; font-size:1.5rem;">&times;</span></div>
+        <form id="certForm">
+            <input type="text" name="title" placeholder="Certificate Title" required>
+            <select name="category"><option value="Material">Material Quality</option><option value="License">Skill License</option></select>
+            <input type="file" name="cert_file" required>
+            <button class="btn-primary" style="width:100%;">Upload Proof</button>
+        </form>
+    </div></div>
+
+    <script>
+        const API_BASE_URL = 'http://127.0.0.1:5000/api';
+        const IMG_BASE_URL = 'http://127.0.0.1:5000';
+        const engineer_id = "397b607d-ecab-4803-9c58-523dc22b0144";
+
+        function showSection(id, el) {
+            document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+            document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
+            document.getElementById(id).classList.add('active');
+            el.classList.add('active');
+        }
+
+        function openModal(id) { document.getElementById(id).style.display = 'flex'; }
+        function closeAllModals() { document.querySelectorAll('.modal').forEach(m => m.style.display = 'none'); }
+
+        async function loadPortfolio() {
+            const res = await fetch(`${API_BASE_URL}/engineer/portfolio?engineer_id=${engineer_id}`);
+            const data = await res.json();
+            const grid = document.getElementById('portfolioGrid');
+            grid.innerHTML = '';
+            if (data.projects) {
+                document.getElementById('statProjects').textContent = data.projects.length;
+                data.projects.forEach(p => {
+                    const img = p.images && p.images.length > 0 ? `${IMG_BASE_URL}${p.images[0]}` : '';
+                    grid.innerHTML += `<div class="card" style="padding:0; overflow:hidden;">
+                        <div style="height:180px; background-image:url('${img}'); background-size:cover; background-position:center; background-color:#f1f5f9;"></div>
+                        <div style="padding:1.5rem;"><h3>${p.title}</h3><p style="color:#64748b; font-size:0.85rem;">📍 ${p.location} • ₹${p.cost}L</p></div>
+                    </div>`;
+                });
+            }
+        }
+
+        async function loadAttendance() {
+            const res = await fetch(`${API_BASE_URL}/engineer/attendance?engineer_id=${engineer_id}`);
+            const data = await res.json();
+            const tbody = document.getElementById('attendanceTable');
+            tbody.innerHTML = '';
+            if (data.attendance) {
+                document.getElementById('statWorkers').textContent = data.attendance.length;
+                data.attendance.forEach(w => {
+                    tbody.innerHTML += `<tr><td>${w.worker_name}</td><td>${w.location}</td><td>${w.assigned_work}</td><td><span class="badge present">${w.attendance_status}</span></td><td>${new Date(w.date).toLocaleDateString()}</td></tr>`;
+                });
+            }
+        }
+
+        async function loadCerts() {
+            const res = await fetch(`${API_BASE_URL}/engineer/certification?engineer_id=${engineer_id}`);
+            const data = await res.json();
+            const grid = document.getElementById('certGrid');
+            grid.innerHTML = '';
+            if (data.certifications) {
+                data.certifications.forEach(c => {
+                    const img = c.image_url !== 'not_uploaded' ? `${IMG_BASE_URL}${c.image_url}` : '';
+                    grid.innerHTML += `<div class="card" style="padding:1rem; text-align:center;">
+                        <div style="height:120px; background-image:url('${img}'); background-size:contain; background-repeat:no-repeat; background-position:center; margin-bottom:10px;"></div>
+                        <h4 style="margin:0;">${c.title}</h4><span class="badge" style="background:#e0f2fe; color:#0369a1;">${c.category}</span>
+                    </div>`;
+                });
+            }
+        }
+
+        document.getElementById('projectForm').onsubmit = async (e) => {
+            e.preventDefault();
+            const formData = new FormData(e.target);
+            formData.append('engineer_id', engineer_id);
+            await fetch(`${API_BASE_URL}/engineer/project`, { method: 'POST', body: formData });
+            closeAllModals(); loadPortfolio();
+        }
+
+        document.getElementById('workerForm').onsubmit = async (e) => {
+            e.preventDefault();
+            const data = { worker_name: document.getElementById('wName').value, location: document.getElementById('wLoc').value, assigned_work: document.getElementById('wTask').value, status: document.getElementById('wStatus').value, engineer_id: engineer_id };
+            await fetch(`${API_BASE_URL}/engineer/attendance`, { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify(data)});
+            closeAllModals(); loadAttendance();
+        }
+
+        document.getElementById('certForm').onsubmit = async (e) => {
+            e.preventDefault();
+            const formData = new FormData(e.target);
+            formData.append('engineer_id', engineer_id);
+            await fetch(`${API_BASE_URL}/engineer/certification`, { method: 'POST', body: formData });
+            closeAllModals(); loadCerts();
+        }
+
+        function logout() { localStorage.clear(); window.location.href = '../index.html'; }
+        window.onload = () => { loadPortfolio(); loadAttendance(); loadCerts(); };
+    </script>
+</body>
+</html>

@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Worker Registration | Civil Hub</title>
+    <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        .register-container { max-width: 650px; margin: 3rem auto; }
+        .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+        .form-group { margin-bottom: 1.25rem; }
+        .form-group.full { grid-column: span 2; }
+        .form-group label { display: block; margin-bottom: 0.5rem; font-weight: 500; font-size: 0.875rem; }
+        .form-control { width: 100%; padding: 0.75rem; border-radius: var(--radius); border: 1px solid var(--border); font-family: inherit; }
+        #map { height: 250px; border-radius: var(--radius); border: 1px solid var(--border); margin-bottom: 1rem; }
+        .file-preview { margin-top: 0.5rem; display: none; max-width: 100%; border-radius: var(--radius); border: 1px solid var(--border); }
+    </style>
+</head>
+<body>
+    <a href="../index.html" class="home-btn" title="Go to Home">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" d="m2.25 12 8.954-8.955c.44-.439 1.152-.439 1.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75M8.25 21h8.25" />
+        </svg>
+    </a>
+    <div class="container">
+        <div class="card register-container animate-fade-in">
+            <div id="google_translate_element" style="margin-bottom: 1rem;"></div>
+            <script type="text/javascript">
+                function googleTranslateElementInit() {
+                    new google.translate.TranslateElement({
+                        pageLanguage: 'en',
+                        includedLanguages: 'hi,bn,te,mr,ta,gu,kn,ml,pa,ur,as,or,sa,en',
+                        layout: google.translate.TranslateElement.InlineLayout.SIMPLE
+                    }, 'google_translate_element');
+                }
+            </script>
+            <script type="text/javascript" src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
+            <h2 style="margin-bottom: 0.5rem;">Worker Registration</h2>
+            <p style="color: #64748b; margin-bottom: 2rem;">Get approved to find manual labor jobs in your area.</p>
+
+            <form id="registerForm">
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="name">Full Name</label>
+                        <input type="text" id="name" name="name" class="form-control" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="phone">Phone Number</label>
+                        <input type="tel" id="phone" name="phone" class="form-control" required>
+                    </div>
+                    <div class="form-group full">
+                        <label for="email">Email Address</label>
+                        <input type="email" id="email" name="email" class="form-control" placeholder="example@gmail.com" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="password">Password</label>
+                        <input type="password" id="password" name="password" class="form-control" placeholder="••••••••" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="confirmPassword">Confirm Password</label>
+                        <input type="password" id="confirmPassword" name="confirmPassword" class="form-control" placeholder="••••••••" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="work_type">Work Type</label>
+                        <select id="work_type" name="work_type" class="form-control" required>
+                            <option value="">Select work type...</option>
+                            <option value="Mason">Mason</option>
+                            <option value="Carpenter">Carpenter</option>
+                            <option value="Electrician">Electrician</option>
+                            <option value="Plumber">Plumber</option>
+                            <option value="Painter">Painter</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="daily_wages">Expected Daily Wages (₹)</label>
+                        <input type="number" id="daily_wages" name="daily_wages" class="form-control" placeholder="e.g. 800" required>
+                    </div>
+
+                    <div class="form-group full">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                            <label style="margin-bottom: 0;">Service Area / Location</label>
+                            <button type="button" id="locateBtn" class="btn" style="padding: 0.25rem 0.5rem; font-size: 0.75rem; background: var(--secondary); color: white;">📍 Detect My Location</button>
+                        </div>
+                        <div id="map"></div>
+                        <input type="hidden" id="lat" name="lat">
+                        <input type="hidden" id="lng" name="lng">
+                        <p style="font-size: 0.75rem; color: #64748b;">Click on the map or use the button to set your location.</p>
+                    </div>
+
+                    <div class="form-group full">
+                        <label for="aadhar">Upload Aadhar Card (Photo)</label>
+                        <input type="file" id="aadhar" name="aadhar" class="form-control ai-file" data-type="aadhar" accept="image/*" required>
+                        <div class="ai-status" style="font-size: 0.75rem; margin-top: 5px;"></div>
+                        <img id="aadharPreview" class="file-preview">
+                    </div>
+                </div>
+
+                <div id="errorBox" style="color: #ef4444; margin-bottom: 1rem; display: none;"></div>
+
+                <button type="submit" class="btn btn-primary" id="submitBtn" style="width: 100%;">
+                    <span id="btnText">Submit for Approval</span>
+                    <div class="loading-spinner" id="spinner"></div>
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script type="module">
+        import { initRegister, verifyDocumentAI } from '../js/auth.js';
+        
+        // Map Init
+        const map = L.map('map').setView([12.9716, 77.5946], 13); // Default to Bengaluru
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
+        
+        let marker;
+        function updateMarker(lat, lng) {
+            if (marker) map.removeLayer(marker);
+            marker = L.marker([lat, lng]).addTo(map);
+            map.setView([lat, lng], 15);
+            document.getElementById('lat').value = lat;
+            document.getElementById('lng').value = lng;
+        }
+
+        map.on('click', (e) => {
+            updateMarker(e.latlng.lat, e.latlng.lng);
+        });
+
+        // GPS Detection
+        const locateBtn = document.getElementById('locateBtn');
+        const detectLocation = () => {
+            if (navigator.geolocation) {
+                locateBtn.textContent = "⏳ Detecting...";
+                navigator.geolocation.getCurrentPosition(
+                    (position) => {
+                        const { latitude, longitude } = position.coords;
+                        updateMarker(latitude, longitude);
+                        locateBtn.textContent = "✅ Location Set";
+                    },
+                    (error) => {
+                        console.error(error);
+                        alert("Could not get your location. Please select it manually on the map.");
+                        locateBtn.textContent = "📍 Detect My Location";
+                    }
+                );
+            } else {
+                alert("Geolocation is not supported by your browser.");
+            }
+        };
+
+        locateBtn.onclick = detectLocation;
+        // Automatically try to detect on load
+        window.addEventListener('load', detectLocation);
+
+        // AI Verification Logic
+        const aadharInput = document.getElementById('aadhar');
+        const submitBtn = document.getElementById('submitBtn');
+
+        aadharInput.addEventListener('change', async (e) => {
+            const file = e.target.files[0];
+            const statusDiv = aadharInput.nextElementSibling;
+            const preview = document.getElementById('aadharPreview');
+            
+            if (!file) return;
+
+            // Show preview
+            const reader = new FileReader();
+            reader.onload = (event) => {
+                preview.src = event.target.result;
+                preview.style.display = 'block';
+            };
+            reader.readAsDataURL(file);
+
+            statusDiv.innerHTML = '<span style="color: #2563eb;">⏳ AI is checking your Aadhar...</span>';
+            submitBtn.disabled = true;
+
+            try {
+                const result = await verifyDocumentAI(file, 'aadhar');
+                if (result.valid) {
+                    statusDiv.innerHTML = '<span style="color: #10b981;">✅ AI Verified: Authentic Aadhar</span>';
+                } else {
+                    statusDiv.innerHTML = `<span style="color: #ef4444;">❌ AI Reject: ${result.message}</span>`;
+                    alert(`Verification Failed: ${result.message}\nPlease upload a clear image of your actual Aadhar card.`);
+                    aadharInput.value = ''; 
+                    preview.style.display = 'none';
+                }
+            } catch (err) {
+                statusDiv.innerHTML = '<span style="color: #64748b;">⚠️ AI check bypassed.</span>';
+            } finally {
+                submitBtn.disabled = false;
+            }
+        });
+
+        initRegister('worker');
+    </script>
+</body>
+</html>

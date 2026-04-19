@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Auth | BuildHub</title>
+    <link rel="stylesheet" href="../css/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+</head>
+<body class="auth-page">
+    <a href="../index.html" class="home-btn" title="Go to Home">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" d="m2.25 12 8.954-8.955c.44-.439 1.152-.439 1.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75M8.25 21h8.25" />
+        </svg>
+    </a>
+    <div class="auth-container animate-fade-in">
+        <!-- Sidebar -->
+        <div class="auth-sidebar">
+            <div id="google_translate_element" style="margin-bottom: 2rem;"></div>
+            <script type="text/javascript">
+                function googleTranslateElementInit() {
+                    new google.translate.TranslateElement({
+                        pageLanguage: 'en',
+                        includedLanguages: 'hi,bn,te,mr,ta,gu,kn,ml,pa,ur,as,or,sa,en',
+                        layout: google.translate.TranslateElement.InlineLayout.SIMPLE
+                    }, 'google_translate_element');
+                }
+            </script>
+            <script type="text/javascript" src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
+            <div class="logo">👷 Build<span>Hub</span></div>
+            <h1>The Foundation <br> for Your Projects</h1>
+            <p>Connect with skilled workers, hire engineers, and buy construction materials all in one place.</p>
+            
+            <div class="stats-grid">
+                <div class="stat-box">
+                    <span>10K+</span>
+                    <small>Workers</small>
+                </div>
+                <div class="stat-box">
+                    <span>5K+</span>
+                    <small>Engineers</small>
+                </div>
+                <div class="stat-box">
+                    <span>1K+</span>
+                    <small>Shops</small>
+                </div>
+                <div class="stat-box">
+                    <span>50K+</span>
+                    <small>Projects</small>
+                </div>
+            </div>
+        </div>
+
+        <!-- Auth Content -->
+        <div class="auth-content">
+            <div class="role-selectors">
+                <div class="role-btn" data-role="user">
+                    <span>👤</span>
+                    <small>Customer</small>
+                </div>
+                <div class="role-btn" data-role="engineer">
+                    <span>📐</span>
+                    <small>Engineer</small>
+                </div>
+                <div class="role-btn" data-role="worker">
+                    <span>👷</span>
+                    <small>Worker</small>
+                </div>
+                <div class="role-btn" data-role="shopkeeper">
+                    <span>🏠</span>
+                    <small>Shopkeeper</small>
+                </div>
+            </div>
+
+            <div class="auth-tabs">
+                <div class="auth-tab active" id="tab-login">Login</div>
+                <div class="auth-tab" id="tab-register">Register</div>
+            </div>
+
+            <form id="loginForm">
+                <div class="form-group">
+                    <label>Email Address</label>
+                    <input type="email" id="email" placeholder="user@gmail.com" required>
+                </div>
+                <div class="form-group">
+                    <label>Password</label>
+                    <input type="password" id="password" placeholder="••••••••" required>
+                </div>
+
+                <div style="display: flex; justify-content: space-between; margin-bottom: 2rem; font-size: 0.85rem;">
+                    <label style="display: flex; align-items: center; gap: 5px;">
+                        <input type="checkbox"> Remember me
+                    </label>
+                    <a href="#" style="color: var(--secondary); text-decoration: none;">Forgot Password?</a>
+                </div>
+
+                <button type="submit" class="btn-auth" style="display: flex; align-items: center; justify-content: center; gap: 10px;">
+                    <div id="spinner" class="loading-spinner" style="width: 20px; height: 20px; border: 2px solid rgba(255,255,255,0.3); border-radius: 50%; border-top-color: #fff; animation: spin 1s linear infinite; display: none;"></div>
+                    <span id="btnText">Sign In</span>
+                </button>
+                <div id="errorBox" style="color: #ef4444; font-size: 0.85rem; margin-top: 1rem; text-align: center; display: none;"></div>
+            </form>
+
+            <style>
+                @keyframes spin {
+                    to { transform: rotate(360deg); }
+                }
+            </style>
+        </div>
+    </div>
+
+    <script type="module">
+        import { initLogin } from '../js/auth.js';
+        
+        const params = new URLSearchParams(window.location.search);
+        let currentRole = params.get('role') || 'user';
+        let currentTab = params.get('tab') || 'login';
+
+        const roleBtns = document.querySelectorAll('.role-btn');
+        const tabs = document.querySelectorAll('.auth-tab');
+        const loginForm = document.getElementById('loginForm');
+        const btnText = document.getElementById('btnText');
+
+        // Initial setup
+        const updateUI = () => {
+            roleBtns.forEach(btn => {
+                btn.classList.toggle('active', btn.dataset.role === currentRole);
+            });
+            
+            document.getElementById('tab-login').classList.toggle('active', currentTab === 'login');
+            document.getElementById('tab-register').classList.toggle('active', currentTab === 'register');
+
+            if (currentTab === 'register') {
+                // If they click register, redirect them to the specific registration page
+                // as registration requires many more fields
+                window.location.href = `register-${currentRole}.html`;
+            }
+        };
+
+        roleBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                currentRole = btn.dataset.role;
+                updateUI();
+                initLogin(currentRole); // Re-init login logic for new role
+            });
+        });
+
+        document.getElementById('tab-register').addEventListener('click', () => {
+            currentTab = 'register';
+            updateUI();
+        });
+
+        // Initialize
+        updateUI();
+        if (currentRole === 'admin') {
+            document.querySelector('.role-selectors').style.display = 'none';
+        }
+        initLogin(currentRole);
+    </script>
+</body>
+</html>

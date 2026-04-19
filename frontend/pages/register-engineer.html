@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Engineer Registration | Civil Hub</title>
+    <link rel="stylesheet" href="../css/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        .register-container { max-width: 700px; margin: 3rem auto; }
+        .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+        .form-group.full { grid-column: span 2; }
+        .form-control { width: 100%; padding: 0.75rem; border-radius: var(--radius); border: 1px solid var(--border); }
+        .step-indicator { display: flex; justify-content: space-between; margin-bottom: 2rem; }
+        .step { flex: 1; text-align: center; border-bottom: 3px solid var(--border); padding-bottom: 0.5rem; color: #64748b; font-weight: 500; }
+        .step.active { border-color: var(--primary); color: var(--primary); }
+    </style>
+</head>
+<body>
+    <a href="../index.html" class="home-btn" title="Go to Home">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" d="m2.25 12 8.954-8.955c.44-.439 1.152-.439 1.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75M8.25 21h8.25" />
+        </svg>
+    </a>
+    <div class="container">
+        <div class="card register-container animate-fade-in">
+            <h2>Engineer Registration</h2>
+            <p style="color: #64748b; margin-bottom: 2rem;">Showcase your projects and get hired for construction work.</p>
+
+            <div class="step-indicator">
+                <div class="step active" id="step1-ind">Basic Info</div>
+                <div class="step" id="step2-ind">Documents</div>
+                <div class="step" id="step3-ind">Verification</div>
+            </div>
+
+            <form id="registerForm">
+                <div id="step1">
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label>Full Name</label>
+                            <input type="text" name="name" class="form-control" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Phone Number</label>
+                            <input type="tel" name="phone" class="form-control" required>
+                        </div>
+                        <div class="form-group full">
+                            <label>Email / Gmail</label>
+                            <input type="email" name="email" class="form-control" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Password</label>
+                            <input type="password" name="password" class="form-control" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Confirm Password</label>
+                            <input type="password" name="confirmPassword" class="form-control" required>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="step2" style="display: none;">
+                    <div class="form-grid">
+                        <div class="form-group full">
+                            <label>Engineering Completion Certificate</label>
+                            <input type="file" name="comp_cert" class="form-control ai-file" data-type="comp_cert" required>
+                            <div class="ai-status" style="font-size: 0.75rem; margin-top: 5px;"></div>
+                        </div>
+                        <div class="form-group full">
+                            <label>Civil Engineering Level Certificate</label>
+                            <input type="file" name="civil_cert" class="form-control ai-file" data-type="civil_cert" required>
+                            <div class="ai-status" style="font-size: 0.75rem; margin-top: 5px;"></div>
+                        </div>
+                        <div class="form-group full">
+                            <label>Aadhar Card Copy</label>
+                            <input type="file" name="aadhar" class="form-control ai-file" data-type="aadhar" required>
+                            <div class="ai-status" style="font-size: 0.75rem; margin-top: 5px;"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="errorBox" style="color: #ef4444; margin: 1rem 0; display: none;"></div>
+
+                <div style="display: flex; gap: 1rem; margin-top: 2rem;">
+                    <button type="button" id="prevBtn" class="btn" style="flex: 1; border: 1px solid var(--border); display: none;">Back</button>
+                    <button type="button" id="nextBtn" class="btn btn-primary" style="flex: 1;">Next Step</button>
+                    <button type="submit" id="submitBtn" class="btn btn-primary" style="flex: 1; display: none;">Submit for Review</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script type="module">
+        import { initRegister, verifyDocumentAI } from '../js/auth.js';
+        
+        // AI Verification Logic
+        const aiFiles = document.querySelectorAll('.ai-file');
+        const submitBtn = document.getElementById('submitBtn');
+        let validDocs = { comp_cert: false, civil_cert: false, aadhar: false };
+
+        aiFiles.forEach(input => {
+            input.addEventListener('change', async (e) => {
+                const file = e.target.files[0];
+                const type = input.dataset.type;
+                const statusDiv = input.nextElementSibling;
+                
+                if (!file) return;
+
+                statusDiv.innerHTML = '<span style="color: #2563eb;">⏳ AI is checking your document...</span>';
+                submitBtn.disabled = true;
+
+                try {
+                    const result = await verifyDocumentAI(file, type);
+                    if (result.valid) {
+                        statusDiv.innerHTML = '<span style="color: #10b981;">✅ AI Verified: Authentic Document</span>';
+                        validDocs[type] = true;
+                    } else {
+                        statusDiv.innerHTML = `<span style="color: #ef4444;">❌ AI Reject: ${result.message}</span>`;
+                        alert(`Verification Failed: ${result.message}\nPlease upload the correct image for ${type.replace('_', ' ')}.`);
+                        input.value = ''; // Clear the input
+                        validDocs[type] = false;
+                    }
+                } catch (err) {
+                    statusDiv.innerHTML = '<span style="color: #ef4444;">⚠️ AI service unavailable. Please check your internet or try later.</span>';
+                    validDocs[type] = false; 
+                } finally {
+                    // Only enable if all other steps are okay (basic check)
+                    submitBtn.disabled = false;
+                }
+            });
+        });
+
+        let currentStep = 1;
+        const nextBtn = document.getElementById('nextBtn');
+        const prevBtn = document.getElementById('prevBtn');
+
+        nextBtn.onclick = () => {
+            document.getElementById(`step${currentStep}`).style.display = 'none';
+            document.getElementById(`step${currentStep}-ind`).classList.remove('active');
+            currentStep++;
+            document.getElementById(`step${currentStep}`).style.display = 'block';
+            document.getElementById(`step${currentStep}-ind`).classList.add('active');
+            
+            if (currentStep === 2) {
+                nextBtn.style.display = 'none';
+                submitBtn.style.display = 'block';
+                prevBtn.style.display = 'block';
+            }
+        };
+
+        prevBtn.onclick = () => {
+             document.getElementById(`step${currentStep}`).style.display = 'none';
+            document.getElementById(`step${currentStep}-ind`).classList.remove('active');
+            currentStep--;
+            document.getElementById(`step${currentStep}`).style.display = 'block';
+            document.getElementById(`step${currentStep}-ind`).classList.add('active');
+            
+            if (currentStep === 1) {
+                nextBtn.style.display = 'block';
+                submitBtn.style.display = 'none';
+                prevBtn.style.display = 'none';
+            }
+        };
+
+        initRegister('engineer');
+    </script>
+</body>
+</html>

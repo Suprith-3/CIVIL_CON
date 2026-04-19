@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shopkeeper Registration | Civil Hub</title>
+    <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        .register-container { max-width: 700px; margin: 3rem auto; }
+        .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+        .form-group.full { grid-column: span 2; }
+        .form-control { width: 100%; padding: 0.75rem; border-radius: var(--radius); border: 1px solid var(--border); }
+        #map { height: 250px; border-radius: var(--radius); margin: 0.5rem 0; border: 1px solid var(--border); }
+    </style>
+</head>
+<body>
+    <div class="container animate-fade-in">
+        <div class="card register-container">
+            <h2>Shopkeeper Registration</h2>
+            <p style="color: #64748b; margin-bottom: 2rem;">Register your shop to start selling building materials.</p>
+
+            <form id="registerForm">
+                <div id="step1">
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label>Owner Name</label>
+                            <input type="text" name="name" class="form-control" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Shop Name</label>
+                            <input type="text" name="shop_name" class="form-control" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Email Address</label>
+                            <input type="email" name="email" class="form-control" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Phone Number</label>
+                            <input type="tel" name="phone" class="form-control" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Password</label>
+                            <input type="password" name="password" class="form-control" required>
+                        </div>
+                         <div class="form-group">
+                            <label>Confirm Password</label>
+                            <input type="password" name="confirmPassword" class="form-control" required>
+                        </div>
+                    </div>
+                    <button type="button" onclick="nextStep(2)" class="btn btn-primary" style="width: 100%; margin-top: 2rem;">Next: Shop Details</button>
+                </div>
+
+                <div id="step2" style="display: none;">
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label>GST Number</label>
+                            <input type="text" name="gst_number" class="form-control" placeholder="22AAAAA0000A1Z5" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Aadhar Card Number</label>
+                            <input type="text" name="aadhar_num" class="form-control" required>
+                        </div>
+                        <div class="form-group full">
+                            <label>Shop Location</label>
+                            <div id="map"></div>
+                            <input type="hidden" name="lat" id="lat">
+                            <input type="hidden" name="lng" id="lng">
+                            <p style="font-size: 0.75rem; color: #64748b;">Mark your shop's exact location on the map.</p>
+                        </div>
+                        <div class="form-group">
+                            <label>GST Certificate (PDF/Img)</label>
+                            <input type="file" name="gst_doc" class="form-control" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Shop Front Photo</label>
+                            <input type="file" name="shop_photo" class="form-control" required>
+                        </div>
+                    </div>
+                    <div style="display: flex; gap: 1rem; margin-top: 2rem;">
+                        <button type="button" onclick="nextStep(1)" class="btn" style="flex: 1; border: 1px solid var(--border);">Back</button>
+                        <button type="submit" class="btn btn-primary" style="flex: 1;">Submit for Approval</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script type="module">
+        import { initRegister } from '../js/auth.js';
+        
+        window.nextStep = (s) => {
+            document.getElementById('step1').style.display = s === 1 ? 'block' : 'none';
+            document.getElementById('step2').style.display = s === 2 ? 'block' : 'none';
+            if(s === 2) setTimeout(() => map.invalidateSize(), 100);
+        };
+
+        const map = L.map('map').setView([12.9716, 77.5946], 13);
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
+        let marker;
+        map.on('click', (e) => {
+            if (marker) map.removeLayer(marker);
+            marker = L.marker(e.latlng).addTo(map);
+            document.getElementById('lat').value = e.latlng.lat;
+            document.getElementById('lng').value = e.latlng.lng;
+        });
+
+        initRegister('shopkeeper');
+    </script>
+</body>
+</html>

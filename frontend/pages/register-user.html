@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Customer Registration | Civil Hub</title>
+    <link rel="stylesheet" href="../css/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        .register-container {
+            max-width: 550px;
+            margin: 4rem auto;
+        }
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+        }
+        .form-group {
+            margin-bottom: 1.25rem;
+        }
+        .form-group.full {
+            grid-column: span 2;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+            font-size: 0.875rem;
+        }
+        .form-control {
+            width: 100%;
+            padding: 0.75rem;
+            border-radius: var(--radius);
+            border: 1px solid var(--border);
+            font-family: inherit;
+        }
+        .form-control:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+        .error-message {
+            color: #ef4444;
+            font-size: 0.875rem;
+            display: none;
+            margin-bottom: 1rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="card register-container animate-fade-in">
+            <h2 style="margin-bottom: 0.5rem;">Join Civil Hub</h2>
+            <p style="color: #64748b; margin-bottom: 2rem;">Create your customer account to start hiring and shopping.</p>
+
+            <form id="registerForm">
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="name">Full Name</label>
+                        <input type="text" id="name" name="name" class="form-control" placeholder="John Doe" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="phone">Phone Number</label>
+                        <input type="tel" id="phone" name="phone" class="form-control" placeholder="+91 ..." required>
+                    </div>
+                    <div class="form-group full">
+                        <label for="email">Email Address</label>
+                        <input type="email" id="email" name="email" class="form-control" placeholder="john@example.com" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="password">Password</label>
+                        <input type="password" id="password" name="password" class="form-control" placeholder="••••••••" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="confirmPassword">Confirm Password</label>
+                        <input type="password" id="confirmPassword" name="confirmPassword" class="form-control" placeholder="••••••••" required>
+                    </div>
+                    <div class="form-group full">
+                        <label for="address">Address</label>
+                        <textarea id="address" name="address" class="form-control" rows="3" placeholder="Enter your full delivery address"></textarea>
+                    </div>
+                </div>
+
+                <div id="errorBox" class="error-message"></div>
+
+                <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 1rem;">
+                    <span id="btnText">Create Account</span>
+                    <div class="loading-spinner" id="spinner"></div>
+                </button>
+
+                <p style="margin-top: 2rem; text-align: center; font-size: 0.875rem; color: #64748b;">
+                    Already have an account? <a href="login.html?role=user" style="color: var(--primary); font-weight: 600; text-decoration: none;">Sign in</a>
+                </p>
+            </form>
+        </div>
+    </div>
+
+    <script type="module">
+        import { initRegister } from '../js/auth.js';
+        initRegister('user');
+    </script>
+</body>
+</html>

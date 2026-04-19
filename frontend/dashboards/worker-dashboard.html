@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Worker Dashboard | Civil Hub</title>
+    <link rel="stylesheet" href="../css/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        body {
+            background-color: #f8fafc;
+            display: flex;
+            min-height: 100vh;
+            color: #0f172a;
+            font-family: 'Inter', sans-serif;
+            margin: 0;
+        }
+
+        .sidebar {
+            width: 280px;
+            background: #1e293b;
+            padding: 2.5rem 1.2rem;
+            position: fixed;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            color: white;
+            z-index: 1000;
+        }
+
+        .main-content {
+            margin-left: 280px;
+            flex-grow: 1;
+            padding: 2.5rem 4rem;
+            width: calc(100% - 280px);
+            box-sizing: border-box;
+        }
+
+        .status-banner {
+            padding: 1.5rem 2rem;
+            border-radius: 20px;
+            color: white;
+            margin-bottom: 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .pending {
+            background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+        }
+
+        .approved {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+        }
+
+        .card {
+            background: white;
+            border-radius: 24px;
+            padding: 2rem;
+            border: 1px solid #e2e8f0;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05);
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+
+        .work-card {
+            background: white;
+            border-radius: 20px;
+            overflow: hidden;
+            border: 1px solid #e2e8f0;
+            transition: 0.3s;
+        }
+
+        .work-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+        }
+
+        .work-img {
+            height: 180px;
+            background-size: cover;
+            background-position: center;
+            background-color: #f1f5f9;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            z-index: 2000;
+            align-items: center;
+            justify-content: center;
+            backdrop-filter: blur(4px);
+        }
+
+        .btn-primary {
+            background: #2563eb;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 12px;
+            font-weight: 700;
+            cursor: pointer;
+        }
+
+        input,
+        select,
+        textarea {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            margin-bottom: 1rem;
+            box-sizing: border-box;
+        }
+
+        .nav-link {
+            padding: 12px 15px;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: 0.2s;
+            color: #94a3b8;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .nav-link:hover,
+        .nav-link.active {
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+        }
+    </style>
+</head>
+
+<body>
+    <a href="../index.html" class="home-btn" title="Go to Home">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+            stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round"
+                d="m2.25 12 8.954-8.955c.44-.439 1.152-.439 1.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75M8.25 21h8.25" />
+        </svg>
+    </a>
+
+    <div class="sidebar">
+        <div
+            style="font-size: 1.5rem; font-weight: 800; margin-bottom: 3rem; display: flex; align-items: center; gap: 10px;">
+            🏗️ Worker<span>Hub</span></div>
+        <div class="nav-link active">🏠 Overview</div>
+        <div class="nav-link">💬 Inquiries</div>
+        <div class="nav-link">⚙️ Profile</div>
+        <div class="nav-link" style="margin-top: auto; color: #ef4444;" onclick="logout()">🚪 Logout</div>
+    </div>
+
+    <div class="main-content">
+        <div id="statusBanner" class="status-banner pending">
+            <div>
+                <h2 id="statusText" style="margin:0;">Status: Pending Approval</h2>
+                <p id="statusDesc" style="margin:5px 0 0 0; opacity: 0.8;">The Civil Hub team is reviewing your
+                    documents.</p>
+            </div>
+            <div id="statusIcon" style="font-size: 2rem;">⏳</div>
+        </div>
+
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+            <div>
+                <h1 style="margin:0;">Manage Your <span style="color: #2563eb;">Worker Portfolio</span></h1>
+                <p style="color: #64748b;">Add images of your previous work to get hired by customers.</p>
+            </div>
+            <button class="btn-primary" onclick="openModal()">+ Add New Work</button>
+        </div>
+
+        <div class="grid" id="portfolioGrid">
+            <!-- Portfolio Items -->
+        </div>
+    </div>
+
+    <!-- Add Work Modal -->
+    <div id="workModal" class="modal">
+        <div class="card" style="width: 500px; position: relative;">
+            <span style="position: absolute; top: 1.5rem; right: 2rem; cursor: pointer; font-size: 1.5rem;"
+                onclick="closeModal()">&times;</span>
+            <h2 style="margin-bottom: 1.5rem;">Add Your Work Details</h2>
+            <form id="workForm">
+                <input type="text" name="title" placeholder="Job Title (e.g. Living Room Painting)" required>
+                <textarea name="description" placeholder="Short description of what you did..." rows="3"></textarea>
+                <div style="display: flex; gap: 1rem;">
+                    <input type="number" name="cost" placeholder="Estimated Cost (₹)" required>
+                    <input type="number" name="duration" placeholder="Days Taken" required>
+                </div>
+                <label style="font-weight: 600; font-size: 0.85rem; margin-bottom: 5px; display: block;">After-Work
+                    Photos (Select multiple):</label>
+                <input type="file" name="work_images" accept="image/*" multiple required>
+                <button type="submit" class="btn-primary" style="width: 100%; margin-top: 1rem;">Publish to User
+                    Marketplace</button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE_URL = 'http://127.0.0.1:5000/api';
+        const IMG_BASE_URL = 'http://127.0.0.1:5000';
+        const worker_id = localStorage.getItem('user_id');
+
+        function openModal() { document.getElementById('workModal').style.display = 'flex'; }
+        function closeModal() { document.getElementById('workModal').style.display = 'none'; }
+        function logout() { localStorage.clear(); window.location.href = '../pages/login.html'; }
+
+        async function loadWorkerStats() {
+            try {
+                const res = await fetch(`${API_BASE_URL}/auth/status`, {
+                    headers: { 'Authorization': `Bearer ${localStorage.getItem('access_token')}` }
+                });
+                const data = await res.json();
+
+                const statusBanner = document.getElementById('statusBanner');
+                const statusText = document.getElementById('statusText');
+                const statusDesc = document.getElementById('statusDesc');
+                const statusIcon = document.getElementById('statusIcon');
+
+                if (data.status === 'approved') {
+                    // Hide the banner completely if already approved
+                    statusBanner.style.display = 'none';
+                } else {
+                    statusBanner.style.display = 'flex';
+                    statusBanner.className = 'status-banner pending';
+                    statusText.textContent = 'Status: Pending Approval';
+                    statusDesc.textContent = 'The Civil Hub team is reviewing your documents.';
+                    statusIcon.textContent = '⏳';
+                }
+            } catch (e) {
+                console.error("Error loading status:", e);
+            }
+        }
+
+        async function loadPortfolio() {
+            const grid = document.getElementById('portfolioGrid');
+            grid.innerHTML = '<p>Loading your work gallery...</p>';
+            try {
+                const res = await fetch(`${API_BASE_URL}/worker/portfolio?worker_id=${worker_id}`);
+                const data = await res.json();
+                grid.innerHTML = '';
+
+                if (data.portfolio && data.portfolio.length > 0) {
+                    data.portfolio.forEach(w => {
+                        grid.innerHTML += `
+                            <div class="work-card">
+                                <div class="work-img" style="background-image: url('${IMG_BASE_URL}${w.image_url}')"></div>
+                                <div style="padding: 1.5rem;">
+                                    <h3 style="margin:0;">${w.title}</h3>
+                                    <p style="color:#64748b; font-size:0.85rem; margin:10px 0;">${w.description}</p>
+                                    <div style="display:flex; justify-content:space-between; align-items:center; border-top:1px solid #f1f5f9; padding-top:15px;">
+                                        <span style="font-weight:700; color:#2563eb;">₹ ${w.cost}</span>
+                                        <span style="font-size:0.8rem; color:#94a3b8;">⏱️ ${w.duration_days} Days</span>
+                                    </div>
+                                </div>
+                            </div>
+                        `;
+                    });
+                } else {
+                    grid.innerHTML = '<p style="grid-column: 1/-1; text-align: center; color: #94a3b8;">You haven\'t added any work yet. Click the blue button to start!</p>';
+                }
+            } catch (e) {
+                grid.innerHTML = '<p>Error loading your items.</p>';
+            }
+        }
+
+        document.getElementById('workForm').onsubmit = async (e) => {
+            e.preventDefault();
+            const formData = new FormData(e.target);
+            formData.append('worker_id', worker_id);
+
+            try {
+                const res = await fetch(`${API_BASE_URL}/worker/portfolio`, {
+                    method: 'POST',
+                    body: formData
+                });
+                if (res.ok) {
+                    alert('Work published successfully!');
+                    closeModal();
+                    loadPortfolio();
+                } else {
+                    alert('Failed to publish work.');
+                }
+            } catch (err) {
+                alert('Connection error');
+            }
+        };
+
+        window.onload = () => {
+            loadWorkerStats();
+            loadPortfolio();
+        };
+    </script>
+</body>
+
+</html>

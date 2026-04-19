@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard | BuildHub</title>
+    <link rel="stylesheet" href="../css/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        body { background: #0f172a; color: white; min-height: 100vh; padding: 2rem; font-family: 'Inter', sans-serif; }
+        .admin-grid { display: grid; grid-template-columns: 2fr 1fr; gap: 2rem; margin-top: 2rem; }
+        .card-admin { background: #1e293b; border: 1px solid #334155; padding: 1.5rem; border-radius: 16px; box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1); }
+        .badge { padding: 0.3rem 0.8rem; border-radius: 9999px; font-size: 0.75rem; font-weight: 700; text-transform: uppercase; }
+        .badge-pending { background: #fef3c7; color: #92400e; }
+        table { width: 100%; border-collapse: collapse; margin-top: 1rem; }
+        th { text-align: left; color: #94a3b8; font-size: 0.8rem; padding: 1rem; border-bottom: 2px solid #334155; text-transform: uppercase; }
+        td { padding: 1rem; border-bottom: 1px solid #334155; color: #e2e8f0; font-size: 0.9rem; }
+        .btn-review { background: #2563eb; color: white; border: none; padding: 8px 16px; border-radius: 8px; font-weight: 600; cursor: pointer; }
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 1000; align-items: center; justify-content: center; }
+        .modal-content { background: #1e293b; padding: 2.5rem; border-radius: 24px; max-width: 600px; width: 90%; position: relative; }
+        .close-modal { position: absolute; top: 1.5rem; right: 1.5rem; cursor: pointer; font-size: 1.5rem; color: #94a3b8; }
+        input, select, textarea { width: 100%; padding: 12px; margin-bottom: 1rem; background: #0f172a; border: 1px solid #334155; color: white; border-radius: 10px; box-sizing: border-box; }
+        .btn-primary { background: #2563eb; color: white; border: none; padding: 12px 24px; border-radius: 10px; font-weight: 700; cursor: pointer; width: 100%; }
+    </style>
+</head>
+<body>
+    <a href="../index.html" class="home-btn" title="Go to Home">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" d="m2.25 12 8.954-8.955c.44-.439 1.152-.439 1.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75M8.25 21h8.25" />
+        </svg>
+    </a>
+    <header style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+        <div>
+            <h1>Admin <span style="color: #2563eb;">Portal</span></h1>
+            <p style="color: #94a3b8;">Manage verified schemes and approvals.</p>
+        </div>
+        <div style="display:flex; gap:10px; align-items:center;">
+            <div id="google_translate_element"></div>
+            <button class="btn-review" onclick="openSchemeModal()">+ Add Gov Scheme</button>
+            <button class="btn-review" style="background:#334155;" onclick="logout()">Logout</button>
+        </div>
+        <script type="text/javascript">
+            function googleTranslateElementInit() {
+                new google.translate.TranslateElement({
+                    pageLanguage: 'en',
+                    includedLanguages: 'hi,bn,te,mr,ta,gu,kn,ml,pa,ur,as,or,sa,en',
+                    layout: google.translate.TranslateElement.InlineLayout.SIMPLE
+                }, 'google_translate_element');
+            }
+        </script>
+        <script type="text/javascript" src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
+    </header>
+
+    <div class="admin-grid">
+        <div class="card-admin">
+            <h3>Pending Requests</h3>
+            <table>
+                <thead><tr><th>Name</th><th>Role</th><th>Status</th><th>Action</th></tr></thead>
+                <tbody id="pendingBody"></tbody>
+            </table>
+        </div>
+        <div class="card-admin">
+            <h3>Active Schemes</h3>
+            <div id="schemesList" style="margin-top:1rem;"></div>
+        </div>
+    </div>
+
+    <!-- Review Modal -->
+    <div id="reviewModal" class="modal">
+        <div class="modal-content">
+            <span class="close-modal" onclick="closeModal()">&times;</span>
+            <h2 id="modalTitle">Review Registration</h2>
+            <div id="docGrid" style="margin-top:1.5rem; display:grid; grid-template-columns:1fr 1fr; gap:1rem;"></div>
+            <div style="margin-top: 2rem; display: flex; gap: 1rem;">
+                <button class="btn-primary" id="confirmApproveBtn">Approve Provider</button>
+                <button class="btn-primary" style="background:#ef4444;" onclick="closeModal()">Reject</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scheme Modal -->
+    <div id="schemeModal" class="modal">
+        <div class="modal-content">
+            <span class="close-modal" onclick="closeSchemeModal()">&times;</span>
+            <h2>Publish New Scheme</h2>
+            <form id="schemeForm" style="margin-top:1.5rem;">
+                <input type="text" id="sTitle" placeholder="Scheme Name" required>
+                <select id="sCategory"><option value="General">General</option><option value="Engineers">Engineers</option><option value="Workers">Workers</option></select>
+                <textarea id="sDesc" placeholder="Scheme Benefits..." rows="4"></textarea>
+                <input type="url" id="sLink" placeholder="Official Link (https://...)" required>
+                <button type="submit" class="btn-primary">Publish to Dashboard</button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE_URL = 'http://127.0.0.1:5000/api';
+        const BACKEND_URL = 'http://127.0.0.1:5000';
+        const token = localStorage.getItem('access_token');
+        let currentRole, currentId;
+
+        function openSchemeModal() { document.getElementById('schemeModal').style.display = 'flex'; }
+        function closeSchemeModal() { document.getElementById('schemeModal').style.display = 'none'; }
+        function closeModal() { document.getElementById('reviewModal').style.display = 'none'; }
+        function logout() { localStorage.clear(); window.location.href = '../index.html'; }
+
+        document.getElementById('schemeForm').onsubmit = async (e) => {
+            e.preventDefault();
+            const data = {
+                title: document.getElementById('sTitle').value,
+                category: document.getElementById('sCategory').value,
+                description: document.getElementById('sDesc').value,
+                link: document.getElementById('sLink').value
+            };
+            const res = await fetch(`${API_BASE_URL}/admin/schemes`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(data)
+            });
+            if (res.ok) { alert('Scheme Published!'); closeSchemeModal(); e.target.reset(); loadAdminSchemes(); }
+        };
+
+        let pendingList = []; // Store list globally for review
+
+        function openReview(id, role) {
+            currentId = id;
+            currentRole = role;
+            const item = pendingList.find(x => x.id === id);
+            
+            if (!item) return;
+
+            document.getElementById('modalTitle').textContent = `Reviewing ${role.toUpperCase()}`;
+            document.getElementById('reviewModal').style.display = 'flex';
+            
+            const grid = document.getElementById('docGrid');
+            grid.innerHTML = '';
+
+            // Define which fields to show as images based on role
+            const docFields = {
+                'worker': [
+                    { label: 'Aadhar Card', key: 'aadhar_image_url' }
+                ],
+                'engineer': [
+                    { label: 'Completion Certificate', key: 'completion_cert_url' },
+                    { label: 'Civil Certificate', key: 'civil_eng_cert_url' },
+                    { label: 'Aadhar Card', key: 'aadhar_image_url' }
+                ],
+                'shopkeeper': [
+                    { label: 'GST Document', key: 'gst_doc' },
+                    { label: 'Shop Photo', key: 'shop_photo' }
+                ]
+            };
+
+            const fields = docFields[role] || [];
+            let hasDocs = false;
+
+            fields.forEach(f => {
+                const url = item[f.key];
+                if (url) {
+                    hasDocs = true;
+                    grid.innerHTML += `
+                        <div style="background:#0f172a; padding:10px; border-radius:12px;">
+                            <p style="font-size:0.75rem; color:#94a3b8; margin-bottom:8px;">${f.label}</p>
+                            <img src="${BACKEND_URL}${url}" style="width:100%; height:120px; object-fit:cover; border-radius:8px; cursor:zoom-in;" 
+                                 onclick="window.open('${BACKEND_URL}${url}', '_blank')" onerror="this.src='https://placehold.co/200x120?text=Error+Loading'">
+                        </div>`;
+                }
+            });
+
+            if (!hasDocs) {
+                grid.innerHTML = `<p style="grid-column: span 2; color:#94a3b8; text-align:center;">No digital documents uploaded for this user.</p>`;
+            }
+        }
+
+        document.getElementById('confirmApproveBtn').onclick = async () => {
+            try {
+                const res = await fetch(`${API_BASE_URL}/admin/approve/${currentRole}/${currentId}`, {
+                    method: 'POST'
+                });
+                if (res.ok) {
+                    alert('Provider Approved Successfully!');
+                    closeModal();
+                    fetchPending();
+                } else {
+                    const data = await res.json();
+                    alert('Approval failed: ' + (data.message || 'Server error'));
+                }
+            } catch (err) {
+                alert('Connection error. Is the backend running?');
+            }
+        };
+
+        async function fetchPending() {
+            try {
+                const res = await fetch(`${API_BASE_URL}/admin/pending`);
+                const data = await res.json();
+                const tbody = document.getElementById('pendingBody');
+                tbody.innerHTML = '';
+                
+                pendingList = [
+                    ...(data.engineers || []).map(e => ({...e, role: 'engineer'})),
+                    ...(data.workers || []).map(w => ({...w, role: 'worker'})),
+                    ...(data.shops || []).map(s => ({...s, role: 'shopkeeper'}))
+                ];
+
+                if (pendingList.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="4" style="text-align:center; color:#94a3b8;">No pending requests found.</td></tr>';
+                    return;
+                }
+
+                pendingList.forEach(item => {
+                    tbody.innerHTML += `
+                        <tr>
+                            <td>${item.name || item.shop_name || 'User'}</td>
+                            <td>${item.role.toUpperCase()}</td>
+                            <td><span class="badge badge-pending">PENDING</span></td>
+                            <td><button class="btn-review" onclick="openReview('${item.id}', '${item.role}')">Review</button></td>
+                        </tr>`;
+                });
+            } catch (err) {
+                console.error('Failed to fetch pending requests:', err);
+            }
+        }
+
+        async function loadAdminSchemes() {
+            const res = await fetch(`${API_BASE_URL}/admin/schemes`);
+            const data = await res.json();
+            const area = document.getElementById('schemesList');
+            area.innerHTML = '';
+            data.schemes.forEach(s => {
+                area.innerHTML += `<div style="padding:10px; border-bottom:1px solid #334155;"><strong>${s.title}</strong><br><small>${s.category}</small></div>`;
+            });
+        }
+
+        window.onload = () => { fetchPending(); loadAdminSchemes(); };
+    </script>
+</body>
+</html>

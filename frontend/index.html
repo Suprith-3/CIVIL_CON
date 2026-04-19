@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BuildHub | The Construction Ecosystem</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav>
+        <div class="logo animate-fade-in" id="main-logo" style="cursor: pointer;">
+            👷 Build<span>Hub</span>
+        </div>
+        <div class="nav-links">
+            <a href="pages/login.html" class="btn-signin">Sign In</a>
+            <a href="pages/login.html?tab=register" class="btn-get-started">Get Started</a>
+            <div class="lang-switch" id="google_translate_element"></div>
+            <script type="text/javascript">
+                function googleTranslateElementInit() {
+                    new google.translate.TranslateElement({
+                        pageLanguage: 'en',
+                        includedLanguages: 'hi,bn,te,mr,ta,gu,kn,ml,pa,ur,as,or,sa,en',
+                        layout: google.translate.TranslateElement.InlineLayout.SIMPLE
+                    }, 'google_translate_element');
+                }
+            </script>
+            <script type="text/javascript" src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
+        </div>
+    </nav>
+
+    <main class="animate-fade-in">
+        <!-- Hero Section -->
+        <section class="hero">
+            <div class="beta-tag">
+                <span class="beta-dot"></span> Now open for beta users
+            </div>
+            <h1>The Digital Foundation for <br> <span class="gradient-text">Modern Construction</span></h1>
+            <p>One unified ecosystem connecting clients, engineers, and workers. Manage projects, hire specialized talent, and procure materials—all in one place.</p>
+            <div class="hero-btns">
+                <a href="pages/login.html?tab=register" class="btn-primary">Join the Ecosystem</a>
+            </div>
+        </section>
+
+        <!-- Feature Cards -->
+        <section class="features" id="services">
+            <div class="f-card">
+                <div class="icon-box" style="background: #ecfdf5; color: #10b981;">👥</div>
+                <h3>Hire Workers</h3>
+                <p>Find and hire verified construction workers near your location instantly with our map integration.</p>
+            </div>
+
+            <div class="f-card">
+                <div class="icon-box" style="background: #eef2ff; color: #6366f1;">🔧</div>
+                <h3>Assign Engineers</h3>
+                <p>Manage multi-tier projects. Assign highly skilled engineers who can track daily worker attendance.</p>
+            </div>
+
+            <div class="f-card">
+                <div class="icon-box" style="background: #fdf2f8; color: #ec4899;">🛒</div>
+                <h3>Equipment Shop</h3>
+                <p>An integrated e-commerce experience. Buy or rent materials seamlessly with one click.</p>
+            </div>
+        </section>
+    </main>
+
+    <script>
+        // Secret Admin Access Logic - Double Click the Logo
+        let lastClickTime = 0;
+        const logo = document.getElementById('main-logo');
+
+        logo.addEventListener('click', () => {
+            const currentTime = new Date().getTime();
+            
+            // Check if second click is within 500ms of the first
+            if (currentTime - lastClickTime < 500) {
+                window.location.href = 'pages/login.html?role=admin';
+            }
+            
+            lastClickTime = currentTime;
+        });
+    </script>
+</body>
+</html>
