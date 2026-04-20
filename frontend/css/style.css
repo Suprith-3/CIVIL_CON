@@ -10,6 +10,40 @@
     --border: #e2e8f0;
     --card-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.05);
     --radius: 12px;
+    
+    /* Premium Landing Variables (Light) */
+    --hero-bg: #fafbfc;
+    --hero-h1: #0f172a;
+    --hero-gradient: linear-gradient(90deg, #1e40af, #3b82f6);
+    --btn-hero-bg: #2563eb;
+    --btn-hero-glow: rgba(37, 99, 235, 0.3);
+    --beta-bg: #eff6ff;
+    --beta-text: #1e40af;
+    --beta-border: #dbeafe;
+}
+
+[data-theme='dark'] {
+    --bg-light: #050505; /* Deeper black */
+    --bg-alt: #0a0a0a;
+    --text-main: #ffffff;
+    --text-muted: #94a3b8;
+    --border: rgba(255, 255, 255, 0.1);
+    --card-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5), 0 0 20px rgba(0, 242, 254, 0.05);
+    
+    /* Premium Landing Variables (Dark) */
+    --hero-bg: #050505;
+    --hero-h1: #ffffff;
+    --hero-gradient: linear-gradient(90deg, #00f2fe 0%, #a17fe0 100%);
+    --btn-hero-bg: linear-gradient(90deg, #00f2fe 0%, #a17fe0 100%);
+    --btn-hero-glow: rgba(0, 242, 254, 0.3);
+    --beta-bg: rgba(0, 242, 254, 0.1);
+    --beta-text: #00f2fe;
+    --beta-border: rgba(0, 242, 254, 0.2);
+    
+    /* Auth Dark Variables */
+    --auth-sidebar-bg: linear-gradient(135deg, #a17fe0 0%, #5d26c1 100%);
+    --auth-input-bg: #111;
+    --auth-input-border: #222;
 }
 
 * {
@@ -171,14 +205,15 @@ nav {
 }
 
 .btn-primary {
-    background: #2563eb;
+    background: var(--primary);
     color: white;
     padding: 1rem 2rem;
     border-radius: 30px;
     text-decoration: none;
     font-weight: 600;
-    box-shadow: 0 10px 20px rgba(37, 99, 235, 0.3);
+    box-shadow: 0 10px 20px var(--btn-hero-glow);
     transition: all 0.3s;
+    border: none;
 }
 
 .btn-secondary {
@@ -313,22 +348,31 @@ nav {
 .role-btn {
     flex: 1;
     border: 1px solid var(--border);
-    padding: 10px;
-    border-radius: 10px;
+    padding: 15px 10px;
+    border-radius: 12px;
     text-align: center;
     cursor: pointer;
-    transition: all 0.2s;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    background: var(--bg-alt);
 }
 
-.role-btn.active {
-    border-color: var(--secondary);
-    background: #fff7ed;
+.role-btn:hover {
+    transform: translateY(-2px);
+    border-color: var(--primary);
 }
 
 .role-btn i {
-    display: block;
     font-size: 1.5rem;
-    margin-bottom: 5px;
+    line-height: 1;
+}
+
+.role-btn small {
+    font-weight: 600;
+    font-size: 0.75rem;
 }
 
 .auth-tabs {
@@ -592,6 +636,10 @@ body {
         font-size: 1.8rem;
     }
 
+    [data-theme='dark'] .auth-container {
+        background: var(--bg-alt);
+    }
+
     .main-content {
         margin-left: 0 !important;
         width: 100% !important;
@@ -631,7 +679,150 @@ body {
     gap: 8px;
 }
 
-/* User Avatar Styling 👤 */
+/* Theme Toggle Button 🌓 */
+.theme-toggle {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    width: 45px;
+    height: 45px;
+    background: var(--bg-light);
+    border: 1px solid var(--border);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    z-index: 9999;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.theme-toggle:hover {
+    transform: scale(1.1) rotate(15deg);
+    box-shadow: 0 6px 16px rgba(0,0,0,0.15);
+}
+
+.theme-toggle i {
+    font-size: 1.2rem;
+    color: var(--text-main);
+    transition: all 0.3s;
+}
+
+/* Toggle visibility based on theme */
+[data-theme='dark'] .fa-moon,
+[data-theme='light'] .fa-sun {
+    display: none;
+}
+
+[data-theme='dark'] .theme-toggle {
+    background: #1e293b;
+    border-color: #334155;
+}
+
+/* Specific component fixes for dark mode */
+[data-theme='dark'] nav {
+    background-color: rgba(5, 5, 5, 0.8) !important;
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid var(--border);
+}
+
+[data-theme='dark'] .f-card {
+    background-color: var(--bg-alt) !important;
+    border-color: var(--border) !important;
+    box-shadow: var(--card-shadow);
+}
+
+[data-theme='dark'] .auth-container {
+    background-color: #0d0d0d !important;
+    border-color: #222 !important;
+    box-shadow: 0 0 50px rgba(0, 0, 0, 0.8);
+}
+
+[data-theme='dark'] .auth-sidebar {
+    background: var(--auth-sidebar-bg) !important;
+}
+
+[data-theme='dark'] .auth-content {
+    background: #0d0d0d;
+    color: white;
+}
+
+[data-theme='dark'] .role-btn {
+    background: #1a1a1a;
+    border-color: #333;
+    color: #888;
+}
+
+[data-theme='dark'] .role-btn.active {
+    border-color: #00f2fe !important;
+    background: rgba(0, 242, 254, 0.05) !important;
+    color: #00f2fe !important;
+    box-shadow: 0 0 15px rgba(0, 242, 254, 0.1);
+}
+
+[data-theme='dark'] .form-group input {
+    background: var(--auth-input-bg) !important;
+    border-color: var(--auth-input-border) !important;
+    color: white !important;
+}
+
+[data-theme='dark'] .form-group input::placeholder {
+    color: #444;
+}
+
+[data-theme='dark'] .auth-tab {
+    color: #666;
+}
+
+[data-theme='dark'] .auth-tab.active {
+    color: #00f2fe !important;
+    border-bottom-color: #00f2fe !important;
+}
+
+[data-theme='dark'] .btn-auth {
+    background: linear-gradient(90deg, #00f2fe 0%, #a17fe0 100%) !important;
+    box-shadow: 0 10px 20px rgba(0, 242, 254, 0.2);
+}
+
+[data-theme='dark'] .logo,
+[data-theme='dark'] .nav-links a {
+    color: var(--text-main) !important;
+}
+
+[data-theme='dark'] .hero h1 {
+    color: var(--hero-h1) !important;
+}
+
+[data-theme='dark'] .hero h1 .gradient-text {
+    background: var(--hero-gradient) !important;
+    -webkit-background-clip: text !important;
+    -webkit-text-fill-color: transparent !important;
+}
+
+[data-theme='dark'] .btn-primary {
+    background: var(--btn-hero-bg) !important;
+    box-shadow: 0 10px 20px var(--btn-hero-glow) !important;
+}
+
+[data-theme='dark'] .beta-tag {
+    background: var(--beta-bg) !important;
+    color: var(--beta-text) !important;
+    border-color: var(--beta-border) !important;
+}
+
+[data-theme='dark'] .beta-dot {
+    background: #00f2fe !important;
+    box-shadow: 0 0 10px #00f2fe;
+}
+
+/* Home Button Dark Mode Support */
+[data-theme='dark'] .home-btn {
+    background: #1a1a1a !important;
+    border-color: #333 !important;
+    color: #00f2fe !important;
+}
+
 .user-avatar {
     width: 40px;
     height: 40px;

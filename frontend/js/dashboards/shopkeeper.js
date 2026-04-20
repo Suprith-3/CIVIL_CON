@@ -230,7 +230,8 @@ async function loadInventory() {
 
     try {
         console.log("--- Fetching Inventory ---");
-        const res = await fetch(`${API_BASE_URL}/items/`, {
+        const user_id = localStorage.getItem('user_id');
+        const res = await fetch(`${API_BASE_URL}/items/?owner_id=${user_id}`, {
             headers: { 'Authorization': `Bearer ${token}` }
         });
         
@@ -243,7 +244,12 @@ async function loadInventory() {
         console.log("Raw Inventory Data:", data);
 
         if (!Array.isArray(data)) {
-            list.innerHTML = `<p style="color: #ef4444; font-weight:bold;">⚠️ Error: ${data.message || 'Database returned bad format'}</p>`;
+            const errorReason = data.message || data.error || 'Check internet connection';
+            list.innerHTML = `
+                <div style="grid-column: 1/-1; text-align: center; padding: 2rem; background: #fff1f2; border: 1px solid #fda4af; border-radius: 12px;">
+                    <p style="color: #be123c; font-weight:bold; margin-bottom: 5px;">⚠️ Database Error</p>
+                    <p style="color: #e11d48; font-size: 0.9rem;">${errorReason}</p>
+                </div>`;
             return;
         }
 

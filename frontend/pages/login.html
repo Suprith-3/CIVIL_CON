@@ -6,9 +6,66 @@
     <title>Auth | BuildHub</title>
     <link rel="stylesheet" href="../css/style.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="../js/theme.js"></script>
+    <style>
+        .auth-page {
+            background: var(--bg-light) !important;
+            transition: all 0.3s ease;
+        }
+        .auth-container {
+            background: white;
+            border: 1px solid var(--border);
+            box-shadow: var(--card-shadow) !important;
+            transition: all 0.3s ease;
+            max-width: 1100px;
+        }
+        .auth-sidebar {
+            background: var(--primary) !important;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        /* Dashboard Sidebar style accent for Dark Mode */
+        [data-theme='dark'] .auth-sidebar::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: radial-gradient(circle at top left, rgba(255,255,255,0.1), transparent);
+            pointer-events: none;
+        }
+        .role-btn.active {
+            border-color: var(--primary) !important;
+            background: #eff6ff !important;
+            color: var(--primary) !important;
+        }
+        .auth-tab.active {
+            color: var(--primary) !important;
+            border-bottom: 2px solid var(--primary) !important;
+        }
+        .btn-auth {
+            background: var(--primary) !important;
+        }
+        /* Mobile fixes */
+        @media (max-width: 768px) {
+            .auth-container { flex-direction: column !important; min-height: auto; width: 100%; border-radius: 0; }
+            .auth-sidebar { padding: 3rem 2rem; border-radius: 0 !important; flex: none; }
+            .auth-content { padding: 2.5rem 1.5rem; }
+            .role-selectors { margin-bottom: 2rem; display: grid !important; grid-template-columns: repeat(3, 1fr) !important; gap: 10px !important; }
+        }
+    </style>
 </head>
-<body class="auth-page">
-    <a href="../index.html" class="home-btn" title="Go to Home">
+<body class="auth-page" data-theme="light">
+    <!-- Theme Toggle -->
+    <div class="theme-toggle" title="Toggle Dark/Light Mode">
+        <i class="fa-solid fa-moon"></i>
+        <i class="fa-solid fa-sun"></i>
+    </div>
+    
+    <a href="../index.html" class="home-btn" title="Go to Home" style="color: #64748b; background: white; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);">
         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" d="m2.25 12 8.954-8.955c.44-.439 1.152-.439 1.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75M8.25 21h8.25" />
         </svg>
@@ -27,7 +84,9 @@
                 }
             </script>
             <script type="text/javascript" src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
-            <div class="logo">👷 Build<span>Hub</span></div>
+            <div class="logo" style="display: flex; align-items: center; gap: 10px; font-weight: 800; font-size: 1.5rem; margin-bottom: 2rem;">
+                <i class="fa-solid fa-traffic-cone" style="color: #f97316;"></i> Build Hub
+            </div>
             <h1>The Foundation <br> for Your Projects</h1>
             <p>Connect with skilled workers, hire engineers, and buy construction materials all in one place.</p>
             
@@ -55,23 +114,23 @@
         <div class="auth-content">
             <div class="role-selectors">
                 <div class="role-btn" data-role="user">
-                    <span>👤</span>
+                    <i class="fa-solid fa-user-tie"></i>
                     <small>Customer</small>
                 </div>
                 <div class="role-btn" data-role="engineer">
-                    <span>📐</span>
+                    <i class="fa-solid fa-compass-drafting"></i>
                     <small>Engineer</small>
                 </div>
                 <div class="role-btn" data-role="worker">
-                    <span>👷</span>
+                    <i class="fa-solid fa-helmet-safety"></i>
                     <small>Worker</small>
                 </div>
                 <div class="role-btn" data-role="shopkeeper">
-                    <span>🏠</span>
+                    <i class="fa-solid fa-store"></i>
                     <small>Shopkeeper</small>
                 </div>
                 <div class="role-btn" data-role="renter">
-                    <span>🚜</span>
+                    <i class="fa-solid fa-truck-pickup"></i>
                     <small>Rent</small>
                 </div>
             </div>

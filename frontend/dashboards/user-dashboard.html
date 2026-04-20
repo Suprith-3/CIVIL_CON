@@ -524,6 +524,7 @@
             try {
                 const res = await fetch(`${API_BASE_URL}/worker/list-approved`);
                 const data = await res.json();
+                if (data.workers) data.workers.forEach(w => w.daily_wages = Math.round(w.daily_wages * 1.15));
                 document.getElementById('homeWork').innerHTML = (data.workers || []).slice(0, 4).map(w => `
                     <div class="p-card" style="padding:1rem; display:flex; align-items:center; gap:15px;">
                         <div style="width:60px; height:60px; background-image:url('${IMG_BASE_URL}${w.profile_pic_url || '/uploads/placeholder.jpg'}'); background-size:cover; background-position:center; border-radius:12px; flex-shrink:0;"></div>
@@ -541,6 +542,7 @@
             try {
                 const res = await fetch(`${API_BASE_URL}/items/`);
                 const items = await res.json();
+                items.forEach(i => i.price = Math.round(i.price * (i.item_type === 'rent' ? 1.15 : 1.10)));
                 const container = document.getElementById('homeShops');
                 container.innerHTML = items.filter(i => i.item_type !== 'rent').slice(0, 4).map(i => `
                     <div class="p-card" style="padding:1rem;">
@@ -559,6 +561,7 @@
             try {
                 const res = await fetch(`${API_BASE_URL}/items/`);
                 const items = await res.json();
+                items.forEach(i => i.price = Math.round(i.price * (i.item_type === 'rent' ? 1.15 : 1.10)));
                 const container = document.getElementById('homeRentals');
                 container.innerHTML = items.filter(i => i.item_type === 'rent').slice(0, 4).map(i => `
                     <div class="p-card" style="padding:1rem;">
@@ -688,6 +691,7 @@
             try {
                 const res = await fetch(`${API_BASE_URL}/items/`);
                 const items = await res.json();
+                items.forEach(i => i.price = Math.round(i.price * (i.item_type === 'rent' ? 1.15 : 1.10)));
                 grid.innerHTML = items.map(item => `
                     <div class="p-card">
                         <div style="height:180px; background-image: url('http://127.0.0.1:5000/uploads/${item.image_url?.split('/').pop() || 'placeholder.jpg'}'); background-size:cover; background-position:center;"></div>
@@ -774,6 +778,7 @@
                 const res = await fetch(`${API_BASE_URL}/worker/list-approved`);
                 let data = await res.json();
                 let workers = data.workers || [];
+                workers.forEach(w => w.daily_wages = Math.round(w.daily_wages * 1.15));
 
                 // FALLBACK FOR TESTING: If no one is approved, show everyone!
                 if (workers.length === 0) {
@@ -783,6 +788,7 @@
                     const resAll = await fetch(`${API_BASE_URL}/worker/nearby?lat=0&lng=0&radius=100000`);
                     const dataAll = await resAll.json();
                     workers = dataAll.workers || [];
+                    workers.forEach(w => w.daily_wages = Math.round(w.daily_wages * 1.15));
                 }
 
                 if (workers.length === 0) {
@@ -815,6 +821,7 @@
                 const res = await fetch(`${API_BASE_URL}/worker/portfolio?worker_id=${workerId}`);
                 const data = await res.json();
                 const portfolio = data.portfolio || [];
+                portfolio.forEach(p => p.cost = Math.round(p.cost * 1.15));
 
                 if (portfolio.length === 0) {
                     content.innerHTML = '<h3>Worker Portfolio</h3><p>This worker hasn\'t uploaded any projects yet.</p>';
@@ -1089,6 +1096,7 @@
                     // Load actual rental items
                     const itemsRes = await fetch(`${API_BASE_URL}/items/`);
                     const items = await itemsRes.json();
+                    items.forEach(i => i.price = Math.round(i.price * (i.item_type === 'rent' ? 1.15 : 1.10)));
                     const rentals = items.filter(i => i.item_type === 'rent');
                     
                     if (rentals.length === 0) {

@@ -47,7 +47,10 @@
     <div class="checkout-grid">
         <div class="left-col">
             <div class="card">
-                <div class="card-header">🚚 Delivery Address</div>
+                <div class="card-header">🚚 Delivery Details</div>
+                <label style="font-size: 0.9rem; font-weight: 600; color: #475569;">Delivery Distance (in km)</label>
+                <input type="number" id="distanceInput" class="input-field" min="1" value="10" placeholder="E.g., 10" oninput="calculateTotal()" style="min-height:40px; margin-bottom: 15px;">
+                
                 <label style="font-size: 0.9rem; font-weight: 600; color: #475569;">Full Delivery Address</label>
                 <textarea id="addressInput" class="input-field" placeholder="House No, Village, Mandal, District, Pincode"></textarea>
             </div>
@@ -71,9 +74,24 @@
 
         <div class="right-col">
             <div class="card">
-                <div style="font-weight: 800; font-size: 1.25rem;">Final Amount</div>
-                <div class="final-amount" id="finalAmount">₹0.0</div>
-                <p style="font-size: 0.8rem; color: #64748b;">Including all taxes and free delivery.</p>
+                <div style="font-weight: 800; font-size: 1.25rem;">Order Summary</div>
+                
+                <div style="display:flex; justify-content:space-between; margin-top:1.5rem; color:#475569; font-weight:600;">
+                    <span>Items Subtotal:</span>
+                    <span id="subtotalDisplay">₹0.0</span>
+                </div>
+                <div style="display:flex; justify-content:space-between; margin-top:0.5rem; color:#475569; font-weight:600;">
+                    <span>Delivery (<span id="deliveryDetails">0 items × 0 km</span>):</span>
+                    <span id="deliveryDisplay">₹0.0</span>
+                </div>
+                
+                <hr style="border:0; border-top:1px solid #e2e8f0; margin:1.5rem 0;">
+                
+                <div style="display:flex; justify-content:space-between; font-weight: 800; font-size: 1.25rem; color: #0f172a;">
+                    <span>Total:</span>
+                    <span class="final-amount" id="finalAmount" style="margin:0; font-size:1.8rem;">₹0.0</span>
+                </div>
+                <p style="font-size: 0.8rem; color: #64748b; margin-top:10px;">Platform and delivery fees included.</p>
                 
                 <button class="btn-order" onclick="placeOrder()">Place Order ✓</button>
                 <div class="secure-badge">🔒 100% Secure Checkout</div>
@@ -91,6 +109,9 @@
         let cart = [];
         let total = 0;
 
+        let itemsSubtotal = 0;
+        let totalItems = 0;
+
         window.onload = () => {
             const cartJSON = localStorage.getItem('cart') || '[]';
             cart = JSON.parse(cartJSON);
@@ -101,9 +122,36 @@
                 return;
             }
 
-            total = cart.reduce((sum, item) => sum + parseFloat(item.price), 0);
-            document.getElementById('finalAmount').textContent = `₹${total}`;
+            // Group items to get accurate total quantity of unique product instances vs pieces
+            const grouped = cart.reduce((acc, item) => {
+                if (!acc[item.id]) acc[item.id] = { ...item, qty: 1 };
+                else acc[item.id].qty += 1;
+                return acc;
+            }, {});
+
+            for (const key in grouped) {
+                const item = grouped[key];
+                itemsSubtotal += parseFloat(item.price) * item.qty;
+                totalItems += item.qty; // Each distinct item piece adds to total delivery calculation
+            }
+
+            document.getElementById('subtotalDisplay').textContent = `₹${itemsSubtotal.toFixed(2)}`;
+            calculateTotal(); // Will compute total delivery & final amount based on default distance
         };
+
+        function calculateTotal() {
+            const distInput = document.getElementById('distanceInput').value;
+            const distance = Math.max(0, parseFloat(distInput) || 0);
+
+            // 1 Rs per item per km
+            const deliveryCharge = totalItems * distance * 1;
+            
+            document.getElementById('deliveryDetails').textContent = `${totalItems} items × ${distance} km`;
+            document.getElementById('deliveryDisplay').textContent = `₹${deliveryCharge.toFixed(2)}`;
+
+            total = itemsSubtotal + deliveryCharge;
+            document.getElementById('finalAmount').textContent = `₹${total.toFixed(2)}`;
+        }
 
         function selectPayment(mode) {
             paymentMode = mode;

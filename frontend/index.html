@@ -9,12 +9,91 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <script src="js/theme.js"></script>
+    <style>
+        /* Isolate the beautiful blue UI UX for the landing page ONLY */
+        body {
+            background-color: var(--hero-bg) !important;
+            transition: background-color 0.3s;
+        }
+        .hero {
+            position: relative;
+            z-index: 1;
+        }
+        /* Glowing orb effect behind the hero text */
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 80vw;
+            height: 80vw;
+            max-width: 800px;
+            max-height: 800px;
+            background: radial-gradient(circle, rgba(0, 242, 254, 0.05) 0%, rgba(255, 255, 255, 0) 70%);
+            z-index: -1;
+            pointer-events: none;
+        }
+        [data-theme='dark'] .hero::before {
+            background: radial-gradient(circle, rgba(0, 242, 254, 0.1) 0%, rgba(5, 5, 5, 0) 70%);
+        }
+        .hero h1 {
+            color: var(--hero-h1) !important;
+        }
+        .hero h1 .gradient-text {
+            background: var(--hero-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-weight: 800;
+        }
+        .btn-primary {
+            background: var(--btn-hero-bg) !important;
+            box-shadow: 0 10px 20px var(--btn-hero-glow) !important;
+            border-radius: 999px !important;
+            border: none;
+        }
+        .btn-get-started {
+            background: var(--primary) !important;
+            color: white !important;
+            border-radius: 8px;
+            padding: 0.6rem 1.2rem;
+            text-decoration: none;
+            font-weight: 600;
+        }
+        [data-theme='dark'] .btn-get-started {
+            background: linear-gradient(90deg, #00f2fe 0%, #a17fe0 100%) !important;
+        }
+        .beta-tag {
+            background: var(--beta-bg) !important;
+            color: var(--beta-text) !important;
+            border: 1px solid var(--beta-border);
+        }
+        .beta-dot {
+            background: var(--beta-text) !important;
+        }
+        nav {
+            background: transparent !important;
+            border-bottom: none !important;
+        }
+        .logo {
+            font-size: 1.4rem;
+            font-weight: 800;
+            color: var(--text-main);
+        }
+    </style>
 </head>
-<body>
+<body data-theme="light">
+    <!-- Theme Toggle -->
+    <div class="theme-toggle" title="Toggle Dark/Light Mode">
+        <i class="fa-solid fa-moon"></i>
+        <i class="fa-solid fa-sun"></i>
+    </div>
+    
     <!-- Navigation -->
     <nav>
-        <div class="logo animate-fade-in" id="main-logo" style="cursor: pointer;">
-            👷 Build<span>Hub</span>
+        <div class="logo animate-fade-in" id="main-logo" style="cursor: pointer; display: flex; align-items: center; gap: 8px;">
+            <i class="fa-solid fa-traffic-cone" style="color: #f97316;"></i> Build Hub
         </div>
         <div class="nav-links">
             <a href="index.html">Home</a>
@@ -62,9 +141,9 @@
                 <span class="beta-dot"></span> Now open for beta users
             </div>
             <h1>The Digital Foundation for <br> <span class="gradient-text">Modern Construction</span></h1>
-            <p>One unified ecosystem connecting clients, engineers, and workers. Manage projects, hire specialized talent, and procure materials—all in one place.</p>
+            <p>One unified ecosystem connecting clients, engineers, and workers.<br>Manage projects, hire specialized talent, and procure materials—all in one place.</p>
             <div class="hero-btns">
-                <a href="pages/login.html?tab=register" class="btn-primary">Join the Ecosystem</a>
+                <a href="pages/login.html?tab=register" class="btn-primary" style="width: 400px; max-width: 90%; max-width: 90%;">Join the Ecosystem</a>
             </div>
         </section>
 
