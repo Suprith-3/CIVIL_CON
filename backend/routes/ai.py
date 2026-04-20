@@ -27,7 +27,15 @@ def call_groq(prompt):
 def search_live_schemes():
     try:
         # Specialized prompt for Indian Gov Schemes related to construction
-        prompt = "List 5 current/live Indian government schemes related to home construction, civil engineering, or laborers (e.g., PMAY). Provide Name, Key Benefits, and Official Link for each. Format as a simple list for display."
+        prompt = (
+            "List 5 current ongoing Indian government schemes related specifically to civil engineering, home construction, or construction workers (e.g., PMAY-U, DAY-NULM, BOCW benefits).\n"
+            "For each scheme, provide:\n"
+            "1. Name\n"
+            "2. Category (Civil/Worker/Housing)\n"
+            "3. Key Benefits\n"
+            "4. OFFICIAL APPLYING LINK (or official portal URL)\n"
+            "Format the output as a clean, readable list with headers for each point."
+        )
         
         ai_response = call_groq(prompt)
         return jsonify({'schemes': ai_response}), 200
@@ -36,8 +44,12 @@ def search_live_schemes():
 
 @ai_bp.route('/schemes', methods=['GET'])
 def get_schemes():
-    query = request.args.get('query', 'construction workers and farmers in India')
-    prompt = f"List the latest major government schemes in India for {query}. Provide details on eligibility and benefits."
+    query = request.args.get('query', 'construction workers and housing in India')
+    prompt = (
+        f"List the latest active major government schemes in India related to '{query}'.\n"
+        "Crucially, for every scheme you mention, you MUST include the OFFICIAL Government Application Link or the specific Department Portal URL where a user can apply.\n"
+        "Provide details on eligibility, benefits, and the step-by-step applying process if possible."
+    )
     result = call_groq(prompt)
     return jsonify({'result': result}), 200
 

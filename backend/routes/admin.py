@@ -21,16 +21,14 @@ def get_pending():
         workers_res = supabase.table('worker_registrations').select('*').eq('status', 'pending').execute()
         engineers_res = supabase.table('engineer_registrations').select('*').eq('status', 'pending').execute()
         shops_res = supabase.table('shopkeeper_registrations').select('*').eq('status', 'pending').execute()
-        
-        # FALLBACK: Also find users who are engineers but don't have a record in engineer_registrations yet
-        all_users = supabase.table('users').select('*').in_('user_type', ['engineer', 'worker', 'shopkeeper']).execute()
+        renters_res = supabase.table('renter_registrations').select('*').eq('status', 'pending').execute()
         
         # Combine them logically
         return jsonify({
             'workers': workers_res.data,
             'engineers': engineers_res.data,
             'shops': shops_res.data,
-            'all_users': all_users.data # We can use this to find "ghost" profiles
+            'renters': renters_res.data
         }), 200
     except Exception as e:
         return jsonify({'error': 'Server Error', 'message': str(e)}), 500
@@ -76,7 +74,8 @@ def approve_registration(role, id):
     table_map = {
         'worker': 'worker_registrations',
         'engineer': 'engineer_registrations',
-        'shopkeeper': 'shopkeeper_registrations'
+        'shopkeeper': 'shopkeeper_registrations',
+        'renter': 'renter_registrations'
     }
     
     table = table_map.get(role)
@@ -94,7 +93,8 @@ def reject_registration(role, id):
     table_map = {
         'worker': 'worker_registrations',
         'engineer': 'engineer_registrations',
-        'shopkeeper': 'shopkeeper_registrations'
+        'shopkeeper': 'shopkeeper_registrations',
+        'renter': 'renter_registrations'
     }
     
     table = table_map.get(role)

@@ -65,18 +65,21 @@ CREATE TABLE shopkeeper_registrations (
     submitted_at TIMESTAMP WITH TIME ZONE DEFAULT now()
 );
 
--- 6. ITEMS TABLE
+-- 6. ITEMS TABLE (Materials & Rental Equipment)
 CREATE TABLE items (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-    shopkeeper_id UUID REFERENCES users(id) ON DELETE CASCADE NOT NULL,
+    owner_id UUID REFERENCES users(id) ON DELETE CASCADE NOT NULL,
     name TEXT NOT NULL,
     description TEXT,
-    category TEXT NOT NULL,
-    image_url TEXT,
+    category TEXT NOT NULL, -- e.g. 'Vehicle', 'Tools', 'Cement'
+    image_url TEXT, -- Primary image
+    extra_images JSONB DEFAULT '[]', -- Gallery
     price DECIMAL NOT NULL,
-    item_type item_type NOT NULL,
+    item_type item_type NOT NULL, -- 'sell' or 'rent'
+    price_unit TEXT DEFAULT 'piece', -- 'hour', 'day', 'piece'
+    insurance_url TEXT, -- Required for Vehicle rentals
     location JSONB,
-    stock INTEGER DEFAULT 0,
+    stock INTEGER DEFAULT 1,
     is_active BOOLEAN DEFAULT true,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT now()
 );

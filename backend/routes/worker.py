@@ -22,6 +22,14 @@ def haversine(lat1, lon1, lat2, lon2):
     c = 2 * math.atan2(math.sqrt(a), math.sqrt(1 - a))
     return R * c
 
+@worker_bp.route('/list-approved', methods=['GET'])
+def list_approved_workers():
+    try:
+        res = supabase.table('worker_registrations').select('*').eq('status', 'approved').execute()
+        return jsonify({'workers': res.data or []}), 200
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
 @worker_bp.route('/nearby', methods=['GET'])
 def get_nearby_workers():
     user_lat = request.args.get('lat', type=float)

@@ -48,6 +48,18 @@ def register():
             'is_active': True
         }
         
+        # Add basic profile info for generic 'user' (customer)
+        if user_type == 'user':
+            new_user.update({
+                'full_name': data.get('name'),
+                'contact_number': data.get('phone'),
+                'location': {
+                    'address': data.get('address'),
+                    'lat': data.get('lat'),
+                    'lng': data.get('lng')
+                }
+            })
+        
         if supabase:
             res = supabase.table('users').insert(new_user).execute()
             if not res.data:
@@ -154,6 +166,37 @@ def register():
                 }
                 supabase.table('shopkeeper_registrations').insert(reg_data).execute()
 
+            elif user_type == 'renter':
+                # Handle File Saving for Renter
+                import os
+                from werkzeug.utils import secure_filename
+                
+                upload_folder = os.path.join(os.getcwd(), 'uploads')
+                if not os.path.exists(upload_folder):
+                    os.makedirs(upload_folder)
+
+                doc_url = "not_provided"
+                file = request.files.get('verification_doc')
+                if file and file.filename:
+                    filename = secure_filename(f"{user_id}_renter_doc_{file.filename}")
+                    file.save(os.path.join(upload_folder, filename))
+                    doc_url = f"/uploads/{filename}"
+
+                reg_data = {
+                    'user_id': user_id,
+                    'name': data.get('full_name', 'New Renter'),
+                    'phone': data.get('phone', ''),
+                    'email': email,
+                    'status': 'pending',
+                    'verification_doc_url': doc_url,
+                    'location': {
+                        'lat': data.get('lat'),
+                        'lng': data.get('lng'),
+                        'manual_address': data.get('manual_address')
+                    }
+                }
+                supabase.table('renter_registrations').insert(reg_data).execute()
+
         return jsonify({
             'message': 'Registration submitted for review',
             'user': {'email': email, 'user_type': user_type}
@@ -207,7 +250,8 @@ def login():
                 table_map = {
                     'engineer': 'engineer_registrations',
                     'worker': 'worker_registrations',
-                    'shopkeeper': 'shopkeeper_registrations'
+                    'shopkeeper': 'shopkeeper_registrations',
+                    'renter': 'renter_registrations'
                 }
                 status_res = supabase.table(table_map[role]).select('status').eq('user_id', user_data['id']).execute()
                 
@@ -280,7 +324,8 @@ def get_status():
         table_map = {
             'engineer': 'engineer_registrations',
             'worker': 'worker_registrations',
-            'shopkeeper': 'shopkeeper_registrations'
+            'shopkeeper': 'shopkeeper_registrations',
+            'renter': 'renter_registrations'
         }
         
         if role not in table_map:
@@ -427,5 +472,37 @@ def get_all_shops():
             .not_.is_('latitude', 'null')\
             .execute()
         return jsonify(res.data), 200
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@auth_bp.route('/verify-customer', methods=['POST'])
+def verify_customer():
+    user_id = request.form.get('user_id')
+    aadhar = request.files.get('aadhar_file')
+    dl = request.files.get('dl_file')
+    
+    if not (user_id and aadhar and dl):
+        return jsonify({'error': 'Missing required fields'}), 400
+
+    try:
+        import os
+        upload_folder = os.path.join(os.getcwd(), 'uploads', 'verifications')
+        if not os.path.exists(upload_folder): os.makedirs(upload_folder)
+        
+        a_path = os.path.join(upload_folder, f"aadhar_{user_id}_{aadhar.filename}")
+        d_path = os.path.join(upload_folder, f"dl_{user_id}_{dl.filename}")
+        
+        aadhar.save(a_path)
+        dl.save(d_path)
+
+        # Update user record
+        supabase.table('users').update({
+            'is_id_verified': False, 
+            'aadhar_url': f"/uploads/verifications/{os.path.basename(a_path)}",
+            'dl_url': f"/uploads/verifications/{os.path.basename(d_path)}",
+            'verification_status': 'pending'
+        }).eq('id', user_id).execute()
+
+        return jsonify({'message': 'Documents uploaded successfully. Admin review pending.'}), 200
     except Exception as e:
         return jsonify({'error': str(e)}), 500

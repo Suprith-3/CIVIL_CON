@@ -21,47 +21,58 @@ def add_item():
     try:
         user_id = get_jwt_identity()
         data = request.form
-        file = request.files.get('product_img')
+        main_file = request.files.get('product_img')
+        extra_files = request.files.getlist('extra_images')
+        insurance_file = request.files.get('insurance_doc')
 
-        if not file:
-            return jsonify({'error': 'No image provided'}), 400
+        if not main_file:
+            return jsonify({'error': 'Primary image is required'}), 400
 
-        # Ensure the storage folder exists
-        # Save to the root 'uploads' folder (consistent with app.py)
         root_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
         upload_folder = os.path.join(root_dir, 'uploads')
         if not os.path.exists(upload_folder):
             os.makedirs(upload_folder)
 
-        # Generate unique name and SAVE TO DISK
-        ext = file.filename.split('.')[-1]
-        filename = f"{uuid.uuid4()}.{ext}"
-        filepath = os.path.join(upload_folder, filename)
-        file.save(filepath)
-        print(f"✅ Image saved successfully: {filename}")
+        def save_file(file, prefix='item'):
+            ext = file.filename.split('.')[-1]
+            fname = f"{uuid.uuid4()}_{prefix}.{ext}"
+            file.save(os.path.join(upload_folder, fname))
+            return f"/uploads/{fname}"
 
-        image_url = f"/uploads/{filename}"
+        image_url = save_file(main_file, 'main')
+        
+        extra_urls = []
+        for ef in extra_files:
+            if ef and ef.filename:
+                extra_urls.append(save_file(ef, 'extra'))
+        
+        ins_url = None
+        if insurance_file and insurance_file.filename:
+            ins_url = save_file(insurance_file, 'ins')
 
         new_item = {
-            'shopkeeper_id': user_id,
+            'owner_id': user_id,
+            'shopkeeper_id': user_id, # Keep compatibility with older schema
             'name': data.get('name'),
             'description': data.get('description', ''),
             'category': data.get('category'),
             'price': float(data.get('price')) if data.get('price') else 0.0,
-            'item_type': data.get('item_type', 'sell'), # Default to sell if empty
-            'stock': 1,
+            'price_unit': data.get('price_unit', 'piece'),
+            'item_type': data.get('item_type', 'sell'),
+            'stock': int(data.get('stock', 1)),
             'image_url': image_url,
+            'extra_images': extra_urls,
+            'insurance_url': ins_url,
             'is_active': True
         }
         
         res = supabase.table('items').insert(new_item).execute()
         
         if res.data:
-            return jsonify({'message': 'Success', 'item': res.data[0]}), 201
-        return jsonify({'error': 'Insert failed'}), 500
+            return jsonify({'message': 'Item listed successfully', 'item': res.data[0]}), 201
+        return jsonify({'error': 'Failed to save item to database'}), 500
             
     except Exception as e:
-        print(f"ERROR: {str(e)}")
         return jsonify({'error': 'Server Error', 'message': str(e)}), 500
 
 @items_bp.route('/scan', methods=['POST'])
