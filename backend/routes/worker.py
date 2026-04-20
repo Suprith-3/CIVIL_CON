@@ -261,8 +261,8 @@ def list_bookings():
         # 2. Manual Stitching of User Details (Fallback Join)
         for b in bookings:
             try:
-                # Fetch details of the customer (user_id)
-                u_res = supabase.table('users').select('full_name, contact_number, hotel_address, latitude, longitude').eq('id', b['user_id']).execute()
+                # Fetch details of the customer (user_id) - Corrected field 'hotel_address' to 'address'
+                u_res = supabase.table('users').select('full_name, contact_number, address, latitude, longitude').eq('id', b['user_id']).execute()
                 if u_res.data:
                     b['users'] = u_res.data[0]
                 else:
