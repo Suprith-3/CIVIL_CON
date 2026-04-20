@@ -59,6 +59,22 @@ def get_nearby_workers():
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
+@worker_bp.route('/daily-work', methods=['GET'])
+def get_daily_work():
+    user_id = request.args.get('worker_id')
+    try:
+        # Get worker's name from registration table
+        profile_res = supabase.table('worker_registrations').select('name').eq('user_id', user_id).execute()
+        if not profile_res.data:
+             return jsonify({'error': 'Profile not found'}), 404
+        worker_name = profile_res.data[0]['name']
+        
+        # Get daily work from engineer's worker_management logs
+        work_res = supabase.table('worker_management').select('*').eq('worker_name', worker_name).order('created_at', desc=True).limit(20).execute()
+        return jsonify({'daily_work': work_res.data}), 200
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
 @worker_bp.route('/portfolio', methods=['POST'])
 def add_work():
     # Attempt to get ID from token, fallback to form data for now

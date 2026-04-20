@@ -181,6 +181,10 @@
             🏗️ Worker<span>Hub</span></div>
         <div class="nav-link active" onclick="showSection('overview', this)">🏠 Overview</div>
         <div class="nav-link" onclick="showSection('inquiries', this)">💬 Inquiries</div>
+        <div class="nav-link" id="nav-labor" onclick="showSection('labor-work', this)">
+            👷 Labour Day Work 
+            <span id="laborBadge" style="display:none; background:#ef4444; color:white; font-size:10px; padding:2px 6px; border-radius:10px; margin-left:5px;">NEW</span>
+        </div>
         <div class="nav-link" onclick="showSection('profile', this)">⚙️ Profile</div>
         <div class="nav-link" style="margin-top: auto; color: #ef4444;" onclick="logout()">🚪 Logout</div>
     </div>
@@ -190,6 +194,7 @@
             <div>
                 <div id="google_translate_element" style="margin-bottom: 1rem;"></div>
                 <h1 id="welcomeGreeting" style="margin:0;">Welcome Back, <span style="color: #2563eb;">Worker</span>!</h1>
+                <p id="workerUniqueId" style="color: #64748b; font-weight: 700; font-size: 0.85rem; margin: 5px 0;">ID: Loading...</p>
             </div>
             
             <!-- Notification Bell -->
@@ -231,6 +236,17 @@
                 <p style="color: #64748b;">Track your 85% milestone payments and mark jobs as complete.</p>
             </div>
             <div id="bookingList" class="grid"></div>
+        </div>
+
+        <!-- Labour Day Work Section -->
+        <div id="laborWorkSection" style="display:none;">
+            <div style="margin-bottom: 2rem;">
+                <h1 style="margin:0;">Labour <span style="color: #2563eb;">Day Work</span></h1>
+                <p style="color: #64748b;">Tasks and attendance marked by your assigned Engineer.</p>
+            </div>
+            <div id="laborWorkList" class="grid">
+                <!-- Daily works will load here -->
+            </div>
         </div>
 
         <!-- Profile Section -->
@@ -425,11 +441,70 @@
 
             document.getElementById('overviewSection').style.display = (section === 'overview') ? 'block' : 'none';
             document.getElementById('inquiriesSection').style.display = (section === 'inquiries') ? 'block' : 'none';
+            document.getElementById('laborWorkSection').style.display = (section === 'labor-work') ? 'block' : 'none';
             document.getElementById('profileSection').style.display = (section === 'profile') ? 'block' : 'none';
 
             if (section === 'overview') loadPortfolio();
             else if (section === 'inquiries') loadBookings();
+            else if (section === 'labor-work') loadDailyWork();
             else if (section === 'profile') loadProfile();
+        }
+
+        async function loadDailyWork() {
+            const list = document.getElementById('laborWorkList');
+            list.innerHTML = '<p>Checking for assigned work...</p>';
+            try {
+                const current_worker_id = localStorage.getItem('user_id');
+                const res = await fetch(`${API_BASE_URL}/worker/daily-work?worker_id=${current_worker_id}`);
+                const data = await res.json();
+                list.innerHTML = '';
+                
+                const laborBadge = document.getElementById('laborBadge');
+                const today = new Date().toLocaleDateString();
+                let hasWorkToday = false;
+
+                if (data.daily_work && data.daily_work.length > 0) {
+                    data.daily_work.forEach(work => {
+                        const isPresent = work.attendance_status === 'Present' || work.attendance_status === 'Half Day';
+                        const colorCode = isPresent ? '#10b981' : '#ef4444';
+                        
+                        const rawDate = new Date(work.created_at);
+                        const displayDate = rawDate.toLocaleDateString();
+                        
+                        // Check if this work was assigned today
+                        if (displayDate === today) hasWorkToday = true;
+
+                        list.innerHTML += `
+                            <div class="card" style="border-left: 5px solid ${colorCode}; padding: 1.5rem; position: relative; margin-bottom: 1rem;">
+                                <div style="display:flex; justify-content:space-between;">
+                                    <h3 style="margin:0;">Task: ${work.assigned_work}</h3>
+                                    <span style="background:${colorCode}22; color:${colorCode}; padding:5px 10px; border-radius:12px; font-weight:700; font-size:0.8rem;">${work.attendance_status}</span>
+                                </div>
+                                <div style="margin-top: 1rem; color:#64748b; font-size: 0.9rem;">
+                                    <p style="margin:5px 0;">📍 <strong>Site Location:</strong> ${work.location}</p>
+                                    <p style="margin:5px 0;">📅 <strong>Date Assigned:</strong> ${displayDate}</p>
+                                </div>
+                            </div>
+                        `;
+                    });
+
+                    // Update Notification Badge
+                    if (hasWorkToday) {
+                        laborBadge.style.display = 'inline-block';
+                        // Shown an alert if this is the first login of the day
+                        if (!sessionStorage.getItem('workNotified')) {
+                            alert("📢 NEW WORK ASSIGNED!\nAn engineer has assigned you a job for today. Check the 'Labour Day Work' tab.");
+                            sessionStorage.setItem('workNotified', 'true');
+                        }
+                    } else {
+                        laborBadge.style.display = 'none';
+                    }
+                } else {
+                    list.innerHTML = '<p style="grid-column: 1/-1; text-align: center; color: #94a3b8;">No tasks assigned by any engineer yet.</p>';
+                }
+            } catch (err) {
+                list.innerHTML = '<p>Error loading daily work assignments.</p>';
+            }
         }
 
         async function loadBookings() {
@@ -545,6 +620,9 @@
                     if (p.profile_pic_url) {
                         document.getElementById('profileImagePreview').style.backgroundImage = `url(${IMG_BASE_URL}${p.profile_pic_url})`;
                     }
+                    if (p.worker_code) {
+                        document.getElementById('workerUniqueId').textContent = `Unique ID: ${p.worker_code}`;
+                    }
                 }
             } catch (e) { console.error("Error loading profile:", e); }
         }
@@ -575,7 +653,9 @@
 
             loadWorkerStats();
             loadPortfolio();
-            loadBookings(); // Initialize the bell badge
+            loadBookings();
+            loadDailyWork();
+            loadProfile(); // Load Unique ID and details
         };
     </script>
 </body>
