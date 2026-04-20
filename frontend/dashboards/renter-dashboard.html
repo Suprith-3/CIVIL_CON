@@ -9,14 +9,14 @@
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <style>
-        body { display: flex; background: #f8fafc; }
-        .sidebar { width: 260px; height: 100vh; background: #0f172a; color: white; position: fixed; padding: 2rem 1rem; }
+        body { display: flex; background: var(--bg-alt); color: var(--text-main); transition: 0.3s; min-height: 100vh; }
+        .sidebar { width: 260px; height: 100vh; background: #0f172a; color: white; position: fixed; padding: 2rem 1rem; border-right: 1px solid var(--border); }
         .main { margin-left: 260px; flex: 1; padding: 2rem; }
         .nav-link { padding: 0.8rem 1.2rem; display: flex; align-items: center; gap: 12px; color: #94a3b8; text-decoration: none; border-radius: 12px; margin-bottom: 0.5rem; cursor: pointer; transition: 0.3s; }
         .nav-link:hover, .nav-link.active { background: #1e293b; color: white; }
-        .card { background: white; border-radius: 20px; padding: 1.5rem; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); border: 1px solid #e2e8f0; }
+        .card { background: var(--bg-light); border-radius: 20px; padding: 1.5rem; box-shadow: var(--card-shadow); border: 1px solid var(--border); color: var(--text-main); }
         .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(8px); align-items: center; justify-content: center; z-index: 1000; }
-        .modal-content { background: white; padding: 2rem; border-radius: 24px; width: 600px; max-width: 95%; max-height: 90vh; overflow-y: auto; }
+        .modal-content { background: var(--bg-light); padding: 2rem; border-radius: 24px; width: 600px; max-width: 95%; max-height: 90vh; overflow-y: auto; border: 1px solid var(--border); color: var(--text-main); }
         .form-label { display: block; margin-bottom: 0.5rem; font-weight: 700; font-size: 0.85rem; color: #1e293b; }
         .form-control { width: 100%; padding: 0.8rem; border-radius: 12px; border: 1px solid #e2e8f0; background: #f8fafc; box-sizing: border-box; }
         .status-pill { padding: 4px 12px; border-radius: 20px; font-size: 0.75rem; font-weight: 700; }
@@ -31,6 +31,10 @@
         <div class="nav-link active" onclick="showTab('inventory')">📦 My Inventory</div>
         <div class="nav-link" onclick="showTab('orders')">📋 Rental Bookings</div>
         <div class="nav-link" onclick="showTab('profile')">🏗️ Yard Profile</div>
+        <div class="theme-toggle" title="Toggle Dark/Light Mode" style="margin-top: 2rem; width: 40px; height: 40px; box-shadow: none; border: 1px solid rgba(255,255,255,0.1); background: rgba(255,255,255,0.05); color: white;">
+            <i class="fa-solid fa-moon"></i>
+            <i class="fa-solid fa-sun"></i>
+        </div>
         <div class="nav-link" style="margin-top:auto; color: #ef4444;" onclick="logout()">🚪 Logout</div>
     </div>
 
@@ -411,5 +415,6 @@
             loadOrders();
         };
     </script>
+    <script src="../js/theme.js"></script>
 </body>
 </html>

@@ -7,22 +7,26 @@
     <link rel="stylesheet" href="../css/style.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
-        body { background-color: #f8fafc; display: flex; min-height: 100vh; color: #0f172a; font-family: 'Inter', sans-serif; margin:0; }
+        body { background-color: var(--bg-alt); display: flex; min-height: 100vh; color: var(--text-main); font-family: 'Inter', sans-serif; margin:0; transition: 0.3s; }
         
         /* Sidebar Fix */
         .sidebar { 
             width: 280px; 
-            background: linear-gradient(180deg, #ffffff 0%, #f0f9ff 100%); 
+            background: #ffffff; 
             padding: 2.5rem 1.2rem; 
             position: fixed; 
             height: 100vh; 
             display: flex; 
-            flex-direction: column !important; /* Force Vertical */
-            border-right: 1px solid #e2e8f0; 
+            flex-direction: column !important; 
+            border-right: 1px solid var(--border); 
             box-shadow: 4px 0 15px -10px rgba(0,0,0,0.1); 
             z-index: 1000; 
             box-sizing: border-box;
+            transition: background 0.3s;
         }
+        [data-theme='dark'] .sidebar { background: #0f172a; border-right-color: rgba(255,255,255,0.05); }
+        [data-theme='dark'] .sidebar .nav-link { color: #94a3b8; }
+        [data-theme='dark'] .sidebar .nav-link:hover { background: rgba(0, 242, 254, 0.05); color: #00f2fe; }
 
         .nav-menu {
             display: flex !important;
@@ -75,11 +79,11 @@
             to { opacity: 1; transform: translateY(0); } 
         }
 
-        .card { background: white; border-radius: 24px; padding: 2rem; border: 1px solid #e2e8f0; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.05); margin-bottom: 2rem; }
+        .card { background: var(--bg-light); border-radius: 24px; padding: 2rem; border: 1px solid var(--border); box-shadow: var(--card-shadow); margin-bottom: 2rem; color: var(--text-main); }
         .stats-strip { display: flex; gap: 2rem; margin-bottom: 2.5rem; }
-        .mini-stat { background: white; padding: 1.5rem; border-radius: 20px; border: 1px solid #e2e8f0; flex: 1; }
-        .mini-stat label { color: #64748b; font-size: 0.75rem; font-weight: 800; text-transform: uppercase; margin-bottom: 5px; display: block; }
-        .mini-stat .value { font-size: 1.8rem; font-weight: 800; color: #0f172a; }
+        .mini-stat { background: var(--bg-light); padding: 1.5rem; border-radius: 20px; border: 1px solid var(--border); flex: 1; color: var(--text-main); }
+        .mini-stat label { color: var(--text-muted); font-size: 0.75rem; font-weight: 800; text-transform: uppercase; margin-bottom: 5px; display: block; }
+        .mini-stat .value { font-size: 1.8rem; font-weight: 800; color: var(--text-main); }
         .btn-primary { background: #2563eb; color: white; border: none; padding: 12px 24px; border-radius: 12px; font-weight: 700; cursor: pointer; transition: 0.2s; }
         .btn-primary:hover { background: #1d4ed8; transform: translateY(-2px); }
         input, select, textarea { width: 100%; padding: 12px; border: 1px solid #e2e8f0; border-radius: 12px; font-family: inherit; margin-bottom: 1rem; box-sizing: border-box; }
@@ -99,6 +103,10 @@
     </a>
     <div class="sidebar">
         <div class="logo">👷 Engineer<span>Hub</span></div>
+        <div class="theme-toggle" title="Toggle Dark/Light Mode" style="margin-bottom: 1.5rem; width: 40px; height: 40px; border: 1px solid var(--border);">
+            <i class="fa-solid fa-moon"></i>
+            <i class="fa-solid fa-sun"></i>
+        </div>
         <nav class="nav-menu">
             <div class="nav-link active" onclick="showSection('portfolio', this)">📊 Portfolio</div>
             <div class="nav-link" onclick="showSection('messages', this)">💬 Client Messages</div>
@@ -630,5 +638,6 @@
             loadProfile(); 
         };
     </script>
+    <script src="../js/theme.js"></script>
 </body>
 </html>

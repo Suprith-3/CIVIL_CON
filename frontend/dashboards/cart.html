@@ -7,15 +7,15 @@
     <link rel="stylesheet" href="../css/style.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
-        body { background-color: #f1f5f9; font-family: 'Inter', sans-serif; margin: 0; padding: 2rem 5rem; }
+        body { background-color: var(--bg-alt); font-family: 'Inter', sans-serif; margin: 0; padding: 2rem 5rem; color: var(--text-main); transition: 0.3s; }
         .nav { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #e2e8f0; padding-bottom: 1rem; margin-bottom: 2rem; }
         .logo { font-size: 1.5rem; font-weight: 800; color: #0f172a; }
         .title { color: #22c55e; font-size: 2.5rem; font-weight: 800; margin-bottom: 0.5rem; }
         .subtitle { color: #64748b; font-size: 1rem; margin-bottom: 2rem; }
         
         .cart-container { display: flex; gap: 3rem; }
-        .cart-items { flex: 2; background: white; border-radius: 20px; padding: 1.5rem; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); }
-        .summary-card { flex: 1; background: white; border-radius: 20px; padding: 2rem; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); height: fit-content; }
+        .cart-items { flex: 2; background: var(--bg-light); border-radius: 20px; padding: 1.5rem; box-shadow: var(--card-shadow); border: 1px solid var(--border); }
+        .summary-card { flex: 1; background: var(--bg-light); border-radius: 20px; padding: 2rem; box-shadow: var(--card-shadow); height: fit-content; border: 1px solid var(--border); }
         
         .item-row { display: flex; align-items: center; justify-content: space-between; padding: 1rem 0; border-bottom: 1px solid #f1f5f9; }
         .item-info { display: flex; align-items: center; gap: 1rem; flex: 2; }
@@ -38,7 +38,13 @@
 <body>
     <div class="nav">
         <div class="logo">👷 Build<span>Hub</span></div>
-        <button class="btn-link" onclick="window.location.href='user-dashboard.html'" style="width:auto; color:#0f172a;">Back to Dashboard</button>
+        <div style="display:flex; align-items:center; gap:20px;">
+            <button class="btn-link" onclick="window.location.href='user-dashboard.html'" style="width:auto; color:var(--text-main);">Back to Dashboard</button>
+            <div class="theme-toggle" title="Toggle Dark/Light Mode" style="position:static; width:36px; height:36px; box-shadow:none; border:1px solid var(--border);">
+                <i class="fa-solid fa-moon"></i>
+                <i class="fa-solid fa-sun"></i>
+            </div>
+        </div>
     </div>
 
     <h1 class="title">Your Shopping Cart</h1>
@@ -123,6 +129,6 @@
             document.getElementById('subtotal').textContent = `₹${total}`;
             document.getElementById('totalAmount').textContent = `₹${total}`;
         };
-    </script>
+    <script src="../js/theme.js"></script>
 </body>
 </html>

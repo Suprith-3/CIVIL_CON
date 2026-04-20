@@ -840,3 +840,51 @@ body {
     box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);
     flex-shrink: 0;
 }
+
+/* Dashboard Theme Support */
+[data-theme='dark'] .sidebar {
+    background: #020202 !important;
+    border-right: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+[data-theme='dark'] .sidebar .nav-item:hover,
+[data-theme='dark'] .sidebar .nav-item.active {
+    background: rgba(0, 242, 254, 0.1) !important;
+    color: #00f2fe !important;
+}
+
+[data-theme='dark'] .top-bar {
+    background: #050505 !important;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05) !important;
+}
+
+[data-theme='dark'] .stat-card,
+[data-theme='dark'] .p-card {
+    background: #0d0d0d !important;
+    border-color: rgba(255, 255, 255, 0.05) !important;
+    color: white !important;
+}
+
+[data-theme='dark'] .p-card:hover {
+    box-shadow: 0 10px 30px rgba(0, 242, 254, 0.1) !important;
+    border-color: rgba(0, 242, 254, 0.2) !important;
+}
+
+[data-theme='dark'] .modal div[style*="background:white"] {
+    background: #0a0a0a !important;
+    color: white !important;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+[data-theme='dark'] input, 
+[data-theme='dark'] textarea, 
+[data-theme='dark'] select {
+    background: #111 !important;
+    border-color: #222 !important;
+    color: white !important;
+}
+
+[data-theme='dark'] .section-header h3,
+[data-theme='dark'] #pageTitle {
+    color: white !important;
+}

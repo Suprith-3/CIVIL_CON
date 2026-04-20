@@ -12,16 +12,19 @@
     <style>
         body {
             display: flex;
-            background: #f8fafc;
+            background: var(--bg-alt);
+            color: var(--text-main);
+            transition: 0.3s;
         }
 
         .sidebar {
             width: 260px;
             height: 100vh;
-            background: #1e293b;
+            background: #0f172a;
             color: white;
             position: fixed;
             padding: 2rem 1rem;
+            border-right: 1px solid var(--border);
         }
 
         .logo {
@@ -39,7 +42,8 @@
         .main {
             margin-left: 260px;
             flex: 1;
-            padding: 2rem;
+            padding: 2.5rem 3rem;
+            min-height: 100vh;
         }
 
         .nav-link {
@@ -72,15 +76,16 @@
         }
 
         .modal-content {
-            background: #ffffff;
+            background: var(--bg-light);
             padding: 2.5rem;
             border-radius: 20px;
             width: 550px;
             max-width: 95%;
             max-height: 90vh;
             overflow-y: auto;
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
-            border: 1px solid rgba(255, 255, 255, 0.4);
+            box-shadow: var(--card-shadow);
+            border: 1px solid var(--border);
+            color: var(--text-main);
         }
 
         .form-label {
@@ -88,7 +93,7 @@
             margin-bottom: 0.5rem;
             font-weight: 600;
             font-size: 0.875rem;
-            color: #1e293b;
+            color: var(--text-main);
         }
 
         .form-control-premium {
@@ -165,7 +170,11 @@
         <div class="nav-link active" onclick="showTab('inventory')">📦 Inventory</div>
         <div class="nav-link" onclick="showTab('orders')">📋 Orders</div>
         <div class="nav-link" onclick="showTab('profile')">🏪 Shop Profile</div>
-        <div class="nav-link" style="margin-top: 2rem; color: #ef4444;" onclick="logout()">🚪 Logout</div>
+        <div class="theme-toggle" title="Toggle Dark/Light Mode" style="margin-top: 2rem; width: 40px; height: 40px; box-shadow: none; border: 1px solid rgba(255,255,255,0.1); background: rgba(255,255,255,0.05); color: white;">
+            <i class="fa-solid fa-moon"></i>
+            <i class="fa-solid fa-sun"></i>
+        </div>
+        <div class="nav-link" style="margin-top: 1rem; color: #ef4444;" onclick="logout()">🚪 Logout</div>
     </div>
 
     <div class="main">
@@ -603,6 +612,7 @@
         initShopDashboard();
         loadOrders();
     </script>
+    <script src="../js/theme.js"></script>
 </body>
 
 </html>
