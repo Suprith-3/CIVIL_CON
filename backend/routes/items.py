@@ -10,10 +10,24 @@ items_bp = Blueprint('items', __name__)
 @items_bp.route('/', methods=['GET'])
 def get_items():
     try:
-        res = supabase.table('items').select('*').order('created_at', desc=True).execute()
-        return jsonify(res.data), 200
+        # Check if an owner_id is passed to filter (for dashboards)
+        owner_id = request.args.get('owner_id')
+        
+        query = supabase.table('items').select('*')
+        
+        if owner_id:
+            query = query.eq('owner_id', owner_id)
+            
+        res = query.order('created_at', desc=True).execute()
+        
+        if hasattr(res, 'data'):
+            return jsonify(res.data), 200
+        else:
+            return jsonify({'error': 'Database Error', 'message': 'Failed to retrieve data'}), 500
     except Exception as e:
-        return jsonify({'error': str(e)}), 500
+        import logging
+        logging.error(f"Inventory Fetch Error: {str(e)}")
+        return jsonify({'error': 'Server Error', 'message': str(e)}), 500
 
 @items_bp.route('/', methods=['POST'])
 @jwt_required()
