@@ -271,8 +271,8 @@ def login():
             'profile_pic_url': user_data.get('profile_pic_url')
         }
             
-        access_token = create_access_token(identity=ident)
-        refresh_token = create_refresh_token(identity=ident)
+        access_token = create_access_token(identity=user_data['id'])
+        refresh_token = create_refresh_token(identity=user_data['id'])
         
         return jsonify({
             'message': 'Login successful',
