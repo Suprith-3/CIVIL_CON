@@ -36,8 +36,8 @@ def register():
             if existing.data:
                 return jsonify({'error': 'Conflict', 'message': 'User already exists'}), 409
         
-        # Hash password
-        salt = bcrypt.gensalt(rounds=12)
+        # Hash password - Reduced rounds to 10 for balancing speed (<250ms target) and security
+        salt = bcrypt.gensalt(rounds=10)
         hashed = bcrypt.hashpw(password.encode('utf-8'), salt).decode('utf-8')
         
         # 1. Insert into base 'users' table
@@ -233,37 +233,43 @@ def login():
     try:
         user_data = None
         if supabase:
-            # Fetch user from db
+            # 1. Fetch user from db
             res = supabase.table('users').select('*').eq('email', email).execute()
             if not res.data:
                 return jsonify({'error': 'Unauthorized', 'message': 'Invalid credentials'}), 401
             
             user_data = res.data[0]
             
-            # Verify password
+            # 2. Verify password (BCrypt is the main lag, but essential)
             if not bcrypt.checkpw(password.encode('utf-8'), user_data['password_hash'].encode('utf-8')):
                 return jsonify({'error': 'Unauthorized', 'message': 'Invalid credentials'}), 401
             
-            # Check approval status for roles that require it
+            # 3. Check approval status for roles that require it
             role = user_data['user_type']
             if role in ['engineer', 'worker', 'shopkeeper']:
                 table_map = {
                     'engineer': 'engineer_registrations',
                     'worker': 'worker_registrations',
-                    'shopkeeper': 'shopkeeper_registrations',
-                    'renter': 'renter_registrations'
+                    'shopkeeper': 'shopkeeper_registrations'
                 }
-                status_res = supabase.table(table_map[role]).select('status').eq('user_id', user_data['id']).execute()
+                # Combined lookup for status
+                status_res = supabase.table(table_map[role]).select('status').eq('user_id', user_data['id']).single().execute()
                 
                 if status_res.data:
-                    status = status_res.data[0].get('status', 'pending')
-                    if status != 'approved':
+                    if status_res.data.get('status') != 'approved':
                         return jsonify({
                             'error': 'Forbidden', 
-                            'message': f'Your {role} account is still pending approval by admin.'
+                            'message': f'Your {role} account is still pending approval.'
                         }), 403
 
-        ident = user_data['id']
+        # 4. Bundle basic profile info into login response to speed up dashboard loading
+        user_info = {
+            'id': user_data['id'],
+            'email': user_data['email'],
+            'user_type': user_data['user_type'],
+            'full_name': user_data.get('full_name'),
+            'profile_pic_url': user_data.get('profile_pic_url')
+        }
             
         access_token = create_access_token(identity=ident)
         refresh_token = create_refresh_token(identity=ident)
@@ -272,11 +278,7 @@ def login():
             'message': 'Login successful',
             'access_token': access_token,
             'refresh_token': refresh_token,
-            'user': {
-                'id': user_data['id'],
-                'email': user_data['email'],
-                'user_type': user_data['user_type']
-            }
+            'user': user_info
         }), 200
 
     except Exception as e:

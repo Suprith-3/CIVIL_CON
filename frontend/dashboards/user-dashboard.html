@@ -1087,12 +1087,17 @@
             const grid = document.getElementById('rentalGrid');
             const user_id = localStorage.getItem('user_id');
 
-            // Check verification status
+            // SPEED: Show marketplace instantly if user was already logged in/cached
+            if (force || localStorage.getItem('user_type') === 'user') {
+                gate.style.display = 'none';
+                marketplace.style.display = 'block';
+            }
+
+            // Background verification sync
             try {
                 const res = await fetch(`${API_BASE_URL}/auth/profile?user_id=${user_id}`);
                 const { profile } = await res.json();
                 
-                // Unlock if: Force-unlocked OR Admin Approved OR Already Uploaded (Pending)
                 const alreadyUploaded = profile && (profile.verification_status === 'pending' || (profile.aadhar_url && profile.dl_url));
                 
                 if (force || (profile && profile.is_id_verified) || alreadyUploaded) {

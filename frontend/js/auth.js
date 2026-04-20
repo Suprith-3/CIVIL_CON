@@ -7,18 +7,31 @@ export function initLogin(role) {
     const errorBox = document.getElementById('errorBox');
     const spinner = document.getElementById('spinner');
     const btnText = document.getElementById('btnText');
+    const emailInput = document.getElementById('email');
+    const passwordInput = document.getElementById('password');
+
+    // WARMUP: Wake up Render backend as soon as user starts focusing fields
+    const warmup = () => {
+        fetch(`${API_BASE_URL.replace('/api', '')}/health`).catch(() => {});
+        emailInput.removeEventListener('focus', warmup);
+        passwordInput.removeEventListener('focus', warmup);
+    };
+    emailInput.addEventListener('focus', warmup);
+    passwordInput.addEventListener('focus', warmup);
 
     form.addEventListener('submit', async (e) => {
         e.preventDefault();
         
-        const email = document.getElementById('email').value;
-        const password = document.getElementById('password').value;
+        const email = emailInput.value;
+        const password = passwordInput.value;
 
         // Reset state
         errorBox.style.display = 'none';
         spinner.style.display = 'inline-block';
-        btnText.textContent = 'Signing in...';
+        btnText.textContent = 'Verifying...';
         form.querySelector('button').disabled = true;
+
+        const startTime = performance.now();
 
         try {
             const response = await fetch(`${API_BASE_URL}/auth/login`, {
@@ -33,16 +46,20 @@ export function initLogin(role) {
                 throw new Error(data.message || 'Login failed');
             }
 
-            // Store tokens
+            // Speed: Store tokens and full profile immediately
             localStorage.setItem('access_token', data.access_token);
             localStorage.setItem('refresh_token', data.refresh_token);
-            localStorage.setItem('user_type', data.user_type || (data.user && data.user.user_type));
-            localStorage.setItem('user_id', data.user.id); // Fixed: Saving user_id
+            localStorage.setItem('user_type', data.user.user_type);
+            localStorage.setItem('user_id', data.user.id);
             localStorage.setItem('user_email', email);
+            localStorage.setItem('user_name', data.user.full_name || 'User');
+            localStorage.setItem('user_pic', data.user.profile_pic_url || '');
 
-            // Redirect based on role
-            const userRole = localStorage.getItem('user_type');
-            window.location.href = `../dashboards/${userRole}-dashboard.html`;
+            const endTime = performance.now();
+            console.log(`Login roundtrip took: ${Math.round(endTime - startTime)}ms`);
+
+            // Redirect instantly
+            window.location.href = `../dashboards/${data.user.user_type}-dashboard.html`;
 
         } catch (err) {
             errorBox.textContent = err.message;
