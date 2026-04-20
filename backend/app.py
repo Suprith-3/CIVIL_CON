@@ -1,5 +1,5 @@
 import os
-from flask import Flask, jsonify, request
+from flask import Flask, jsonify, request, redirect, current_app
 from flask_cors import CORS
 from flask_jwt_extended import JWTManager
 from config import Config
@@ -44,17 +44,24 @@ def create_app():
     # Add a route to serve uploaded files
     @app.route('/uploads/<path:filename>')
     def uploaded_file(filename):
-        from flask import send_from_directory
-        # Primary: Project root 'uploads'
+        from flask import send_from_directory, current_app
+        # Paths
         root_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
         primary_path = os.path.join(root_dir, 'uploads')
-        
-        # Fallback: backend/uploads (for old files)
         backend_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'uploads')
         
+        current_app.logger.info(f"SERVING FILE: {filename}")
+        current_app.logger.info(f"Checking primary: {primary_path}")
+        current_app.logger.info(f"Checking backend: {backend_path}")
+
         if os.path.exists(os.path.join(primary_path, filename)):
             return send_from_directory(primary_path, filename)
-        return send_from_directory(backend_path, filename)
+        
+        if os.path.exists(os.path.join(backend_path, filename)):
+            return send_from_directory(backend_path, filename)
+
+        # Speed/UX: If file is missing (common on Render ephemeral disks), fallback to an engineering placeholder
+        return redirect("https://images.unsplash.com/photo-1541888946425-d81bb19480c5?auto=format&fit=crop&q=80&w=300&h=300")
 
     from routes.auth import auth_bp
     from routes.admin import admin_bp
