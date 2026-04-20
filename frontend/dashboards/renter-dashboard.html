@@ -330,7 +330,7 @@
 
                 list.innerHTML = myItems.map(item => `
                     <div class="card" style="padding:0; overflow:hidden;">
-                        <img src="${BACKEND_URL}${item.image_url}" style="width:100%; height:180px; object-fit:cover;">
+                        <img src="${item.image_url?.startsWith('http') ? item.image_url : (BACKEND_URL + item.image_url)}" style="width:100%; height:180px; object-fit:cover;">
                         <div style="padding:1rem;">
                             <h4 style="margin:0;">${item.name}</h4>
                             <p style="font-size:0.8rem; color:#2563eb; font-weight:700; margin:5px 0;">₹${item.price} / ${item.price_unit}</p>

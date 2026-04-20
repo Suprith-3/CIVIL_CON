@@ -47,22 +47,47 @@ def add_item():
         if not os.path.exists(upload_folder):
             os.makedirs(upload_folder)
 
-        def save_file(file, prefix='item'):
-            ext = file.filename.split('.')[-1]
-            fname = f"{uuid.uuid4()}_{prefix}.{ext}"
-            file.save(os.path.join(upload_folder, fname))
-            return f"/uploads/{fname}"
+        def save_file_to_supabase(file, prefix='item'):
+            if not file or not file.filename:
+                return None
+            
+            try:
+                # 1. Ensure bucket exists (Speed: only runs if config is present)
+                try:
+                    bucket = supabase.storage.get_bucket('media')
+                except:
+                    supabase.storage.create_bucket('media', options={'public': True})
 
-        image_url = save_file(main_file, 'main')
+                # 2. Upload file
+                ext = file.filename.split('.')[-1]
+                fname = f"{uuid.uuid4()}_{prefix}.{ext}"
+                
+                # Reserving the file read
+                file.seek(0)
+                file_content = file.read()
+                
+                supabase.storage.from_('media').upload(
+                    path=fname,
+                    file=file_content,
+                    file_options={"content-type": file.content_type}
+                )
+                
+                # 3. Return the public URL
+                res = supabase.storage.from_('media').get_public_url(fname)
+                return res
+            except Exception as e:
+                import logging
+                logging.error(f"SUPABASE UPLOAD ERROR: {str(e)}")
+                return None
+
+        image_url = save_file_to_supabase(main_file, 'main')
         
         extra_urls = []
         for ef in extra_files:
-            if ef and ef.filename:
-                extra_urls.append(save_file(ef, 'extra'))
+            url = save_file_to_supabase(ef, 'extra')
+            if url: extra_urls.append(url)
         
-        ins_url = None
-        if insurance_file and insurance_file.filename:
-            ins_url = save_file(insurance_file, 'ins')
+        ins_url = save_file_to_supabase(insurance_file, 'ins')
 
         new_item = {
             'owner_id': user_id,

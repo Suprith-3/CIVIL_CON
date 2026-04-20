@@ -328,7 +328,8 @@
             if (data.projects) {
                 document.getElementById('statProjects').textContent = data.projects.length;
                 data.projects.forEach(p => {
-                    const img = p.images && p.images.length > 0 ? `${IMG_BASE_URL}${p.images[0]}` : '';
+                    let img = p.images && p.images.length > 0 ? p.images[0] : '';
+                    if (img && !img.startsWith('http')) img = IMG_BASE_URL + img;
                     grid.innerHTML += `<div class="card" style="padding:0; overflow:hidden;">
                         <div style="height:180px; background-image:url('${img}'); background-size:cover; background-position:center; background-color:#f1f5f9;"></div>
                         <div style="padding:1.5rem;"><h3>${p.title}</h3><p style="color:#64748b; font-size:0.85rem;">📍 ${p.location} • ₹${p.cost}L</p></div>

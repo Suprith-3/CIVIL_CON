@@ -394,7 +394,7 @@
                     data.portfolio.forEach(w => {
                         grid.innerHTML += `
                             <div class="work-card">
-                                <div class="work-img" style="background-image: url('${IMG_BASE_URL}${w.image_url}')"></div>
+                                <div class="work-img" style="background-image: url('${w.image_url?.startsWith('http') ? w.image_url : (IMG_BASE_URL + w.image_url)}')"></div>
                                 <div style="padding: 1.5rem;">
                                     <h3 style="margin:0;">${w.title}</h3>
                                     <p style="color:#64748b; font-size:0.85rem; margin:10px 0;">${w.description}</p>
