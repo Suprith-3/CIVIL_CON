@@ -452,11 +452,14 @@
 
         async function loadDailyWork() {
             const list = document.getElementById('laborWorkList');
+            if (!list) return;
             list.innerHTML = '<p>Checking for assigned work...</p>';
             try {
                 const current_worker_id = localStorage.getItem('user_id');
+                console.log("DEBUG: Fetching daily work for ID:", current_worker_id);
                 const res = await fetch(`${API_BASE_URL}/worker/daily-work?worker_id=${current_worker_id}`);
                 const data = await res.json();
+                console.log("DEBUG: Received Daily Work data:", data);
                 list.innerHTML = '';
                 
                 const laborBadge = document.getElementById('laborBadge');
@@ -607,10 +610,12 @@
 
         async function loadProfile() {
             try {
-                const res = await fetch(`${API_BASE_URL}/worker/profile?worker_id=${worker_id}`);
+                const current_user_id = localStorage.getItem('user_id');
+                const res = await fetch(`${API_BASE_URL}/worker/profile?worker_id=${current_user_id}`);
                 const data = await res.json();
                 if (data.profile) {
                     const p = data.profile;
+                    document.getElementById('welcomeGreeting').innerHTML = `Welcome Back, <span style="color: #2563eb;">${p.name}</span>!`;
                     document.getElementById('profName').value = p.name || '';
                     document.getElementById('profAge').value = p.age || '';
                     document.getElementById('profExp').value = p.experience_years || '';
@@ -630,7 +635,7 @@
         document.getElementById('profileForm').onsubmit = async (e) => {
             e.preventDefault();
             const formData = new FormData(e.target);
-            formData.append('worker_id', worker_id);
+            formData.append('worker_id', localStorage.getItem('user_id'));
             try {
                 const res = await fetch(`${API_BASE_URL}/worker/profile`, {
                     method: 'POST',

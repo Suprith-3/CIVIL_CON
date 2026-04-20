@@ -393,7 +393,11 @@ def update_user_profile():
             'full_name': request.form.get('name'),
             'age': safe_int(request.form.get('age')),
             'bio': request.form.get('bio'),
+            'experience_years': safe_int(request.form.get('experience_years')),
+            'completed_projects': safe_int(request.form.get('completed_projects')),
+            'address': request.form.get('address'),
             'location': {
+                'address': request.form.get('address'),
                 'lat': safe_float(request.form.get('lat')),
                 'lng': safe_float(request.form.get('lng'))
             }

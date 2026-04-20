@@ -63,14 +63,31 @@ def get_nearby_workers():
 def get_daily_work():
     user_id = request.args.get('worker_id')
     try:
-        # Get worker's name from registration table
-        profile_res = supabase.table('worker_registrations').select('name').eq('user_id', user_id).execute()
+        # Get worker's name and unique code
+        profile_res = supabase.table('worker_registrations').select('name, worker_code').eq('user_id', user_id).execute()
         if not profile_res.data:
              return jsonify({'error': 'Profile not found'}), 404
+             
         worker_name = profile_res.data[0]['name']
+        worker_code = profile_res.data[0].get('worker_code')
         
-        # Get daily work from engineer's worker_management logs
-        work_res = supabase.table('worker_management').select('*').eq('worker_name', worker_name).order('created_at', desc=True).limit(20).execute()
+        # Query by name (case-insensitive) OR code
+        if worker_code:
+            # Use bracket format for Supabase OR logic
+            work_res = supabase.table('worker_management')\
+                .select('*')\
+                .or_(f'worker_name.ilike.{worker_name},worker_code.eq.{worker_code}')\
+                .order('created_at', desc=True)\
+                .limit(20)\
+                .execute()
+        else:
+            work_res = supabase.table('worker_management')\
+                .select('*')\
+                .ilike('worker_name', worker_name)\
+                .order('created_at', desc=True)\
+                .limit(20)\
+                .execute()
+            
         return jsonify({'daily_work': work_res.data}), 200
     except Exception as e:
         return jsonify({'error': str(e)}), 500

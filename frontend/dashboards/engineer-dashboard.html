@@ -185,11 +185,61 @@
 
         <!-- SETTINGS -->
         <div id="settings" class="section">
-            <h1>Profile <span style="color:#2563eb;">Settings</span></h1>
-            <div class="card" style="max-width:500px;">
-                <label style="font-weight:700;">Professional Bio</label><textarea id="bioText" rows="4"></textarea>
-                <label style="font-weight:700;">Update Password</label><input type="password" id="newPass">
-                <button class="btn-primary" style="width:100%;" onclick="alert('Profile Updated!')">Save Changes</button>
+            <h1 style="margin-bottom:2rem;">Profile <span style="color:#2563eb;">Settings</span></h1>
+            <div class="card" style="max-width:800px;">
+                <form id="profileForm">
+                    <div style="display:grid; grid-template-columns:1fr 2fr; gap:2.5rem;">
+                        <!-- Left: Photo -->
+                        <div style="text-align:center;">
+                            <div id="pPicPreview" style="width:150px; height:150px; background:#f1f5f9; border-radius:30px; margin:0 auto 1.5rem; display:flex; align-items:center; justify-content:center; font-size:3rem; color:#94a3b8; border:2px dashed #cbd5e1; background-size:cover; background-position:center;">👤</div>
+                            <label class="btn-primary" style="display:inline-block; font-size:0.8rem; padding:8px 15px; cursor:pointer;">
+                                Upload Headshot
+                                <input type="file" id="pPhoto" accept="image/*" style="display:none;" onchange="previewProfilePic(this)">
+                            </label>
+                        </div>
+
+                        <!-- Right: Info -->
+                        <div>
+                            <div style="margin-bottom:1.5rem;">
+                                <label style="display:block; font-size:0.75rem; font-weight:800; color:#64748b; text-transform:uppercase; margin-bottom:8px;">Full Name</label>
+                                <input type="text" id="pName" placeholder="e.g. Er. Suprith" required>
+                            </div>
+
+                            <div style="display:grid; grid-template-columns:1fr 1fr; gap:1.5rem; margin-bottom:1.5rem;">
+                                <div>
+                                    <label style="display:block; font-size:0.75rem; font-weight:800; color:#64748b; text-transform:uppercase; margin-bottom:8px;">Experience (Years)</label>
+                                    <input type="number" id="pExp" placeholder="Years">
+                                </div>
+                                <div>
+                                    <label style="display:block; font-size:0.75rem; font-weight:800; color:#64748b; text-transform:uppercase; margin-bottom:8px;">Projects Completed</label>
+                                    <input type="number" id="pProj" placeholder="Total count">
+                                </div>
+                            </div>
+
+                            <div style="margin-bottom:1.5rem;">
+                                <label style="display:block; font-size:0.75rem; font-weight:800; color:#64748b; text-transform:uppercase; margin-bottom:8px;">Office / Site Address</label>
+                                <textarea id="pAddress" placeholder="Enter full written address..." style="height:80px;"></textarea>
+                            </div>
+
+                            <div style="margin-bottom:1.5rem; background:#f8fafc; padding:15px; border-radius:15px;">
+                                <label style="display:block; font-size:0.75rem; font-weight:800; color:#64748b; text-transform:uppercase; margin-bottom:10px;">🔴 Live Site Location</label>
+                                <div style="display:flex; gap:10px;">
+                                    <div id="pLocStatus" style="font-size:0.8rem; color:#64748b; flex-grow:1;">Location not captured.</div>
+                                    <button type="button" class="btn-primary" style="background:#0f172a; padding:8px 15px; font-size:0.75rem;" onclick="captureLocation()">📍 Get Current</button>
+                                </div>
+                                <input type="hidden" id="pLat">
+                                <input type="hidden" id="pLng">
+                            </div>
+
+                            <div style="margin-bottom:1.5rem;">
+                                <label style="display:block; font-size:0.75rem; font-weight:800; color:#64748b; text-transform:uppercase; margin-bottom:8px;">Professional Bio</label>
+                                <textarea id="pBio" placeholder="Describe your structural expertise..." style="height:120px;"></textarea>
+                            </div>
+
+                            <button type="submit" class="btn-primary" style="width:100%; padding:15px; font-size:1rem;">💾 Save Profile & Stats</button>
+                        </div>
+                    </div>
+                </form>
             </div>
         </div>
     </div>
@@ -213,6 +263,7 @@
         <div style="display:flex; justify-content:space-between; margin-bottom:1.5rem;"><h2>Add Worker Profile</h2><span onclick="closeAllModals()" style="cursor:pointer; font-size:1.5rem;">&times;</span></div>
         <form id="workerForm">
             <input type="text" id="wName" placeholder="Laborer Name" required>
+            <input type="text" id="wCode" placeholder="Worker Unique ID (e.g. WRK-1234)">
             <input type="text" id="wTask" placeholder="Role / Assignment" required>
             <input type="number" id="wWage" placeholder="Daily Wage (₹)" required>
             <input type="text" id="wLoc" placeholder="Site Location" required>
@@ -242,9 +293,12 @@
     </div></div>
 
     <script>
-        const API_BASE_URL = 'http://127.0.0.1:5000/api';
-        const IMG_BASE_URL = 'http://127.0.0.1:5000';
-        const engineer_id = "397b607d-ecab-4803-9c58-523dc22b0144";
+        const API_BASE_URL = window.location.hostname === '127.0.0.1' || window.location.hostname === 'localhost' 
+            ? 'http://127.0.0.1:5000/api' 
+            : 'https://civil-con.onrender.com/api';
+
+        const engineer_id = localStorage.getItem('user_id') || "397b607d-ecab-4803-9c58-523dc22b0144";
+        const IMG_BASE_URL = window.location.hostname === '127.0.0.1' || window.location.hostname === 'localhost' ? 'http://127.0.0.1:5000' : 'https://civil-con.onrender.com';
 
         function showSection(id, el) {
             document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
@@ -371,11 +425,33 @@
         }
 
         async function syncAttendanceToBackend(w, status) {
-            let fullStatus = status === 'P' ? 'Present' : (status === 'H' ? 'Half Day' : 'Absent');
-            const data = { worker_name: w.name, location: w.site, assigned_work: w.role, status: fullStatus, engineer_id: engineer_id };
+            let fullStatus = status;
+            if (status === 'P') fullStatus = 'Present';
+            if (status === 'H') fullStatus = 'Half Day';
+            if (status === 'A') fullStatus = 'Absent';
+
+            const data = { 
+                worker_name: w.name, 
+                worker_code: w.code, 
+                location: w.site, 
+                assigned_work: w.role, 
+                status: fullStatus, 
+                engineer_id: engineer_id 
+            };
+            console.log("DEBUG: Syncing to backend:", data);
             try {
-                await fetch(`${API_BASE_URL}/engineer/attendance`, { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify(data)});
-            } catch(e) { console.warn("Backend sync failed, stored locally."); }
+                const response = await fetch(`${API_BASE_URL}/engineer/attendance`, { 
+                    method: 'POST', 
+                    headers: {'Content-Type':'application/json'}, 
+                    body: JSON.stringify(data)
+                });
+                const result = await response.json();
+                if(!response.ok) throw new Error(result.error || "Server error");
+                console.log("DEBUG: Sync response:", result);
+            } catch(e) { 
+                console.error("Backend sync failed:", e);
+                alert("⚠️ Work Assignment Failed to sync! " + e.message);
+            }
         }
 
         window.openAdvanceModal = (index) => {
@@ -417,10 +493,11 @@
             closeAllModals(); loadPortfolio();
         }
 
-        document.getElementById('workerForm').onsubmit = (e) => {
+        document.getElementById('workerForm').onsubmit = async (e) => {
             e.preventDefault();
             const newWorker = {
                 name: document.getElementById('wName').value,
+                code: document.getElementById('wCode').value,
                 role: document.getElementById('wTask').value,
                 wage: Number(document.getElementById('wWage').value),
                 site: document.getElementById('wLoc').value,
@@ -429,6 +506,10 @@
             };
             localWorkers.push(newWorker);
             saveLocalWorkers();
+
+            // Notify worker immediately on profile creation
+            syncAttendanceToBackend(newWorker, 'Assigned');
+
             closeAllModals();
             document.getElementById('workerForm').reset();
         }
@@ -459,7 +540,95 @@
         }
 
         function logout() { localStorage.clear(); window.location.href = '../index.html'; }
-        window.onload = () => { loadPortfolio(); loadAttendance(); loadCerts(); };
+
+        // --- NEW PROFILE LOGIC ---
+        function previewProfilePic(input) {
+            if (input.files && input.files[0]) {
+                const reader = new FileReader();
+                reader.onload = e => {
+                    document.getElementById('pPicPreview').style.backgroundImage = `url(${e.target.result})`;
+                    document.getElementById('pPicPreview').textContent = '';
+                };
+                reader.readAsDataURL(input.files[0]);
+            }
+        }
+
+        async function captureLocation() {
+            const status = document.getElementById('pLocStatus');
+            status.textContent = "🛰️ Fetching satellites...";
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(async (pos) => {
+                    const { latitude, longitude } = pos.coords;
+                    document.getElementById('pLat').value = latitude;
+                    document.getElementById('pLng').value = longitude;
+                    status.textContent = `📍 Captured: ${latitude.toFixed(4)}, ${longitude.toFixed(4)}`;
+                    
+                    // Reverse geocode
+                    try {
+                        const res = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}`);
+                        const data = await res.json();
+                        if(data.display_name) {
+                            document.getElementById('pAddress').value = data.display_name;
+                            status.textContent = `✅ Site Location: ${data.display_name.substring(0, 40)}...`;
+                        }
+                    } catch(e) {}
+                }, () => { status.textContent = "❌ Permission Denied."; });
+            }
+        }
+
+        async function loadProfile() {
+            try {
+                const res = await fetch(`${API_BASE_URL}/auth/profile?user_id=${engineer_id}`);
+                const { profile: p } = await res.json();
+                if (p) {
+                    document.getElementById('pName').value = p.full_name || '';
+                    document.getElementById('pBio').value = p.bio || '';
+                    document.getElementById('pAddress').value = p.address || '';
+                    document.getElementById('pExp').value = p.experience_years || '';
+                    document.getElementById('pProj').value = p.completed_projects || '';
+                    if (p.profile_pic_url) {
+                        document.getElementById('pPicPreview').style.backgroundImage = `url(${IMG_BASE_URL}${p.profile_pic_url})`;
+                        document.getElementById('pPicPreview').textContent = '';
+                    }
+                }
+            } catch(e) {}
+        }
+
+        document.getElementById('profileForm').onsubmit = async (e) => {
+            e.preventDefault();
+            const btn = e.target.querySelector('button[type="submit"]');
+            btn.textContent = 'Saving...';
+            btn.disabled = true;
+
+            const formData = new FormData();
+            formData.append('user_id', engineer_id);
+            formData.append('name', document.getElementById('pName').value);
+            formData.append('bio', document.getElementById('pBio').value);
+            formData.append('address', document.getElementById('pAddress').value);
+            formData.append('experience_years', document.getElementById('pExp').value);
+            formData.append('completed_projects', document.getElementById('pProj').value);
+            formData.append('lat', document.getElementById('pLat').value);
+            formData.append('lng', document.getElementById('pLng').value);
+            
+            const file = document.getElementById('pPhoto').files[0];
+            if (file) formData.append('photo', file);
+
+            try {
+                const res = await fetch(`${API_BASE_URL}/auth/profile`, { method: 'POST', body: formData });
+                if (res.ok) alert("✅ Profile and Stats Updated Successfully!");
+                else alert("❌ Error saving profile.");
+            } catch(e) { alert("Network error."); }
+            
+            btn.textContent = '💾 Save Profile & Stats';
+            btn.disabled = false;
+        };
+
+        window.onload = () => { 
+            loadPortfolio(); 
+            loadAttendance(); 
+            loadCerts(); 
+            loadProfile(); 
+        };
     </script>
 </body>
 </html>

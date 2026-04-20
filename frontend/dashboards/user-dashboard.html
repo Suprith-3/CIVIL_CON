@@ -179,9 +179,25 @@
                                 </div>
                             </div>
                             
+                            <div style="margin-bottom: 1.5rem;">
+                                <label style="display:block; font-size:0.8rem; font-weight:700; color:#64748b; margin-bottom:8px;">Full Address</label>
+                                <textarea id="uAddress" placeholder="Enter your full written address here..." style="width:100%; padding:12px; border:1px solid #e2e8f0; border-radius:12px; height:80px; resize:none; font-family:inherit;"></textarea>
+                            </div>
+
+                            <div style="display:grid; grid-template-columns:1fr 1fr; gap:1.5rem; margin-bottom:1.5rem;">
+                                <div>
+                                    <label style="display:block; font-size:0.8rem; font-weight:700; color:#64748b; margin-bottom:8px;">Years of Experience</label>
+                                    <input type="number" id="uExp" placeholder="e.g. 5" style="width:100%; padding:12px; border:1px solid #e2e8f0; border-radius:12px; font-family:inherit;">
+                                </div>
+                                <div>
+                                    <label style="display:block; font-size:0.8rem; font-weight:700; color:#64748b; margin-bottom:8px;">Projects Completed</label>
+                                    <input type="number" id="uProj" placeholder="e.g. 12" style="width:100%; padding:12px; border:1px solid #e2e8f0; border-radius:12px; font-family:inherit;">
+                                </div>
+                            </div>
+                            
                             <div style="margin-bottom:1.5rem;">
-                                <label style="display:block; font-size:0.8rem; font-weight:700; color:#64748b; margin-bottom:8px;">Bio / About You</label>
-                                <textarea id="uBio" placeholder="Tell workers or engineers about your project needs..." style="width:100%; padding:12px; border:1px solid #e2e8f0; border-radius:12px; height:100px; resize:none; font-family:inherit;"></textarea>
+                                <label style="display:block; font-size:0.8rem; font-weight:700; color:#64748b; margin-bottom:8px;">Bio / Expertise</label>
+                                <textarea id="uBio" placeholder="Tell others about your expertise or construction needs..." style="width:100%; padding:12px; border:1px solid #e2e8f0; border-radius:12px; height:100px; resize:none; font-family:inherit;"></textarea>
                             </div>
 
                             <div style="margin-bottom:2rem;">
@@ -234,6 +250,115 @@
 
         function closePortfolio() { document.getElementById('portfolioModal').style.display='none'; }
         function closeProjectDetail() { document.getElementById('projectDetailModal').style.display = 'none'; }
+
+        async function openPortfolio(engineerId) {
+            const modal = document.getElementById('portfolioModal');
+            const content = document.getElementById('portfolioContent');
+            modal.style.display = 'flex';
+            content.innerHTML = '<div style="text-align:center; padding:2rem;"><p>🔍 Fetching Engineer\'s Portfolio...</p></div>';
+
+            try {
+                const res = await fetch(`${API_BASE_URL}/engineer/portfolio?engineer_id=${engineerId}`);
+                const data = await res.json();
+                const projects = data.projects || [];
+
+                if (projects.length === 0) {
+                    content.innerHTML = `
+                        <div style="text-align:center; padding:3rem;">
+                            <div style="font-size:3rem; margin-bottom:1rem;">📂</div>
+                            <h2>No Projects Yet</h2>
+                            <p style="color:#64748b;">This engineer hasn't uploaded any portfolio items yet.</p>
+                        </div>
+                    `;
+                    return;
+                }
+
+                content.innerHTML = `
+                    <div style="margin-bottom:2rem;">
+                        <h2 style="margin:0;">Engineer <span style="color:#2563eb;">Portfolio</span></h2>
+                        <p style="color:#64748b;">Click on any project to view full details and sketches.</p>
+                    </div>
+                    <div style="display:grid; grid-template-columns:repeat(auto-fill, minmax(240px, 1fr)); gap:1.5rem;">
+                        ${projects.map(p => `
+                            <div class="p-card" style="cursor:pointer;" onclick="viewProjectDetail('${p.id}')">
+                                <div style="height:140px; background-image:url('${IMG_BASE_URL}${p.images[0]}'); background-size:cover; background-position:center;"></div>
+                                <div style="padding:1rem;">
+                                    <h4 style="margin:0; font-size:1rem;">${p.title}</h4>
+                                    <p style="font-size:0.8rem; color:#64748b; margin:5px 0;">📍 ${p.location}</p>
+                                    <div style="font-weight:800; color:#2563eb; font-size:0.9rem;">₹ ${p.cost}L</div>
+                                </div>
+                            </div>
+                        `).join('')}
+                    </div>
+                `;
+            } catch(e) { 
+                content.innerHTML = '<p style="color:#ef4444; text-align:center;">Error loading portfolio. Please try again.</p>'; 
+            }
+        }
+
+        async function viewProjectDetail(projectId) {
+            const modal = document.getElementById('projectDetailModal');
+            const content = document.getElementById('projectDetailContent');
+            modal.style.display = 'flex';
+            content.innerHTML = '<p style="text-align:center; padding:2rem;">Loading project specifics...</p>';
+
+            try {
+                const res = await fetch(`${API_BASE_URL}/engineer/project/${projectId}`);
+                const data = await res.json();
+                const p = data.project;
+
+                if (!p) {
+                    content.innerHTML = '<p>Project not found.</p>';
+                    return;
+                }
+
+                content.innerHTML = `
+                    <div style="display:grid; grid-template-columns: 1.5fr 1fr; gap:2.5rem;">
+                        <div>
+                            <div style="height:400px; background-image:url('${IMG_BASE_URL}${p.images[0]}'); background-size:cover; background-position:center; border-radius:20px; margin-bottom:1.5rem; box-shadow:0 10px 15px -3px rgba(0,0,0,0.1);"></div>
+                            <h2 style="margin-bottom:0.5rem; font-size:1.8rem;">${p.title}</h2>
+                            <p style="color:#64748b; font-size:1rem; margin-bottom:1.5rem; line-height:1.6;">${p.description || 'No detailed description provided for this build.'}</p>
+                            
+                            <h3>Project Gallery</h3>
+                            <div style="display:flex; gap:10px; overflow-x:auto; padding-bottom:10px;">
+                                ${p.images.map(img => `<img src="${IMG_BASE_URL}${img}" style="height:100px; border-radius:10px; border:1px solid #e2e8f0;">`).join('')}
+                            </div>
+                        </div>
+                        
+                        <div style="background:#f8fafc; padding:2rem; border-radius:24px; border:1px solid #e2e8f0;">
+                            <h4 style="text-transform:uppercase; font-size:0.75rem; color:#64748b; margin-bottom:2rem; letter-spacing:1px;">🏗️ Project Summary</h4>
+                            
+                            <div style="margin-bottom:1.5rem;">
+                                <label style="display:block; font-size:0.8rem; color:#94a3b8; margin-bottom:5px;">LOCATION</label>
+                                <span style="font-weight:700; font-size:1.1rem; color:#0f172a;">📍 ${p.location}</span>
+                            </div>
+
+                            <div style="margin-bottom:1.5rem;">
+                                <label style="display:block; font-size:0.8rem; color:#94a3b8; margin-bottom:5px;">VALUATION</label>
+                                <span style="font-weight:700; font-size:1.1rem; color:#2563eb;">₹ ${p.cost} Lacs</span>
+                            </div>
+
+                            <div style="margin-bottom:2rem;">
+                                <label style="display:block; font-size:0.8rem; color:#94a3b8; margin-bottom:5px;">TIMELINE</label>
+                                <span style="font-weight:700; font-size:1.1rem; color:#0f172a;">⏳ ${p.duration_days} Working Days</span>
+                            </div>
+
+                            <hr style="border:0; border-top:1px solid #e2e8f0; margin-bottom:2rem;">
+
+                            <h4 style="text-transform:uppercase; font-size:0.75rem; color:#64748b; margin-bottom:1.5rem;">📐 Structural Details</h4>
+                            <div style="background:white; padding:10px; border-radius:15px; border:1px solid #e2e8f0; margin-bottom:2rem;">
+                                <a href="${IMG_BASE_URL}${p.sketch_url}" target="_blank">
+                                    <img src="${IMG_BASE_URL}${p.sketch_url}" style="width:100%; border-radius:10px;" alt="Structural Sketch">
+                                    <p style="text-align:center; font-size:0.75rem; color:#2563eb; margin-top:8px; font-weight:700;">Click to view Full Sketch</p>
+                                </a>
+                            </div>
+
+                            <button onclick="alert('Contacting Engineer for project consultation...')" class="btn-primary" style="width:100%; background:#0f172a; padding:15px; font-size:1rem;">💬 Contact Architect</button>
+                        </div>
+                    </div>
+                `;
+            } catch(e) { content.innerHTML = '<p>Error loading project details.</p>'; }
+        }
         function logout() { localStorage.clear(); window.location.href = '../index.html'; }
         
         function closeNearbyMap() { 
@@ -323,6 +448,11 @@
             grid.style.display = 'block'; // Use block for sections
             
             grid.innerHTML = `
+                <div style="margin-bottom: 3rem; background: linear-gradient(135deg, #eff6ff 0%, #ffffff 100%); padding: 1.5rem; border-radius: 24px; border: 1px solid #dbeafe;">
+                    <h3 style="display:flex; justify-content:space-between; align-items:center; margin-top:0;">⚡ Live Project Stream <span style="font-size:0.8rem; background:#2563eb; color:white; padding:4px 10px; border-radius:20px; animation: pulse 2s infinite;">NEW</span></h3>
+                    <div id="homeRecentProjects" class="grid-container" style="display:grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap:1.5rem;">Loading latest designs...</div>
+                </div>
+
                 <div style="margin-bottom: 3rem;">
                     <h3 style="display:flex; justify-content:space-between; align-items:center;">👷 Approved Engineers <button onclick="showSection('engineers')" style="background:none; border:none; color:#2563eb; font-weight:700; cursor:pointer; font-size:0.9rem;">View All →</button></h3>
                     <div id="homeEng" class="grid-container" style="display:grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap:1.5rem;">Loading engineers...</div>
@@ -349,32 +479,71 @@
                 </div>
             `;
 
-            // Sequential fetch for Home
-            fetchHomeData();
+            // Parallel fetch for Home (Much faster!)
+            Promise.all([
+                loadLiveProjects(),
+                loadHomeEngineers(),
+                loadHomeWorkers(),
+                loadHomeShops(),
+                loadHomeRentals(),
+                loadHomeSchemes()
+            ]);
         }
 
-        async function fetchHomeData() {
-            // Engineers
+        async function loadLiveProjects() {
+            try {
+                const res = await fetch(`${API_BASE_URL}/engineer/all-projects`);
+                const data = await res.json();
+                const container = document.getElementById('homeRecentProjects');
+                if (!data.projects || data.projects.length === 0) {
+                    container.innerHTML = '<p style="color:#64748b;">Waiting for new uploads...</p>';
+                    return;
+                }
+                container.innerHTML = data.projects.slice(0, 3).map(p => `
+                    <div class="p-card" style="position:relative; cursor:pointer;" onclick="viewProjectDetail('${p.id}')">
+                        <div style="height:150px; background-image:url('${IMG_BASE_URL}${p.images[0] || '/uploads/placeholder.jpg'}'); background-size:cover; background-position:center;"></div>
+                        <div style="padding:1rem;">
+                            <h4 style="margin:0; font-size:0.95rem;">${p.title}</h4>
+                            <p style="font-size:0.75rem; color:#64748b; margin:5px 0;">📍 ${p.location}</p>
+                            <div style="font-size:0.8rem; font-weight:800; color:#2563eb;">Est. Cost: ₹${p.cost}</div>
+                        </div>
+                    </div>
+                `).join('');
+            } catch(e) { console.error("Live project feed failed", e); }
+        }
+
+        async function loadHomeEngineers() {
+            const container = document.getElementById('homeEng');
             try {
                 const res = await fetch(`${API_BASE_URL}/admin/approved-engineers`);
                 const engs = await res.json();
-                document.getElementById('homeEng').innerHTML = engs.slice(0, 4).map(e => `
+                
+                if (!engs || engs.length === 0) {
+                    container.innerHTML = '<p style="color:#64748b; font-size:0.85rem; padding:10px;">No engineers approved yet.</p>';
+                    return;
+                }
+
+                container.innerHTML = engs.slice(0, 4).map(e => `
                     <div class="p-card" style="padding:1.5rem; text-align:center;">
-                        <div style="width:70px; height:70px; background:#dcfce7; color:#166534; border-radius:50%; margin:0 auto 1rem; display:flex; align-items:center; justify-content:center; font-weight:800; font-size:1.5rem;">${e.full_name[0]}</div>
-                        <h4 style="margin:0;">${e.full_name}</h4>
+                        <div style="width:70px; height:70px; background:#dcfce7; color:#166534; border-radius:50%; margin:0 auto 1rem; display:flex; align-items:center; justify-content:center; font-weight:800; font-size:1.5rem;">${(e.full_name || 'E')[0]}</div>
+                        <h4 style="margin:0;">${e.full_name || 'Expert Engineer'}</h4>
                         <p style="font-size:0.8rem; color:#64748b; margin:5px 0;">Civil Expert • ⭐ 4.9</p>
                         <button onclick="openPortfolio('${e.id}')" class="btn-primary" style="width:100%; border-radius:10px; font-size:0.8rem; padding:8px; background:#0f172a;">View Projects</button>
                     </div>
                 `).join('');
-            } catch(e) {}
+            } catch(e) { 
+                console.error("Home Eng Load Fail:", e);
+                container.innerHTML = '<p style="color:#ef4444; font-size:0.8rem;">Sync Error.</p>';
+            }
+        }
 
-            // Workers
+        async function loadHomeWorkers() {
             try {
                 const res = await fetch(`${API_BASE_URL}/worker/list-approved`);
                 const data = await res.json();
                 document.getElementById('homeWork').innerHTML = (data.workers || []).slice(0, 4).map(w => `
                     <div class="p-card" style="padding:1rem; display:flex; align-items:center; gap:15px;">
-                        <div style="width:60px; height:60px; background-image:url('http://127.0.0.1:5000${w.profile_pic_url || '/uploads/placeholder.jpg'}'); background-size:cover; background-position:center; border-radius:12px; flex-shrink:0;"></div>
+                        <div style="width:60px; height:60px; background-image:url('${IMG_BASE_URL}${w.profile_pic_url || '/uploads/placeholder.jpg'}'); background-size:cover; background-position:center; border-radius:12px; flex-shrink:0;"></div>
                         <div>
                             <h4 style="margin:0; font-size:1rem;">${w.name}</h4>
                             <p style="font-size:0.75rem; color:#2563eb; font-weight:700;">${w.work_type}</p>
@@ -383,53 +552,57 @@
                     </div>
                 `).join('');
             } catch(e) {}
+        }
 
-            // Shops
+        async function loadHomeShops() {
             try {
                 const res = await fetch(`${API_BASE_URL}/items/`);
                 const items = await res.json();
-                document.getElementById('homeShops').innerHTML = items.slice(0, 4).map(i => `
+                const container = document.getElementById('homeShops');
+                container.innerHTML = items.filter(i => i.item_type !== 'rent').slice(0, 4).map(i => `
                     <div class="p-card" style="padding:1rem;">
                         <div style="height:120px; background-image:url('${IMG_BASE_URL}${i.image_url || '/uploads/placeholder.jpg'}'); background-size:cover; background-position:center; border-radius:12px; margin-bottom:10px;"></div>
                         <h4 style="margin:0; font-size:0.9rem;">${i.name}</h4>
                         <div style="display:flex; justify-content:space-between; align-items:center; margin-top:5px;">
                             <span style="font-weight:800; color:#2563eb;">₹${i.price}</span>
-                            <button onclick="addToCart('${encodeURIComponent(JSON.stringify(i))}')" style="background:#2563eb; color:white; border:none; border-radius:50%; width:28px; height:28px; cursor:pointer;">+</button>
+                            <button onclick="bookShopItem('${i.id}', '${i.name}', '${i.price}', '${encodeURIComponent(JSON.stringify(i))}')" style="background:#2563eb; color:white; border:none; border-radius:50%; width:28px; height:28px; cursor:pointer;">+</button>
                         </div>
                     </div>
                 `).join('');
             } catch(e) {}
+        }
 
-            // Rentals
+        async function loadHomeRentals() {
             try {
                 const res = await fetch(`${API_BASE_URL}/items/`);
                 const items = await res.json();
-                const rentals = items.filter(i => i.item_type === 'rent');
-                document.getElementById('homeRentals').innerHTML = rentals.slice(0, 4).map(i => `
+                const container = document.getElementById('homeRentals');
+                container.innerHTML = items.filter(i => i.item_type === 'rent').slice(0, 4).map(i => `
                     <div class="p-card" style="padding:1rem;">
-                        <div style="height:120px; background-image:url('${IMG_BASE_URL}${i.image_url}'); background-size:cover; background-position:center; border-radius:12px; margin-bottom:10px;"></div>
+                        <div style="height:120px; background-image:url('${IMG_BASE_URL}${i.image_url || '/uploads/placeholder.jpg'}'); background-size:cover; background-position:center; border-radius:12px; margin-bottom:10px;"></div>
                         <h4 style="margin:0; font-size:0.9rem;">${i.name}</h4>
                         <div style="display:flex; justify-content:space-between; align-items:center; margin-top:5px;">
-                            <span style="font-weight:800; color:#2563eb;">₹${i.price} / ${i.price_unit}</span>
-                            <button onclick="showSection('rentals')" style="background:#2563eb; color:white; border:none; border-radius:50%; width:28px; height:28px; cursor:pointer;">→</button>
+                            <span style="font-weight:800; color:#2563eb;">₹${i.price}/${i.price_unit}</span>
+                            <button onclick="showSection('rentals')" style="background:#0f172a; color:white; border:none; border-radius:10px; padding:5px 10px; font-size:0.7rem; cursor:pointer;">Rent</button>
                         </div>
                     </div>
                 `).join('');
-                if(rentals.length === 0) document.getElementById('homeRentals').innerHTML = '<p style="color:#64748b;">No rental machinery listed yet.</p>';
             } catch(e) {}
+        }
 
-            // Schemes
-            try {
-                const res = await fetch(`${API_BASE_URL}/admin/schemes`);
-                const data = await res.json();
-                document.getElementById('homeSchemes').innerHTML = (data.schemes || []).slice(0, 3).map(s => `
-                    <div style="background:white; padding:1.2rem; border-radius:15px; border:1px solid #e2e8f0;">
-                        <h4 style="margin:0; color:#1e293b;">${s.title}</h4>
-                        <p style="font-size:0.8rem; color:#64748b; margin:8px 0;">${s.description.substring(0, 70)}...</p>
-                        <a href="${s.official_link}" target="_blank" style="font-size:0.85rem; color:#2563eb; text-decoration:none; font-weight:700;">Apply Now →</a>
-                    </div>
-                `).join('');
-            } catch(e) {}
+        async function loadHomeSchemes() {
+            document.getElementById('homeSchemes').innerHTML = `
+                <div class="p-card" style="padding:1.5rem; background:#fff; border-left:4px solid #2563eb;">
+                    <h4 style="margin:0;">PMAY Housing Scheme</h4>
+                    <p style="font-size:0.75rem; color:#64748b; margin:10px 0;">Government subsidy for home construction and purchasing.</p>
+                    <button onclick="showSection('schemes')" style="background:none; border:none; color:#2563eb; padding:0; font-size:0.8rem; font-weight:700; cursor:pointer;">Apply with AI →</button>
+                </div>
+                <div class="p-card" style="padding:1.5rem; background:#fff; border-left:4px solid #10b981;">
+                    <h4 style="margin:0;">Solar Subsidy 2024</h4>
+                    <p style="font-size:0.75rem; color:#64748b; margin:10px 0;">Get up to 40% back on rooftop solar panel installation.</p>
+                    <button onclick="showSection('schemes')" style="background:none; border:none; color:#10b981; padding:0; font-size:0.8rem; font-weight:700; cursor:pointer;">Apply with AI →</button>
+                </div>
+            `;
         }
 
         function showSection(section, el) {
@@ -546,6 +719,54 @@
                     </div>
                 `).join('');
             } catch (e) { grid.innerHTML = '<p>Error loading shop.</p>'; }
+        }
+
+        async function loadEngineers() {
+            const grid = document.getElementById('mainGrid');
+            grid.innerHTML = '<p>Loading our expert engineers...</p>';
+            try {
+                const res = await fetch(`${API_BASE_URL}/admin/approved-engineers`);
+                const engs = await res.json();
+                
+                if (!engs || engs.length === 0) {
+                    grid.innerHTML = '<p style="grid-column:1/-1; text-align:center; padding:3rem; color:#64748b;">No engineers available right now.</p>';
+                } else {
+                    grid.innerHTML = engs.map(e => `
+                        <div class="p-card">
+                            <div style="height:200px; background:#dcfce7; color:#166534; display:flex; align-items:center; justify-content:center; font-size:3rem; font-weight:800;">${(e.full_name || 'E')[0]}</div>
+                            <div style="padding:1.5rem;">
+                                <h3 style="margin:0;">${e.full_name || 'Expert Engineer'}</h3>
+                                <p style="color:#64748b; font-size:0.85rem; margin:10px 0;">Civil Expert • Specializing in Structural Design</p>
+                                <div style="display:flex; align-items:center; gap:5px; color:#f59e0b; margin-bottom:1rem;">⭐⭐⭐⭐⭐ (4.9)</div>
+                                <button onclick="openPortfolio('${e.id}')" class="btn-primary" style="width:100%; background:#0f172a;">Contact & View Projects</button>
+                            </div>
+                        </div>
+                    `).join('');
+                }
+            } catch(e) { grid.innerHTML = '<p>Error loading engineers.</p>'; }
+        }
+
+        async function loadSchemes() {
+            const grid = document.getElementById('mainGrid');
+            grid.innerHTML = '<p>Searching government databases...</p>';
+            try {
+                const res = await fetch(`${API_BASE_URL}/admin/schemes`);
+                const data = await res.json();
+                const schemes = data.schemes || [];
+                
+                if (schemes.length === 0) {
+                    grid.innerHTML = '<p style="grid-column:1/-1; text-align:center; padding:3rem; color:#64748b;">No government schemes found at this time.</p>';
+                } else {
+                    grid.innerHTML = schemes.map(s => `
+                        <div class="p-card" style="padding:1.5rem; border-left: 6px solid #2563eb;">
+                            <h3 style="margin:0; color:#1e293b;">${s.title}</h3>
+                            <p style="color:#2563eb; font-weight:700; margin:5px 0;">Target: ${s.category || 'General'}</p>
+                            <p style="font-size:0.85rem; color:#64748b; margin:15px 0 line-height:1.6;">${s.description}</p>
+                            <a href="${s.official_link}" target="_blank" class="btn-primary" style="display:inline-block; text-decoration:none; padding:10px 20px;">🛡️ View Official Details</a>
+                        </div>
+                    `).join('');
+                }
+            } catch(e) { grid.innerHTML = '<p>Error loading schemes.</p>'; }
         }
 
         async function loadRecentProjects() {
@@ -705,6 +926,9 @@
                     document.getElementById('uName').value = p.full_name || '';
                     document.getElementById('uAge').value = p.age || '';
                     document.getElementById('uBio').value = p.bio || '';
+                    document.getElementById('uAddress').value = p.address || p.location?.address || '';
+                    document.getElementById('uExp').value = p.experience_years || '';
+                    document.getElementById('uProj').value = p.completed_projects || '';
                     
                     if(p.profile_pic_url) {
                         const url = p.profile_pic_url.startsWith('http') ? p.profile_pic_url : `${IMG_BASE_URL}${p.profile_pic_url}`;
@@ -733,6 +957,9 @@
             formData.append('name', document.getElementById('uName').value);
             formData.append('age', document.getElementById('uAge').value);
             formData.append('bio', document.getElementById('uBio').value);
+            formData.append('address', document.getElementById('uAddress').value);
+            formData.append('experience_years', document.getElementById('uExp').value);
+            formData.append('completed_projects', document.getElementById('uProj').value);
             formData.append('lat', document.getElementById('uLat').value);
             formData.append('lng', document.getElementById('uLng').value);
 

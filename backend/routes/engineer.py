@@ -65,6 +65,7 @@ def add_attendance():
         supabase.table('worker_management').insert({
             'engineer_id': engineer_id,
             'worker_name': data.get('worker_name'),
+            'worker_code': data.get('worker_code'),
             'location': data.get('location'),
             'assigned_work': data.get('assigned_work'),
             'attendance_status': data.get('status', 'present')
@@ -113,5 +114,13 @@ def get_all_recent_projects():
         # Fetching the latest 10 projects from all engineers to show on home screen
         res = supabase.table('engineer_projects').select('*').order('created_at', desc=True).limit(10).execute()
         return jsonify({'projects': res.data}), 200
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@engineer_bp.route('/project/<project_id>', methods=['GET'])
+def get_project_detail(project_id):
+    try:
+        res = supabase.table('engineer_projects').select('*').eq('id', project_id).single().execute()
+        return jsonify({'project': res.data}), 200
     except Exception as e:
         return jsonify({'error': str(e)}), 500
