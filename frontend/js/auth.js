@@ -36,13 +36,23 @@ export function initLogin(role) {
 
         const startTime = performance.now();
 
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => {
+            btnText.textContent = 'Still waking up server...';
+        }, 5000);
+        
+        // Absolute timeout after 60 seconds
+        const absoluteTimeoutId = setTimeout(() => controller.abort(), 60000);
+
         try {
             const response = await fetch(`${API_BASE_URL}/auth/login`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ email, password })
+                body: JSON.stringify({ email, password }),
+                signal: controller.signal
             });
 
+            clearTimeout(timeoutId);
             const text = await response.text();
             let data = {};
             try {
@@ -72,7 +82,12 @@ export function initLogin(role) {
             window.location.href = `../dashboards/${data.user.user_type}-dashboard.html`;
 
         } catch (err) {
-            errorBox.textContent = err.message;
+            clearTimeout(timeoutId);
+            if (err.name === 'AbortError') {
+                errorBox.textContent = "Server is taking too long to respond. It might be waking up. Please try clicking Sign In again in 10 seconds.";
+            } else {
+                errorBox.textContent = err.message;
+            }
             errorBox.style.display = 'block';
             spinner.style.display = 'none';
             btnText.textContent = 'Sign In';
