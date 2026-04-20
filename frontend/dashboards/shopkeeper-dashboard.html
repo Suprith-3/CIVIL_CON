@@ -424,7 +424,10 @@
                 const user_id = localStorage.getItem('user_id');
                 const API_BASE_URL = window.location.hostname === '127.0.0.1' || window.location.hostname === 'localhost' 
                     ? 'http://127.0.0.1:5000/api' 
-                    : 'https://civil-con.onrender.com/api';
+                    : 'https://civilconnect-m3lr.onrender.com/api';
+                const IMG_BASE_URL = window.location.hostname === '127.0.0.1' || window.location.hostname === 'localhost' 
+                    ? 'http://127.0.0.1:5000' 
+                    : 'https://civilconnect-m3lr.onrender.com';
                 const res = await fetch(`${API_BASE_URL}/auth/profile?user_id=${user_id}`);
                 const { profile } = await res.json();
                 

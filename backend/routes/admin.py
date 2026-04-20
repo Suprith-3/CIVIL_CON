@@ -83,8 +83,20 @@ def approve_registration(role, id):
         return jsonify({'error': 'Bad Request', 'message': 'Invalid role'}), 400
         
     try:
-        res = supabase.table(table).update({'status': 'approved'}).eq('id', id).execute()
-        return jsonify({'message': f'{role} approved successfully'}), 200
+        update_data = {'status': 'approved'}
+        
+        # If approving a worker, generate a unique worker_code if it doesn't exist
+        if role == 'worker':
+            import random
+            worker_code = f"WRK-{random.randint(1000, 9999)}"
+            update_data['worker_code'] = worker_code
+            print(f"GENERATING ID: {worker_code} for worker_registration ID: {id}")
+
+        res = supabase.table(table).update(update_data).eq('id', id).execute()
+        return jsonify({
+            'message': f'{role} approved successfully',
+            'worker_code': update_data.get('worker_code')
+        }), 200
     except Exception as e:
         return jsonify({'error': 'Server Error', 'message': str(e)}), 500
 

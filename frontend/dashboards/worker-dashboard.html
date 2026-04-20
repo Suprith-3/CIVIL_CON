@@ -344,10 +344,10 @@
     <script>
         const API_BASE_URL = window.location.hostname === '127.0.0.1' || window.location.hostname === 'localhost' 
             ? 'http://127.0.0.1:5000/api' 
-            : 'https://civil-con.onrender.com/api';
+            : 'https://civilconnect-m3lr.onrender.com/api';
         const IMG_BASE_URL = window.location.hostname === '127.0.0.1' || window.location.hostname === 'localhost' 
             ? 'http://127.0.0.1:5000' 
-            : 'https://civil-con.onrender.com';
+            : 'https://civilconnect-m3lr.onrender.com';
         const worker_id = localStorage.getItem('user_id');
 
         function openModal() { document.getElementById('workModal').style.display = 'flex'; }
@@ -622,25 +622,36 @@
         async function loadProfile() {
             try {
                 const current_user_id = localStorage.getItem('user_id');
-                const res = await fetch(`${API_BASE_URL}/worker/profile?worker_id=${current_user_id}`);
+                const token = localStorage.getItem('access_token');
+                const res = await fetch(`${API_BASE_URL}/worker/profile?worker_id=${current_user_id}`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
                 const data = await res.json();
                 if (data.profile) {
                     const p = data.profile;
-                    document.getElementById('welcomeGreeting').innerHTML = `Welcome Back, <span style="color: #2563eb;">${p.name}</span>!`;
+                    document.getElementById('welcomeGreeting').innerHTML = `Welcome Back, <span style="color: #2563eb;">${p.name || 'Worker'}</span>!`;
                     document.getElementById('profName').value = p.name || '';
                     document.getElementById('profAge').value = p.age || '';
                     document.getElementById('profExp').value = p.experience_years || '';
                     document.getElementById('profType').value = p.work_type || 'General';
                     document.getElementById('profWages').value = p.daily_wages || '';
                     document.getElementById('profBio').value = p.bio || '';
+                    
                     if (p.profile_pic_url) {
-                        document.getElementById('profileImagePreview').style.backgroundImage = `url(${IMG_BASE_URL}${p.profile_pic_url})`;
+                        const url = p.profile_pic_url.startsWith('http') ? p.profile_pic_url : `${IMG_BASE_URL}${p.profile_pic_url}`;
+                        document.getElementById('profileImagePreview').style.backgroundImage = `url(${url})`;
                     }
+                    
                     if (p.worker_code) {
                         document.getElementById('workerUniqueId').textContent = `Unique ID: ${p.worker_code}`;
+                    } else {
+                        document.getElementById('workerUniqueId').textContent = `Unique ID: PENDING GENERATION`;
                     }
                 }
-            } catch (e) { console.error("Error loading profile:", e); }
+            } catch (e) { 
+                console.error("Error loading profile:", e); 
+                document.getElementById('workerUniqueId').textContent = `Unique ID: Error Loading`;
+            }
         }
 
         document.getElementById('profileForm').onsubmit = async (e) => {
