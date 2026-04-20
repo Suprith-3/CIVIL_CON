@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Equipment Renter Dashboard | BuildHub</title>
+    <title>Equipment Renter Dashboard | CIVIL CONNECTION</title>
     <link rel="stylesheet" href="../css/style.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
@@ -27,7 +27,13 @@
 </head>
 <body>
     <div class="sidebar">
-        <div style="font-size: 1.5rem; font-weight: 800; margin-bottom: 2rem; padding: 0 1rem;">🚜 Rent<span>Hub</span></div>
+        <div class="logo" style="display: flex; align-items: center; gap: 10px; margin-bottom: 2rem; padding: 0 1rem;">
+            <img src="../img/logo.jpg" alt="CIVIL CONNECTION" style="height: 40px; border-radius: 6px;">
+            <div style="display: flex; flex-direction: column; line-height: 1;">
+                <span style="font-size: 1.1rem; font-weight: 800; color: #fff;">CIVIL</span>
+                <span style="font-size: 0.8rem; font-weight: 800; color: #3b82f6;">CONNECTION</span>
+            </div>
+        </div>
         <div class="nav-link active" onclick="showTab('inventory')">📦 My Inventory</div>
         <div class="nav-link" onclick="showTab('orders')">📋 Rental Bookings</div>
         <div class="nav-link" onclick="showTab('profile')">🏗️ Yard Profile</div>
