@@ -105,135 +105,18 @@
                 <div id="errorBox" style="color: #ef4444; font-size: 0.85rem; margin-top: 1rem; text-align: center; display: none;"></div>
             </form>
 
-        /* 📱 FULL SCREEN MOBILE APP UI 📱 */
-        @media (max-width: 768px) {
-            body { background: #0f172a !important; margin: 0; padding: 0; overflow-x: hidden; }
-            .home-btn { top: 20px !important; right: 20px !important; z-index: 1001; background: rgba(255,255,255,0.1) !important; backdrop-filter: blur(10px); color: white !important; }
-            
-            .auth-container { 
-                flex-direction: column !important; 
-                min-height: 100vh !important; 
-                box-shadow: none !important; 
-                border-radius: 0 !important;
-                margin: 0 !important;
-                max-width: 100% !important;
-            }
-
-            .auth-sidebar { 
-                padding: 4rem 2rem 2rem 2rem !important; 
-                text-align: center; 
-                min-height: auto !important; 
-                background: linear-gradient(180deg, #1e293b 0%, #0f172a 100%) !important;
-                border-radius: 0 0 40px 40px !important;
-                border-bottom: 1px solid rgba(255,255,255,0.05);
-            }
-            .auth-sidebar h1 { font-size: 2.2rem !important; font-weight: 800; letter-spacing: -1px; margin-bottom: 0 !important; }
-            .auth-sidebar p { display: none !important; } /* REMOVED Sentence as requested */
-
-            .auth-content { 
-                padding: 2.5rem 2rem !important; 
-                background: #0f172a !important;
-                flex-grow: 1;
-            }
-
-            /* Floating + Selector */
-            .role-plus-container {
-                position: relative;
-                width: 100%;
-                display: flex;
-                flex-direction: column;
-                align-items: center;
-                margin-bottom: 2rem;
-            }
-            .plus-btn {
-                width: 60px;
-                height: 60px;
-                background: #2563eb;
-                color: white;
-                border-radius: 50%;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                font-size: 2rem;
-                cursor: pointer;
-                box-shadow: 0 10px 25px rgba(37, 99, 235, 0.4);
-                transition: 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-                z-index: 10;
-            }
-            .plus-btn.active { transform: rotate(45deg); background: #ef4444; box-shadow: 0 10px 25px rgba(239, 68, 68, 0.4); }
-
-            .role-selectors {
-                position: absolute;
-                top: 70px;
-                display: none; /* Controlled by JS */
-                grid-template-columns: repeat(3, 1fr) !important;
-                gap: 15px !important;
-                background: rgba(30, 41, 59, 0.8);
-                backdrop-filter: blur(20px);
-                padding: 20px;
-                border-radius: 25px;
-                border: 1px solid rgba(255,255,255,0.1);
-                animation: popUp 0.3s ease-out;
-                z-index: 11;
-            }
-            .role-selectors.show { display: grid !important; }
-
-            @keyframes popUp {
-                from { opacity: 0; transform: translateY(-20px) scale(0.9); }
-                to { opacity: 1; transform: translateY(0) scale(1); }
-            }
-
-            .role-btn {
-                background: rgba(255,255,255,0.05) !important;
-                border: 1px solid rgba(255,255,255,0.1) !important;
-                padding: 12px 5px !important;
-                border-radius: 15px !important;
-                min-width: 80px !important;
-            }
-            .role-btn span { width: 35px; height: 35px; object-fit: contain; } /* Container for specific logos */
-            .role-btn.active { background: #2563eb !important; border-color: #3b82f6 !important; }
-            .role-btn small { color: white !important; font-weight: 600; margin-top: 5px; }
-
-            .auth-tabs { background: rgba(30, 41, 59, 0.5) !important; border-radius: 15px !important; padding: 5px !important; }
-            .auth-tab { border-radius: 12px !important; color: #94a3b8 !important; }
-            .auth-tab.active { background: #2563eb !important; color: white !important; }
-
-            .form-group label { color: #94a3b8 !important; }
-            .form-group input { background: rgba(255,255,255,0.05) !important; border: 1px solid rgba(255,255,255,0.1) !important; color: white !important; height: 50px !important; }
-            .btn-auth { height: 55px !important; border-radius: 16px !important; font-size: 1.1rem !important; }
-        }
-
-        @keyframes spin {
-            to { transform: rotate(360deg); }
-        }
-    </style>
-</div>
-
-<!-- Updated HTML Structure for the + Selector -->
-<div class="auth-content">
-    <div class="role-plus-container">
-        <div class="plus-btn" id="roleToggle">+</div>
-        <div class="role-selectors" id="roleMenu">
-            <div class="role-btn active" data-role="user">
-                <img src="../assets/icons/customer.png" style="width:30px; height:30px;" alt="👤">
-                <small>Customer</small>
-            </div>
-            <div class="role-btn" data-role="engineer">
-                <img src="../assets/icons/engineer.png" style="width:30px; height:30px;" alt="📐">
-                <small>Engineer</small>
-            </div>
-            <div class="role-btn" data-role="worker">
-                <img src="../assets/icons/worker.png" style="width:30px; height:30px;" alt="👷">
-                <small>Worker</small>
-            </div>
-            <div class="role-btn" data-role="shopkeeper">
-                <img src="../assets/icons/shopkeeper.png" style="width:30px; height:30px;" alt="🏠">
-                <small>Shopkeeper</small>
-            </div>
-            <div class="role-btn" data-role="renter">
-                <img src="../assets/icons/rent.png" style="width:30px; height:30px;" alt="🚜">
-                <small>Rent</small>
-            </div>
+            <style>
+                @keyframes spin {
+                    to { transform: rotate(360deg); }
+                }
+                
+                @media (max-width: 768px) {
+                    .auth-container { flex-direction: column; min-height: auto; width: 100%; border-radius: 0; }
+                    .auth-sidebar { padding: 3rem 2rem; border-radius: 0 0 30px 30px; }
+                    .auth-content { padding: 2.5rem 1.5rem; }
+                    .role-selectors { margin-bottom: 2rem; grid-template-columns: repeat(3, 1fr) !important; gap: 10px !important; }
+                }
+            </style>
         </div>
     </div>
 
@@ -244,14 +127,8 @@
         let currentRole = params.get('role') || 'user';
         let currentTab = params.get('tab') || 'login';
 
-        const roleToggle = document.getElementById('roleToggle');
-        const roleMenu = document.getElementById('roleMenu');
-
-        // Toggle Expandable (+) Menu
-        roleToggle.addEventListener('click', () => {
-            roleToggle.classList.toggle('active');
-            roleMenu.classList.toggle('show');
-        });
+        const roleBtns = document.querySelectorAll('.role-btn');
+        const loginForm = document.getElementById('loginForm');
 
         // Initial setup
         const updateUI = () => {
@@ -259,8 +136,11 @@
                 btn.classList.toggle('active', btn.dataset.role === currentRole);
             });
             
-            document.getElementById('tab-login').classList.toggle('active', currentTab === 'login');
-            document.getElementById('tab-register').classList.toggle('active', currentTab === 'register');
+            document.querySelectorAll('.auth-tab').forEach(tab => {
+                tab.classList.toggle('active', 
+                    (tab.id === 'tab-login' && currentTab === 'login') || 
+                    (tab.id === 'tab-register' && currentTab === 'register'));
+            });
 
             if (currentTab === 'register') {
                 window.location.href = `register-${currentRole}.html`;
@@ -272,10 +152,6 @@
                 currentRole = btn.dataset.role;
                 updateUI();
                 initLogin(currentRole);
-                
-                // Close menu after selection on mobile
-                roleToggle.classList.remove('active');
-                roleMenu.classList.remove('show');
             });
         });
 

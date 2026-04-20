@@ -439,8 +439,8 @@ body {
     position: fixed;
     top: 20px;
     right: 20px;
-    width: 45px;
-    height: 45px;
+    width: 36px;
+    height: 36px;
     background: white;
     border-radius: 50%;
     display: flex;
@@ -450,15 +450,20 @@ body {
     cursor: pointer;
     z-index: 9999;
     transition: all 0.3s ease;
-    border: 1px solid var(--border);
+    border: 1px solid #e2e8f0;
     text-decoration: none;
-    color: var(--primary);
+    color: #2563eb;
+}
+
+.home-btn svg {
+    width: 18px;
+    height: 18px;
 }
 
 .home-btn:hover {
     transform: translateY(-2px);
     box-shadow: 0 6px 16px rgba(0,0,0,0.15);
-    background: var(--primary);
+    background: #2563eb;
     color: white;
 }
 
