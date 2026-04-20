@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Equipment Renter Registration | BuildHub</title>
+    <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        .register-container { max-width: 700px; margin: 3rem auto; }
+        .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+        .form-group.full { grid-column: span 2; }
+        .form-control { width: 100%; padding: 0.75rem; border-radius: var(--radius); border: 1px solid var(--border); }
+        #map { height: 250px; border-radius: var(--radius); margin: 0.5rem 0; border: 1px solid var(--border); }
+        @keyframes spin { to { transform: rotate(360deg); } }
+    </style>
+</head>
+<body>
+    <div class="container animate-fade-in">
+        <div class="card register-container">
+            <div style="display: flex; align-items: center; gap: 15px; margin-bottom: 1.5rem;">
+                <div style="font-size: 2.5rem;">🚜</div>
+                <div>
+                    <h2 style="margin: 0;">Equipment Renter Registration</h2>
+                    <p style="color: #64748b;">List your machinery and tools for rent on the ecosystem.</p>
+                </div>
+            </div>
+
+            <div id="errorBox" style="display: none; background: #fee2e2; color: #dc2626; padding: 1rem; border-radius: 12px; margin-bottom: 1.5rem; font-size: 0.9rem; font-weight: 500; border: 1px solid #fecaca;"></div>
+
+            <form id="registerForm">
+                <div id="step1">
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label>Full Name</label>
+                            <input type="text" name="full_name" class="form-control" placeholder="John Doe" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Phone Number</label>
+                            <input type="tel" name="phone" id="phone" class="form-control" placeholder="+91 00000 00000" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Gmail / Email</label>
+                            <input type="email" name="email" id="email" class="form-control" placeholder="john@gmail.com" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Password</label>
+                            <input type="password" name="password" class="form-control" required>
+                        </div>
+                         <div class="form-group">
+                            <label>Confirm Password</label>
+                            <input type="password" name="confirmPassword" class="form-control" required>
+                        </div>
+                    </div>
+                    <button type="button" onclick="nextStep(2)" class="btn-primary" style="width: 100%; margin-top: 2rem;">Next: Verification & Location</button>
+                </div>
+
+                <div id="step2" style="display: none;">
+                    <div class="form-grid">
+                        <div class="form-group full">
+                            <label>Upload Document (Aadhar or PAN Card Photo)</label>
+                            <input type="file" name="verification_doc" id="verification_doc" class="form-control" required>
+                            <p style="font-size: 0.75rem; color: #64748b; margin-top: 5px;">This will be verified by the admin before your account is activated.</p>
+                        </div>
+                        
+                        <div class="form-group full">
+                            <div style="display: flex; justify-content: space-between; align-items: center;">
+                                <label>Business / Yard Location</label>
+                                <button type="button" onclick="detectLocation()" style="font-size: 0.75rem; background: #0f172a; color: white; border: none; padding: 4px 12px; border-radius: 20px; cursor: pointer;">📍 Take Live Location</button>
+                            </div>
+                            <div id="map"></div>
+                            <input type="hidden" name="lat" id="lat">
+                            <input type="hidden" name="lng" id="lng">
+                            <p style="font-size: 0.75rem; color: #64748b;">Or click/drag on the map to manually set your location.</p>
+                        </div>
+
+                        <div class="form-group full">
+                            <label>Warehouse Address (Manual Entry)</label>
+                            <textarea name="manual_address" class="form-control" placeholder="Optional: Enter full address manually if map is inaccurate" style="height: 80px;"></textarea>
+                        </div>
+                    </div>
+
+                    <div style="display: flex; gap: 1rem; margin-top: 2rem;">
+                        <button type="button" onclick="nextStep(1)" class="btn" style="flex: 1; border: 1px solid var(--border);">Back</button>
+                        <button type="submit" class="btn-primary" style="flex: 1; display: flex; align-items: center; justify-content: center; gap: 10px;">
+                            <span id="spinner" style="display: none; width: 15px; height: 15px; border: 2px solid #fff; border-top-color: transparent; border-radius: 50%; animation: spin 0.8s linear infinite;"></span>
+                            <span id="btnText">Register for Review</span>
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script type="module">
+        import { initRegister } from '../js/auth.js';
+        
+        let map, marker;
+        
+        window.nextStep = (s) => {
+            document.getElementById('step1').style.display = s === 1 ? 'block' : 'none';
+            document.getElementById('step2').style.display = s === 2 ? 'block' : 'none';
+            if(s === 2 && !map) {
+                setTimeout(() => {
+                    initMap();
+                }, 100);
+            }
+        };
+
+        function initMap() {
+            map = L.map('map').setView([12.9716, 77.5946], 13);
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
+            
+            map.on('click', (e) => {
+                if (marker) map.removeLayer(marker);
+                marker = L.marker(e.latlng).addTo(map);
+                document.getElementById('lat').value = e.latlng.lat;
+                document.getElementById('lng').value = e.latlng.lng;
+            });
+            
+            detectLocation(); // Try auto-detect once initialized
+        }
+        
+        window.detectLocation = () => {
+            if (!navigator.geolocation) {
+                alert("Geolocation is not supported by your browser");
+                return;
+            }
+            navigator.geolocation.getCurrentPosition((position) => {
+                const { latitude, longitude } = position.coords;
+                if(map) {
+                    map.setView([latitude, longitude], 16);
+                    if (marker) map.removeLayer(marker);
+                    marker = L.marker([latitude, longitude]).addTo(map);
+                }
+                document.getElementById('lat').value = latitude;
+                document.getElementById('lng').value = longitude;
+            }, (error) => {
+                console.warn("Location access denied.");
+            });
+        };
+
+        initRegister('renter');
+    </script>
+</body>
+</html>

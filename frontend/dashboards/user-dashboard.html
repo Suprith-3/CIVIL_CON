@@ -52,6 +52,10 @@
             <i class="fa-solid fa-users-gear"></i>
             <span>Hiring</span>
         </a>
+        <a href="#" class="mobile-nav-item" onclick="showSection('schemes', this)">
+            <i class="fa-solid fa-landmark"></i>
+            <span>Schemes</span>
+        </a>
         <a href="#" class="mobile-nav-item" onclick="showSection('profile', this)">
             <i class="fa-solid fa-user-circle"></i>
             <span>Profile</span>
@@ -66,6 +70,7 @@
             <div class="nav-item" onclick="showSection('engineers', this)">👷 Engineers</div>
             <div class="nav-item" onclick="showSection('workers', this)">🏗️ Workers</div>
             <div class="nav-item" onclick="showSection('equipment', this)">🏪 Materials & Shops</div>
+            <div class="nav-item" onclick="showSection('rentals', this)" style="background: rgba(37, 99, 235, 0.1); color: #2563eb; border: 1px solid rgba(37, 99, 235, 0.2);">🚜 Rent Items</div>
             <div class="nav-item" onclick="showSection('schemes', this)">🏛️ Gov Schemes</div>
             <div class="nav-item" onclick="showSection('messages', this)">💬 Messages</div>
             <div class="nav-item" onclick="showSection('profile', this)">👤 Profile</div>
@@ -115,6 +120,38 @@
         <div id="myBookingsSection" style="display:none;" class="animate-fade-in">
             <div id="myBookingsList" class="grid-container">
                 <!-- Bookings Load Here -->
+            </div>
+        </div>
+
+        <!-- RENTALS SECTION (WITH VERIFICATION GATE) -->
+        <div id="rentalsSection" style="display:none;" class="animate-fade-in">
+            <div id="verificationGate" style="display:block;">
+                <div class="p-card" style="max-width:600px; margin:2rem auto; padding:2rem; text-align:center;">
+                    <h2 style="color:#0f172a;">🚜 Rental Security Verification</h2>
+                    <p style="color:#64748b; margin-bottom:2rem;">To rent heavy machinery or tools, we require a one-time identity verification. Please upload your documents to unlock this feature.</p>
+                    
+                    <form id="rentalVerifyForm">
+                        <div style="text-align:left; margin-bottom:1.5rem;">
+                            <label style="display:block; font-size:0.85rem; font-weight:700; margin-bottom:8px;">1. Aadhar Card Photo</label>
+                            <input type="file" id="rAadhar" required class="form-control" style="width:100%; padding:10px; border:1px solid #e2e8f0; border-radius:10px;">
+                        </div>
+                        <div style="text-align:left; margin-bottom:2rem;">
+                            <label style="display:block; font-size:0.85rem; font-weight:700; margin-bottom:8px;">2. Driving License (DL) Photo</label>
+                            <input type="file" id="rDL" required class="form-control" style="width:100%; padding:10px; border:1px solid #e2e8f0; border-radius:10px;">
+                        </div>
+                        <button type="submit" class="btn-primary" style="width:100%; padding:1rem; font-size:1rem;">🔓 Upload & Unlock Rentals</button>
+                    </form>
+                </div>
+            </div>
+
+            <div id="rentalMarketplace" style="display:none;">
+                <div class="section-header">
+                    <h3>Equipment Rental Marketplace</h3>
+                    <p style="color:#64748b; font-size:0.9rem;">Verified Access ✅</p>
+                </div>
+                <div class="grid-container" id="rentalGrid">
+                    <!-- Rental items load here -->
+                </div>
             </div>
         </div>
 
@@ -204,6 +241,30 @@
             if(mainMap) { mainMap.remove(); mainMap = null; }
         }
 
+        function previewUserPhoto(input) {
+            if (input.files && input.files[0]) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    document.getElementById('userProfilePic').style.backgroundImage = `url(${e.target.result})`;
+                }
+                reader.readAsDataURL(input.files[0]);
+            }
+        }
+
+        function detectUserLoc() {
+            if (!navigator.geolocation) return alert("Geolocation not supported");
+            navigator.geolocation.getCurrentPosition((pos) => {
+                const { latitude, longitude } = pos.coords;
+                document.getElementById('uLat').value = latitude;
+                document.getElementById('uLng').value = longitude;
+                
+                // Update small map in profile
+                const pMap = L.map('userLocMap').setView([latitude, longitude], 15);
+                L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(pMap);
+                L.marker([latitude, longitude]).addTo(pMap);
+            });
+        }
+
         async function openNearbyMap() {
             const modal = document.getElementById('nearbyMapModal');
             modal.style.display = 'flex';
@@ -248,29 +309,159 @@
             }
         }
 
+        async function loadHomeContent() {
+            const grid = document.getElementById('mainGrid');
+            const header = document.getElementById('sectionHeader');
+            const stats = document.getElementById('homeStats');
+            const pSec = document.getElementById('profileSection');
+            const mbSec = document.getElementById('myBookingsSection');
+            
+            header.textContent = "Your Construction Marketplace Overview";
+            stats.style.display = 'grid';
+            pSec.style.display = 'none';
+            mbSec.style.display = 'none';
+            grid.style.display = 'block'; // Use block for sections
+            
+            grid.innerHTML = `
+                <div style="margin-bottom: 3rem;">
+                    <h3 style="display:flex; justify-content:space-between; align-items:center;">👷 Approved Engineers <button onclick="showSection('engineers')" style="background:none; border:none; color:#2563eb; font-weight:700; cursor:pointer; font-size:0.9rem;">View All →</button></h3>
+                    <div id="homeEng" class="grid-container" style="display:grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap:1.5rem;">Loading engineers...</div>
+                </div>
+
+                <div style="margin-bottom: 3rem;">
+                    <h3 style="display:flex; justify-content:space-between; align-items:center;">🏗️ Skilled Workers <button onclick="showSection('workers')" style="background:none; border:none; color:#2563eb; font-weight:700; cursor:pointer; font-size:0.9rem;">View All →</button></h3>
+                    <div id="homeWork" class="grid-container" style="display:grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap:1.5rem;">Loading workers...</div>
+                </div>
+
+                <div style="margin-bottom: 3rem;">
+                    <h3 style="display:flex; justify-content:space-between; align-items:center;">🏪 Materials & Shops <button onclick="showSection('equipment')" style="background:none; border:none; color:#2563eb; font-weight:700; cursor:pointer; font-size:0.9rem;">Shop All →</button></h3>
+                    <div id="homeShops" class="grid-container" style="display:grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap:1.5rem;">Loading shops...</div>
+                </div>
+
+                <div style="margin-bottom: 3rem;">
+                    <h3 style="display:flex; justify-content:space-between; align-items:center;">🚜 Equipment For Rent <button onclick="showSection('rentals')" style="background:none; border:none; color:#2563eb; font-weight:700; cursor:pointer; font-size:0.9rem;">View All →</button></h3>
+                    <div id="homeRentals" class="grid-container" style="display:grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap:1.5rem;">Loading rental items...</div>
+                </div>
+
+                <div style="margin-bottom: 3rem; background:#f8fafc; padding:2rem; border-radius:20px; border:1px solid #e2e8f0;">
+                    <h3 style="display:flex; justify-content:space-between; align-items:center;">🏛️ Global Gov Schemes <button onclick="showSection('schemes')" style="background:none; border:none; color:#2563eb; font-weight:700; cursor:pointer; font-size:0.9rem;">Search AI →</button></h3>
+                    <div id="homeSchemes" style="display:grid; grid-template-columns: repeat(auto-fill, minmax(350px, 1fr)); gap:1.5rem;">Loading schemes...</div>
+                </div>
+            `;
+
+            // Sequential fetch for Home
+            fetchHomeData();
+        }
+
+        async function fetchHomeData() {
+            // Engineers
+            try {
+                const res = await fetch(`${API_BASE_URL}/admin/approved-engineers`);
+                const engs = await res.json();
+                document.getElementById('homeEng').innerHTML = engs.slice(0, 4).map(e => `
+                    <div class="p-card" style="padding:1.5rem; text-align:center;">
+                        <div style="width:70px; height:70px; background:#dcfce7; color:#166534; border-radius:50%; margin:0 auto 1rem; display:flex; align-items:center; justify-content:center; font-weight:800; font-size:1.5rem;">${e.full_name[0]}</div>
+                        <h4 style="margin:0;">${e.full_name}</h4>
+                        <p style="font-size:0.8rem; color:#64748b; margin:5px 0;">Civil Expert • ⭐ 4.9</p>
+                        <button onclick="openPortfolio('${e.id}')" class="btn-primary" style="width:100%; border-radius:10px; font-size:0.8rem; padding:8px; background:#0f172a;">View Projects</button>
+                    </div>
+                `).join('');
+            } catch(e) {}
+
+            // Workers
+            try {
+                const res = await fetch(`${API_BASE_URL}/worker/list-approved`);
+                const data = await res.json();
+                document.getElementById('homeWork').innerHTML = (data.workers || []).slice(0, 4).map(w => `
+                    <div class="p-card" style="padding:1rem; display:flex; align-items:center; gap:15px;">
+                        <div style="width:60px; height:60px; background-image:url('http://127.0.0.1:5000${w.profile_pic_url || '/uploads/placeholder.jpg'}'); background-size:cover; background-position:center; border-radius:12px; flex-shrink:0;"></div>
+                        <div>
+                            <h4 style="margin:0; font-size:1rem;">${w.name}</h4>
+                            <p style="font-size:0.75rem; color:#2563eb; font-weight:700;">${w.work_type}</p>
+                            <span style="font-size:0.8rem; font-weight:800;">₹${w.daily_wages}/Day</span>
+                        </div>
+                    </div>
+                `).join('');
+            } catch(e) {}
+
+            // Shops
+            try {
+                const res = await fetch(`${API_BASE_URL}/items/`);
+                const items = await res.json();
+                document.getElementById('homeShops').innerHTML = items.slice(0, 4).map(i => `
+                    <div class="p-card" style="padding:1rem;">
+                        <div style="height:120px; background-image:url('${IMG_BASE_URL}${i.image_url || '/uploads/placeholder.jpg'}'); background-size:cover; background-position:center; border-radius:12px; margin-bottom:10px;"></div>
+                        <h4 style="margin:0; font-size:0.9rem;">${i.name}</h4>
+                        <div style="display:flex; justify-content:space-between; align-items:center; margin-top:5px;">
+                            <span style="font-weight:800; color:#2563eb;">₹${i.price}</span>
+                            <button onclick="addToCart('${encodeURIComponent(JSON.stringify(i))}')" style="background:#2563eb; color:white; border:none; border-radius:50%; width:28px; height:28px; cursor:pointer;">+</button>
+                        </div>
+                    </div>
+                `).join('');
+            } catch(e) {}
+
+            // Rentals
+            try {
+                const res = await fetch(`${API_BASE_URL}/items/`);
+                const items = await res.json();
+                const rentals = items.filter(i => i.item_type === 'rent');
+                document.getElementById('homeRentals').innerHTML = rentals.slice(0, 4).map(i => `
+                    <div class="p-card" style="padding:1rem;">
+                        <div style="height:120px; background-image:url('${IMG_BASE_URL}${i.image_url}'); background-size:cover; background-position:center; border-radius:12px; margin-bottom:10px;"></div>
+                        <h4 style="margin:0; font-size:0.9rem;">${i.name}</h4>
+                        <div style="display:flex; justify-content:space-between; align-items:center; margin-top:5px;">
+                            <span style="font-weight:800; color:#2563eb;">₹${i.price} / ${i.price_unit}</span>
+                            <button onclick="showSection('rentals')" style="background:#2563eb; color:white; border:none; border-radius:50%; width:28px; height:28px; cursor:pointer;">→</button>
+                        </div>
+                    </div>
+                `).join('');
+                if(rentals.length === 0) document.getElementById('homeRentals').innerHTML = '<p style="color:#64748b;">No rental machinery listed yet.</p>';
+            } catch(e) {}
+
+            // Schemes
+            try {
+                const res = await fetch(`${API_BASE_URL}/admin/schemes`);
+                const data = await res.json();
+                document.getElementById('homeSchemes').innerHTML = (data.schemes || []).slice(0, 3).map(s => `
+                    <div style="background:white; padding:1.2rem; border-radius:15px; border:1px solid #e2e8f0;">
+                        <h4 style="margin:0; color:#1e293b;">${s.title}</h4>
+                        <p style="font-size:0.8rem; color:#64748b; margin:8px 0;">${s.description.substring(0, 70)}...</p>
+                        <a href="${s.official_link}" target="_blank" style="font-size:0.85rem; color:#2563eb; text-decoration:none; font-weight:700;">Apply Now →</a>
+                    </div>
+                `).join('');
+            } catch(e) {}
+        }
+
         function showSection(section, el) {
             document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
             if(el) el.classList.add('active');
+            else {
+                 document.querySelectorAll('.sidebar .nav-item').forEach(i => {
+                    if(i.textContent.toLowerCase().includes(section)) i.classList.add('active');
+                 });
+            }
+
             const grid = document.getElementById('mainGrid');
             const header = document.getElementById('sectionHeader');
             const pSec = document.getElementById('profileSection');
             const stats = document.getElementById('homeStats');
             const mbSec = document.getElementById('myBookingsSection');
+            const rentSec = document.getElementById('rentalsSection');
             
             stats.style.display = (section === 'home') ? 'grid' : 'none';
             pSec.style.display = (section === 'profile') ? 'block' : 'none';
             mbSec.style.display = (section === 'my-bookings') ? 'block' : 'none';
-            
-            // Hide main grid if viewing profile or bookings
-            grid.style.display = (section === 'profile' || section === 'my-bookings') ? 'none' : 'grid';
+            rentSec.style.display = (section === 'rentals') ? 'block' : 'none';
+            grid.style.display = (section === 'profile' || section === 'my-bookings' || section === 'rentals') ? 'none' : 'grid';
 
-            if (section === 'home') loadRecentProjects();
+            if (section === 'home') loadHomeContent();
             else if (section === 'equipment') loadShopProducts();
             else if (section === 'engineers') loadEngineers();
             else if (section === 'workers') loadWorkers();
             else if (section === 'my-bookings') loadMyBookings();
             else if (section === 'schemes') loadSchemes();
             else if (section === 'profile') loadUserProfile();
+            else if (section === 'rentals') loadRentals();
         }
 
         async function loadMyBookings() {
@@ -509,10 +700,289 @@
                 const res = await fetch(`${API_BASE_URL}/auth/profile?user_id=${user_id}`);
                 const data = await res.json();
                 if(data.profile) {
-                    document.getElementById('userEmail').textContent = data.profile.user_email || localStorage.getItem('user_email');
+                    const p = data.profile;
+                    document.getElementById('userEmail').textContent = p.email || localStorage.getItem('user_email');
+                    document.getElementById('uName').value = p.full_name || '';
+                    document.getElementById('uAge').value = p.age || '';
+                    document.getElementById('uBio').value = p.bio || '';
+                    
+                    if(p.profile_pic_url) {
+                        const url = p.profile_pic_url.startsWith('http') ? p.profile_pic_url : `${IMG_BASE_URL}${p.profile_pic_url}`;
+                        document.getElementById('userProfilePic').style.backgroundImage = `url(${url})`;
+                        document.getElementById('topBarAvatar').style.backgroundImage = `url(${url})`;
+                        document.getElementById('topBarAvatar').textContent = '';
+                    }
+                    
+                    if(p.location && p.location.lat) {
+                        document.getElementById('uLat').value = p.location.lat;
+                        document.getElementById('uLng').value = p.location.lng;
+                    }
                 }
-            } catch(e) {}
+            } catch(e) { console.error("Profile load failed", e); }
         }
+
+        document.getElementById('userProfileForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const user_id = localStorage.getItem('user_id');
+            const formData = new FormData();
+            
+            const photoFile = document.getElementById('uPhotoInput').files[0];
+            if (photoFile) formData.append('photo', photoFile);
+            
+            formData.append('user_id', user_id);
+            formData.append('name', document.getElementById('uName').value);
+            formData.append('age', document.getElementById('uAge').value);
+            formData.append('bio', document.getElementById('uBio').value);
+            formData.append('lat', document.getElementById('uLat').value);
+            formData.append('lng', document.getElementById('uLng').value);
+
+            try {
+                const res = await fetch(`${API_BASE_URL}/auth/profile`, {
+                    method: 'POST',
+                    body: formData
+                });
+                const result = await res.json();
+                if(res.ok) {
+                    alert("Profile updated successfully!");
+                    loadUserProfile(); // Reload to update top bar
+                } else {
+                    alert("Update failed: " + result.message);
+                }
+            } catch(err) {
+                alert("Error saving profile settings.");
+            }
+        });
+
+        async function loadSchemes() {
+            const grid = document.getElementById('mainGrid');
+            const header = document.getElementById('sectionHeader');
+            const stats = document.getElementById('homeStats');
+            const mbSec = document.getElementById('myBookingsSection');
+            const pSec = document.getElementById('profileSection');
+            
+            header.textContent = "Verified Government Schemes & AI Assistant";
+            stats.style.display = 'none';
+            mbSec.style.display = 'none';
+            pSec.style.display = 'none';
+            grid.style.display = 'grid';
+            
+            grid.innerHTML = `
+                <!-- Admin Posted Schemes Section -->
+                <div id="adminSchemesList" style="grid-column: 1 / -1; margin-bottom: 2rem; display: grid; grid-template-columns: repeat(auto-fill, minmax(350px, 1fr)); gap: 1.5rem;">
+                    <p style="grid-column: 1/-1; color: #64748b; font-weight: 600;">📋 Verified Schemes from Admin</p>
+                    <div style="grid-column: 1/-1; text-align:center; padding: 2rem;">Loading verified schemes...</div>
+                </div>
+
+                <!-- AI Search Section -->
+                <div class="p-card" style="grid-column: 1 / -1; padding: 3rem; text-align: center; background: linear-gradient(135deg, #eff6ff 0%, #ffffff 100%); border: 1px solid #dbeafe;">
+                    <div style="font-size: 2.5rem; margin-bottom: 1rem;">🤖</div>
+                    <h3 style="margin-bottom: 1rem; font-size: 1.5rem;">CivilConnect AI Scheme Search</h3>
+                    <p style="color: #64748b; margin-bottom: 2rem; max-width: 600px; margin-left: auto; margin-right: auto;">Need something else? Ask our AI about specific state-wise or category-wise schemes with direct application links.</p>
+                    
+                    <div style="display: flex; gap: 12px; max-width: 700px; margin: 0 auto 2.5rem; background: white; padding: 8px; border-radius: 16px; box-shadow: 0 10px 25px -5px rgba(0,0,0,0.05); border: 1px solid #dbeafe;">
+                        <input type="text" id="schemeQuery" placeholder="Search: 'worker insurance', 'Karnataka housing', 'cement subsidy'..." 
+                            style="flex-grow: 1; padding: 12px 20px; border: none; outline: none; font-family: inherit; font-size: 1rem;">
+                        <button onclick="fetchAISchemes()" class="btn-primary" style="white-space: nowrap;">Search AI</button>
+                    </div>
+
+                    <div id="schemesResult" style="text-align: left; background: white; padding: 2.5rem; border-radius: 24px; border: 1px solid #e2e8f0; min-height: 100px; line-height: 1.8; box-shadow: inset 0 2px 4px 0 rgba(0,0,0,0.02);">
+                        <div style="text-align: center; color: #94a3b8;">
+                            Results with official applying links will appear here.
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            // Load Admin Schemes
+            try {
+                const res = await fetch(`${API_BASE_URL}/admin/schemes`);
+                const data = await res.json();
+                const container = document.getElementById('adminSchemesList');
+                
+                if (data.schemes && data.schemes.length > 0) {
+                    container.innerHTML = `
+                        <p style="grid-column: 1/-1; color: #1e293b; font-weight: 700; font-size: 1.1rem; display: flex; align-items: center; gap: 10px;">
+                            <span style="background: #10b981; width: 8px; height: 8px; border-radius: 50%;"></span> 
+                            Verified Ongoing Government Schemes
+                        </p>
+                    ` + data.schemes.map(s => `
+                        <div class="p-card" style="padding: 1.5rem; border-left: 4px solid #10b981;">
+                            <div style="display:flex; justify-content:space-between; align-items:start; margin-bottom: 10px;">
+                                <h4 style="margin:0; font-size: 1.1rem; color: #0f172a;">${s.title}</h4>
+                                <span style="background:#dcfce7; color:#166534; padding:3px 10px; border-radius:20px; font-size:0.7rem; font-weight:800; text-transform:uppercase;">${s.category || 'General'}</span>
+                            </div>
+                            <p style="font-size:0.85rem; color:#64748b; margin-bottom: 1.5rem;">${s.description}</p>
+                            <a href="${s.official_link}" target="_blank" class="btn-primary" style="display:block; text-align:center; text-decoration:none; font-size:0.85rem; padding: 10px; background: #10b981;">🏛️ Apply via Official Link</a>
+                        </div>
+                    `).join('');
+                } else {
+                    container.innerHTML = '<div style="grid-column: 1/-1; padding: 2rem; background: #f8fafc; border-radius: 15px; text-align: center; color: #94a3b8;">No schemes have been posted by Admin yet. Please use the AI Assistant below.</div>';
+                }
+            } catch (err) {
+                document.getElementById('adminSchemesList').innerHTML = '<div style="grid-column: 1/-1; color: #64748b;">Unable to load verified schemes currently.</div>';
+            }
+        }
+
+        async function fetchAISchemes() {
+            const resultDiv = document.getElementById('schemesResult');
+            const query = document.getElementById('schemeQuery').value;
+            if(!query) return alert("Please enter a search query.");
+
+            resultDiv.innerHTML = `
+                <div style="text-align:center; padding: 2rem;">
+                    <div style="display: inline-block; width: 30px; height: 30px; border: 3px solid #2563eb; border-top-color: transparent; border-radius: 50%; animation: spin 0.8s linear infinite;"></div>
+                    <p style="margin-top:1rem; color:#2563eb; font-weight:700;">AI is researching live links for you...</p>
+                </div>
+            `;
+            
+            try {
+                const res = await fetch(`${API_BASE_URL}/ai/schemes?query=${encodeURIComponent(query)}`);
+                const data = await res.json();
+                
+                // Better formatting for AI results (link detection)
+                let formatted = data.result || "No specific schemes found.";
+                formatted = formatted.replace(/(https?:\/\/[^\s]+)/g, '<a href="$1" target="_blank" style="color:#2563eb; font-weight:700; text-decoration:underline;">$1</a>');
+                formatted = formatted.replace(/\n/g, '<br>');
+                
+                resultDiv.innerHTML = `
+                    <div style="font-size: 1.05rem; color: #334155; animation: fadeIn 0.5s ease-out;">
+                        <div style="background: #eff6ff; padding: 10px 15px; border-radius: 12px; margin-bottom: 1.5rem; display: flex; align-items: center; gap: 10px;">
+                            <span style="font-size: 1.2rem;">✨</span>
+                            <span style="color: #2563eb; font-weight: 700; font-size: 0.85rem;">AI AGENT RESPONSE FOR: ${query.toUpperCase()}</span>
+                        </div>
+                        ${formatted}
+                    </div>
+                `;
+            } catch (err) {
+                resultDiv.innerHTML = `<p style="color: #ef4444; text-align: center;">AI Service Unavailable.</p>`;
+            }
+        }
+
+        async function loadRentals(force = false) {
+            const gate = document.getElementById('verificationGate');
+            const marketplace = document.getElementById('rentalMarketplace');
+            const grid = document.getElementById('rentalGrid');
+            const user_id = localStorage.getItem('user_id');
+
+            // Check verification status
+            try {
+                const res = await fetch(`${API_BASE_URL}/auth/profile?user_id=${user_id}`);
+                const { profile } = await res.json();
+                
+                // Unlock if: Force-unlocked OR Admin Approved OR Already Uploaded (Pending)
+                const alreadyUploaded = profile && (profile.verification_status === 'pending' || (profile.aadhar_url && profile.dl_url));
+                
+                if (force || (profile && profile.is_id_verified) || alreadyUploaded) {
+                    gate.style.display = 'none';
+                    marketplace.style.display = 'block';
+                    
+                    // Load actual rental items
+                    const itemsRes = await fetch(`${API_BASE_URL}/items/`);
+                    const items = await itemsRes.json();
+                    const rentals = items.filter(i => i.item_type === 'rent');
+                    
+                    if (rentals.length === 0) {
+                        grid.innerHTML = '<p style="grid-column: 1/-1; text-align:center; padding:3rem; color:#64748b;">No rental equipment available right now.</p>';
+                    } else {
+                        grid.innerHTML = rentals.map(i => `
+                            <div class="p-card">
+                                <div style="height:180px; background-image:url('${IMG_BASE_URL}${i.image_url}'); background-size:cover; background-position:center;"></div>
+                                <div style="padding:1.5rem;">
+                                    <h4 style="margin:0;">${i.name}</h4>
+                                    <p style="color:#2563eb; font-weight:800; margin:5px 0;">₹${i.price} / ${i.price_unit}</p>
+                                    <p style="font-size:0.8rem; color:#64748b;">${i.category}</p>
+                                    <button class="btn-primary" style="width:100%; margin-top:1rem;" onclick="initiateRentalBooking('${encodeURIComponent(JSON.stringify(i))}')">🛡️ Book Now</button>
+                                </div>
+                            </div>
+                        `).join('');
+                    }
+                } else {
+                    gate.style.display = 'block';
+                    marketplace.style.display = 'none';
+                }
+            } catch(e) { console.error("Rental load failed", e); }
+        }
+
+        window.initiateRentalBooking = async (itemData) => {
+            const item = JSON.parse(decodeURIComponent(itemData));
+            const user_id = localStorage.getItem('user_id');
+            const token = localStorage.getItem('access_token');
+            const advance = Math.round(item.price * 0.50);
+            
+            // 1. Show the Trust Modal (Simplified for now, can be a styled div)
+            if (!confirm(`🤝 RENTAL TRUST AGREEMENT\n\n` +
+                        `🚜 Item: ${item.name}\n` +
+                        `✅ Insurance: Verified & Available\n` +
+                        `✅ Owner Contact: Provided after booking\n\n` +
+                        `💳 PAYMENT SPLIT:\n` +
+                        `• Pay 50% (₹${advance}) Online NOW\n` +
+                        `• Pay 50% balance on return to owner\n\n` +
+                        `Do you agree to share your Aadhar/DL with the owner and proceed?`)) return;
+
+            try {
+                // 2. Trigger Razorpay for 50%
+                const RZP_KEY = "rzp_test_SLEACrszBCNIIo"; 
+                const options = {
+                    "key": RZP_KEY,
+                    "amount": advance * 100,
+                    "currency": "INR",
+                    "name": "CivilConnect Rental",
+                    "description": `50% Advance for ${item.name}`,
+                    "handler": async function (response) {
+                        // 3. Create Rental Record on Success
+                        await fetch(`${API_BASE_URL}/orders/create-rental`, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+                            body: JSON.stringify({
+                                item_id: item.id,
+                                owner_id: item.owner_id,
+                                total_price: item.price,
+                                paid_advance: advance,
+                                payment_id: response.razorpay_payment_id
+                            })
+                        });
+                        alert("🎉 Booking Confirmed! The owner has your ID details and will prepare the equipment. See 'My Bookings' for details.");
+                        window.location.reload();
+                    }
+                };
+                const rzp = new Razorpay(options);
+                rzp.open();
+            } catch(e) { alert("Booking process failed."); }
+        };
+
+        document.getElementById('rentalVerifyForm').onsubmit = async (e) => {
+            e.preventDefault();
+            const btn = e.target.querySelector('button');
+            btn.textContent = 'Uploading Documents...';
+            btn.disabled = true;
+
+            const formData = new FormData();
+            formData.append('user_id', localStorage.getItem('user_id'));
+            formData.append('aadhar_file', document.getElementById('rAadhar').files[0]);
+            formData.append('dl_file', document.getElementById('rDL').files[0]);
+            formData.append('type', 'rental_verification');
+
+            try {
+                const res = await fetch(`${API_BASE_URL}/auth/verify-customer`, {
+                    method: 'POST',
+                    body: formData
+                });
+                if (res.ok) {
+                    alert("Documents uploaded successfully! 📄🏆\n\nYour identity is being verified by Admin, but you can now explore the machinery marketplace.");
+                    
+                    // Immediately show marketplace
+                    document.getElementById('verificationGate').style.display = 'none';
+                    document.getElementById('rentalMarketplace').style.display = 'block';
+                    loadRentals(true); // Force load regardless of status
+                } else {
+                    alert("Upload failed. Please try again.");
+                }
+            } catch(err) { alert("Network Error"); }
+            btn.textContent = '🔓 Upload & Unlock Rentals';
+            btn.disabled = false;
+        };
+
+        window.logout = () => { localStorage.clear(); window.location.href = '../index.html'; };
 
         window.onload = () => {
             const token = localStorage.getItem('access_token');

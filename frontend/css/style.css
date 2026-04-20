@@ -462,6 +462,11 @@ body {
     color: white;
 }
 
+/* Sub Navigation / Mobile Nav Fallback */
+.mobile-nav {
+    display: none; /* Hidden on desktop */
+}
+
 /* 📱 MOBILE APP ARCHITECTURE 📱 */
 @media (max-width: 768px) {
     /* Base Resets for Mobile */
@@ -619,4 +624,23 @@ body {
     align-items: center;
     justify-content: center;
     gap: 8px;
+}
+
+/* User Avatar Styling 👤 */
+.user-avatar {
+    width: 40px;
+    height: 40px;
+    background: #e2e8f0;
+    color: #475569;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 800;
+    font-size: 1.1rem;
+    background-size: cover;
+    background-position: center;
+    border: 2px solid #fff;
+    box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);
+    flex-shrink: 0;
 }

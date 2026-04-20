@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Equipment Renter Dashboard | BuildHub</title>
+    <link rel="stylesheet" href="../css/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <style>
+        body { display: flex; background: #f8fafc; }
+        .sidebar { width: 260px; height: 100vh; background: #0f172a; color: white; position: fixed; padding: 2rem 1rem; }
+        .main { margin-left: 260px; flex: 1; padding: 2rem; }
+        .nav-link { padding: 0.8rem 1.2rem; display: flex; align-items: center; gap: 12px; color: #94a3b8; text-decoration: none; border-radius: 12px; margin-bottom: 0.5rem; cursor: pointer; transition: 0.3s; }
+        .nav-link:hover, .nav-link.active { background: #1e293b; color: white; }
+        .card { background: white; border-radius: 20px; padding: 1.5rem; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); border: 1px solid #e2e8f0; }
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(8px); align-items: center; justify-content: center; z-index: 1000; }
+        .modal-content { background: white; padding: 2rem; border-radius: 24px; width: 600px; max-width: 95%; max-height: 90vh; overflow-y: auto; }
+        .form-label { display: block; margin-bottom: 0.5rem; font-weight: 700; font-size: 0.85rem; color: #1e293b; }
+        .form-control { width: 100%; padding: 0.8rem; border-radius: 12px; border: 1px solid #e2e8f0; background: #f8fafc; box-sizing: border-box; }
+        .status-pill { padding: 4px 12px; border-radius: 20px; font-size: 0.75rem; font-weight: 700; }
+        .p-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 1.5rem; }
+        #profileMap { height: 350px; border-radius: 16px; border: 1px solid #e2e8f0; }
+        .img-preview-box { width: 80px; height: 80px; border-radius: 10px; object-fit: cover; border: 1px solid #e2e8f0; }
+    </style>
+</head>
+<body>
+    <div class="sidebar">
+        <div style="font-size: 1.5rem; font-weight: 800; margin-bottom: 2rem; padding: 0 1rem;">🚜 Rent<span>Hub</span></div>
+        <div class="nav-link active" onclick="showTab('inventory')">📦 My Inventory</div>
+        <div class="nav-link" onclick="showTab('orders')">📋 Rental Bookings</div>
+        <div class="nav-link" onclick="showTab('profile')">🏗️ Yard Profile</div>
+        <div class="nav-link" style="margin-top:auto; color: #ef4444;" onclick="logout()">🚪 Logout</div>
+    </div>
+
+    <div class="main">
+        <header style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 2rem;">
+            <div>
+                <h1 id="shopName">Equipment Rental Yard</h1>
+                <span id="shopStatus" class="status-pill" style="background:#dcfce7; color:#166534;">Active Renter</span>
+            </div>
+            <button class="btn-primary" onclick="toggleModal(true)">+ Add Machine / Tool</button>
+        </header>
+
+        <div id="inventoryTab" class="tab-content">
+            <div class="p-grid" id="inventoryList">Loading your equipment...</div>
+        </div>
+
+        <div id="ordersTab" class="tab-content" style="display:none;">
+            <div class="card">
+                <h3>Live Rental Requests</h3>
+                <p style="color:#64748b;">Manage customer bookings and equipment returns.</p>
+                <div id="orderList" style="margin-top:1.5rem;">No active bookings.</div>
+            </div>
+        </div>
+
+        <div id="profileTab" class="tab-content" style="display:none;">
+            <div style="display:grid; grid-template-columns: 1fr 1fr; gap:2rem;">
+                <div class="card">
+                    <h3>📡 Yard Profile & Location</h3>
+                    <p style="color:#64748b; margin-bottom:1.5rem;">Update your yard details so customers can contact you and find your equipment.</p>
+                    
+                    <div style="margin-bottom:1rem;">
+                        <label class="form-label">Contact Number</label>
+                        <input type="text" id="profPhone" class="form-control" placeholder="+91 00000 00000">
+                    </div>
+                    <div style="margin-bottom:1rem;">
+                        <label class="form-label">Full Address (Manual)</label>
+                        <textarea id="profAddress" class="form-control" rows="3" placeholder="Street, City, Pincode..."></textarea>
+                    </div>
+                    
+                    <div style="background:#f1f5f9; padding:1rem; border-radius:12px; margin-bottom:1.5rem;">
+                        <div style="display:flex; justify-content:space-between; align-items:center;">
+                            <span style="font-size:0.8rem; font-weight:700;">GPS Coordinates</span>
+                            <button class="btn" style="background:#2563eb; color:white; font-size:0.7rem; padding:4px 10px; border-radius:6px;" onclick="getLiveLocation()">📍 Take Live Location</button>
+                        </div>
+                        <p style="font-size:0.75rem; color:#64748b; margin-top:5px;">Lat: <span id="latDisplay">Not Set</span> | Lng: <span id="lngDisplay">Not Set</span></p>
+                    </div>
+
+                    <button class="btn-primary" style="width:100%; padding:1rem;" onclick="saveProfile()">Save Yard Settings ✓</button>
+                </div>
+                <div class="card">
+                    <h3>📍 Pin Point on Map</h3>
+                    <p style="color:#64748b; font-size:0.8rem; margin-bottom:10px;">Drag the map or click to set your exact equipment pickup point.</p>
+                    <div id="profileMap"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ADD ITEM MODAL -->
+    <div class="modal" id="addModal">
+        <div class="modal-content">
+            <h2 style="margin-top:0;">✨ List New Equipment</h2>
+            <form id="itemForm">
+                <div style="margin-bottom:1.5rem;">
+                    <label class="form-label">Upload Primary Photo</label>
+                    <input type="file" name="product_img" id="mainPhoto" class="form-control" accept="image/*" required onchange="previewMain(this)">
+                    <img id="mainPreview" style="display:none; width:100%; height:150px; object-fit:cover; border-radius:12px; margin-top:10px;">
+                </div>
+
+                <div style="margin-bottom:1.5rem;">
+                    <label class="form-label">Add Gallery Photos (Multiple)</label>
+                    <input type="file" name="extra_images" id="extraPhotos" class="form-control" accept="image/*" multiple onchange="previewGallery(this)">
+                    <div id="galleryPreview" style="display:flex; gap:10px; margin-top:10px; overflow-x:auto;"></div>
+                </div>
+
+                <div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem; margin-bottom:1rem;">
+                    <div>
+                        <label class="form-label">Equipment Name</label>
+                        <input type="text" name="name" class="form-control" placeholder="JCB, Concrete Mixer..." required>
+                    </div>
+                    <div>
+                        <label class="form-label">Category</label>
+                        <select name="category" id="catSelect" class="form-control" onchange="toggleInsurance()">
+                            <option value="Tools">Manual Tools</option>
+                            <option value="Machine">Small Machinery</option>
+                            <option value="Vehicle">Vehicle / Heavy Machine (Needs Insurance)</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div id="insuranceSection" style="display:none; margin-bottom:1.5rem; background:#fff7ed; padding:1rem; border-radius:12px; border:1px solid #ffedd5;">
+                    <label class="form-label">📄 Vehicle Insurance Document (Required)</label>
+                    <input type="file" name="insurance_doc" id="insFile" class="form-control" accept="image/*,application/pdf">
+                </div>
+
+                <div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem; margin-bottom:1.5rem;">
+                    <div>
+                        <label class="form-label">Rental Cost (₹)</label>
+                        <input type="number" name="price" class="form-control" placeholder="0.00" required>
+                    </div>
+                    <div>
+                        <label class="form-label">Pricing Per</label>
+                        <select name="price_unit" class="form-control">
+                            <option value="hour">Per Hour</option>
+                            <option value="day">Per Day</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div style="display:flex; gap:1rem;">
+                    <button type="button" class="btn" style="flex:1; background:#f1f5f9;" onclick="toggleModal(false)">Cancel</button>
+                    <button type="submit" class="btn-primary" style="flex:1;">List Equipment Now</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script type="module">
+        const BACKEND_URL = window.location.hostname === '127.0.0.1' || window.location.hostname === 'localhost' 
+            ? 'http://127.0.0.1:5000' 
+            : 'https://civil-con.onrender.com';
+        const API_BASE_URL = `${BACKEND_URL}/api`;
+        const token = localStorage.getItem('access_token');
+        const user_id = localStorage.getItem('user_id');
+
+        window.showTab = (t) => {
+            document.querySelectorAll('.tab-content').forEach(c => c.style.display = 'none');
+            document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
+            document.getElementById(t + 'Tab').style.display = 'block';
+            event.currentTarget.classList.add('active');
+            if(t === 'profile') setTimeout(initMap, 100);
+        };
+
+        window.toggleModal = (s) => document.getElementById('addModal').style.display = s ? 'flex' : 'none';
+
+        window.toggleInsurance = () => {
+            const isVehicle = document.getElementById('catSelect').value === 'Vehicle';
+            document.getElementById('insuranceSection').style.display = isVehicle ? 'block' : 'none';
+            document.getElementById('insFile').required = isVehicle;
+        };
+
+        window.previewMain = (input) => {
+             const preview = document.getElementById('mainPreview');
+             if (input.files && input.files[0]) {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    preview.src = e.target.result;
+                    preview.style.display = 'block';
+                };
+                reader.readAsDataURL(input.files[0]);
+             }
+        };
+
+        window.previewGallery = (input) => {
+            const container = document.getElementById('galleryPreview');
+            container.innerHTML = '';
+            Array.from(input.files).forEach(file => {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    const img = document.createElement('img');
+                    img.src = e.target.result;
+                    img.className = 'img-preview-box';
+                    container.appendChild(img);
+                };
+                reader.readAsDataURL(file);
+            });
+        };
+
+        document.getElementById('itemForm').onsubmit = async (e) => {
+            e.preventDefault();
+            const formData = new FormData(e.target);
+            formData.append('item_type', 'rent');
+            formData.append('stock', 1);
+
+            // Double check insurance for vehicles
+            if (document.getElementById('catSelect').value === 'Vehicle' && !document.getElementById('insFile').files[0]) {
+                return alert("⚠️ Insurance is mandatory for Vehicles/Heavy Machines!");
+            }
+
+            try {
+                const res = await fetch(`${API_BASE_URL}/items/`, {
+                    method: 'POST',
+                    headers: { 'Authorization': `Bearer ${token}` },
+                    body: formData
+                });
+                if (res.ok) {
+                    alert("Equipment Listed Successfully! 🚜✨");
+                    window.location.reload();
+                } else {
+                    const err = await res.json();
+                    alert("Error: " + (err.message || "Failed to list"));
+                }
+            } catch(e) { alert("Network Error"); }
+        };
+
+        let map, marker;
+        let currentPos = { lat: 12.9716, lng: 77.5946 };
+
+        async function initMap() {
+            if(map) return;
+            map = L.map('profileMap').setView([currentPos.lat, currentPos.lng], 13);
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
+            
+            marker = L.marker([currentPos.lat, currentPos.lng], {draggable: true}).addTo(map);
+            
+            map.on('click', (e) => {
+                const { lat, lng } = e.latlng;
+                updateLocation(lat, lng);
+            });
+
+            marker.on('dragend', (e) => {
+                const { lat, lng } = e.target.getLatLng();
+                updateLocation(lat, lng);
+            });
+
+            // Auto-load profile data
+            try {
+                const res = await fetch(`${API_BASE_URL}/auth/profile?user_id=${user_id}`);
+                const { profile } = await res.json();
+                if (profile) {
+                    document.getElementById('profPhone').value = profile.contact_number || profile.phone || '';
+                    document.getElementById('profAddress').value = profile.shop_address || profile.address || '';
+                    const loc = profile.location || {};
+                    if (loc.lat) {
+                        updateLocation(loc.lat, loc.lng);
+                        map.setView([loc.lat, loc.lng], 15);
+                    }
+                }
+            } catch(e) {}
+        }
+
+        function updateLocation(lat, lng) {
+            currentPos = { lat, lng };
+            if(marker) marker.setLatLng([lat, lng]);
+            document.getElementById('latDisplay').textContent = lat.toFixed(6);
+            document.getElementById('lngDisplay').textContent = lng.toFixed(6);
+        }
+
+        window.getLiveLocation = () => {
+            if (!navigator.geolocation) return alert("Geolocation not supported");
+            navigator.geolocation.getCurrentPosition((pos) => {
+                const { latitude, longitude } = pos.coords;
+                updateLocation(latitude, longitude);
+                map.setView([latitude, longitude], 17);
+                alert("Live Location Captured! 📍");
+            }, (err) => alert("GPS Error: " + err.message), {enableHighAccuracy: true});
+        };
+
+        window.saveProfile = async () => {
+            const formData = new FormData();
+            formData.append('user_id', user_id);
+            formData.append('phone', document.getElementById('profPhone').value);
+            formData.append('address', document.getElementById('profAddress').value);
+            formData.append('lat', currentPos.lat);
+            formData.append('lng', currentPos.lng);
+
+            try {
+                const res = await fetch(`${API_BASE_URL}/auth/profile`, {
+                    method: 'POST',
+                    body: formData
+                });
+                if (res.ok) {
+                    alert("Yard Profile Updated! 🚜🏠");
+                } else {
+                    alert("Failed to update profile.");
+                }
+            } catch(e) { alert("Network Error"); }
+        };
+
+        async function loadInventory() {
+            try {
+                const res = await fetch(`${API_BASE_URL}/items/`);
+                const items = await res.json();
+                const list = document.getElementById('inventoryList');
+                const myItems = items.filter(i => i.owner_id === user_id);
+                
+                if(myItems.length === 0) {
+                    list.innerHTML = '<p style="grid-column: 1/-1; text-align:center; color:#94a3b8;">You haven\'t added any equipment yet.</p>';
+                    return;
+                }
+
+                list.innerHTML = myItems.map(item => `
+                    <div class="card" style="padding:0; overflow:hidden;">
+                        <img src="${BACKEND_URL}${item.image_url}" style="width:100%; height:180px; object-fit:cover;">
+                        <div style="padding:1rem;">
+                            <h4 style="margin:0;">${item.name}</h4>
+                            <p style="font-size:0.8rem; color:#2563eb; font-weight:700; margin:5px 0;">₹${item.price} / ${item.price_unit}</p>
+                            <span class="status-pill" style="background:#eff6ff; color:#2563eb;">${item.category}</span>
+                            ${item.insurance_url ? '<span class="status-pill" style="background:#dcfce7; color:#166534; margin-left:5px;">✓ Insured</span>' : ''}
+                        </div>
+                    </div>
+                `).join('');
+            } catch(e) {}
+        }
+
+        async function loadOrders() {
+            try {
+                const res = await fetch(`${API_BASE_URL}/orders/rental-list?role=owner`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                const bookings = await res.json();
+                const list = document.getElementById('orderList');
+
+                if(!bookings || bookings.length === 0) {
+                    list.innerHTML = '<p style="text-align:center; color:#94a3b8; padding:2rem;">No active rental requests yet.</p>';
+                    return;
+                }
+
+                list.innerHTML = bookings.map(b => `
+                    <div class="card" style="margin-bottom:1.5rem; border-left: 5px solid ${b.status === 'approved' ? '#10b981' : '#f59e0b'};">
+                        <div style="display:flex; justify-content:space-between; align-items:flex-start;">
+                            <div>
+                                <h4 style="margin:0; font-size:1.1rem;">🚜 ${b.item_name}</h4>
+                                <p style="font-size:0.85rem; color:#64748b; margin:5px 0;">Total Value: ₹${b.total_price} | <span style="color:#059669; font-weight:700;">Paid 50%: ₹${b.paid_advance}</span></p>
+                                <div style="display:flex; gap:10px; margin-top:10px;">
+                                    <span class="status-pill" style="background:#f1f5f9; color:#475569;">Status: ${b.status.toUpperCase()}</span>
+                                    <span class="status-pill" style="background:#0f172a; color:white;">Booking ID: #${b.id.substring(0,8)}</span>
+                                </div>
+                            </div>
+                            ${b.status !== 'approved' ? `
+                                <button onclick="approveRental('${b.id}')" class="btn-primary" style="background:#10b981;">Approve & Release</button>
+                            ` : '<span style="color:#10b981; font-weight:800;">✅ APPROVED</span>'}
+                        </div>
+
+                        <div style="margin-top:1.5rem; background:#f8fafc; padding:1.2rem; border-radius:15px; border:1px solid #e2e8f0;">
+                            <h5 style="margin:0 0 10px 0; font-size:0.85rem; color:#1e293b;">🛡️ CUSTOMER IDENTITY VERIFICATION (Snapshots)</h5>
+                            <div style="display:grid; grid-template-columns: 1fr 1fr; gap:1.5rem;">
+                                <div>
+                                    <p style="font-size:0.75rem; color:#64748b; margin-bottom:5px;">Aadhar Card</p>
+                                    <a href="${BACKEND_URL}${b.aadhar_snapshot}" target="_blank">
+                                        <div style="height:120px; background-image:url('${BACKEND_URL}${b.aadhar_snapshot}'); background-size:cover; background-position:center; border-radius:10px; border:1px solid #cbd5e1;"></div>
+                                    </a>
+                                </div>
+                                <div>
+                                    <p style="font-size:0.75rem; color:#64748b; margin-bottom:5px;">Driving License (DL)</p>
+                                    <a href="${BACKEND_URL}${b.dl_snapshot}" target="_blank">
+                                        <div style="height:120px; background-image:url('${BACKEND_URL}${b.dl_snapshot}'); background-size:cover; background-position:center; border-radius:10px; border:1px solid #cbd5e1;"></div>
+                                    </a>
+                                </div>
+                            </div>
+                            <p style="font-size:0.75rem; color:#ef4444; margin-top:10px; font-weight:700;">⚠️ Please verify the above documents before clicking Approve.</p>
+                        </div>
+                    </div>
+                `).join('');
+            } catch(e) { console.error("Load orders error", e); }
+        }
+
+        window.approveRental = async (id) => {
+            if(!confirm("Are you sure you have verified the Aadhar/DL and want to approve this rental?")) return;
+            try {
+                const res = await fetch(`${API_BASE_URL}/orders/rental-approve/${id}`, {
+                    method: 'POST',
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                if(res.ok) {
+                    alert("Rental Approved! Customer is being notified. 🚜✅");
+                    loadOrders();
+                }
+            } catch(e) { alert("Approval failed."); }
+        }
+
+        window.logout = () => { localStorage.clear(); window.location.href = '../index.html'; };
+        window.onload = () => { 
+            if(!token) window.location.href = '../pages/login.html';
+            loadInventory(); 
+            loadOrders();
+        };
+    </script>
+</body>
+</html>

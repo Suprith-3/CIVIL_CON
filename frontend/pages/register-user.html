@@ -45,6 +45,21 @@
             display: none;
             margin-bottom: 1rem;
         }
+        #getLocation {
+            transition: all 0.3s ease;
+            border: 1px solid var(--border);
+            background: white;
+            cursor: pointer;
+        }
+        #getLocation:hover {
+            background: #f8fafc;
+            border-color: var(--primary);
+            color: var(--primary);
+            transform: translateY(-1px);
+        }
+        #getLocation:active {
+            transform: translateY(0);
+        }
     </style>
 </head>
 <body>
@@ -78,7 +93,65 @@
                     <div class="form-group full">
                         <label for="address">Address</label>
                         <textarea id="address" name="address" class="form-control" rows="3" placeholder="Enter your full delivery address"></textarea>
+                        <button type="button" id="getLocation" class="btn-secondary" style="margin-top: 10px; font-size: 0.85rem; padding: 8px 15px; border-radius: 20px; display: flex; align-items: center; gap: 8px;">
+                            📍 Use Live Location
+                        </button>
+                        <div id="locationStatus" style="font-size: 0.8rem; margin-top: 5px; color: #10b981; display: none;"></div>
+                        <input type="hidden" id="latitude" name="lat">
+                        <input type="hidden" id="longitude" name="lng">
                     </div>
+
+                    <script>
+                        document.getElementById('getLocation').addEventListener('click', function() {
+                            const btn = this;
+                            const status = document.getElementById('locationStatus');
+                            const addressField = document.getElementById('address');
+                            const latField = document.getElementById('latitude');
+                            const lngField = document.getElementById('longitude');
+
+                            if (!navigator.geolocation) {
+                                alert("Geolocation is not supported by your browser");
+                                return;
+                            }
+
+                            btn.disabled = true;
+                            btn.textContent = "📍 Locating...";
+                            status.style.display = 'none';
+
+                            navigator.geolocation.getCurrentPosition(
+                                async (position) => {
+                                    const lat = position.coords.latitude;
+                                    const lng = position.coords.longitude;
+                                    
+                                    latField.value = lat;
+                                    lngField.value = lng;
+                                    
+                                    btn.textContent = "📍 Location Fixed";
+                                    btn.style.borderColor = "#10b981";
+                                    btn.style.color = "#10b981";
+                                    status.textContent = `Coordinates captured: ${lat.toFixed(4)}, ${lng.toFixed(4)}`;
+                                    status.style.display = 'block';
+
+                                    // Optional: Reverse Geoding using Nominatim (OpenStreetMap) - Free
+                                    try {
+                                        const response = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}`);
+                                        const data = await response.json();
+                                        if (data.display_name) {
+                                            addressField.value = data.display_name;
+                                        }
+                                    } catch (err) {
+                                        console.error("Reverse geocoding failed", err);
+                                    }
+                                },
+                                (error) => {
+                                    btn.disabled = false;
+                                    btn.textContent = "📍 Use Live Location";
+                                    alert("Unable to retrieve your location. Please type manually.");
+                                },
+                                { enableHighAccuracy: true }
+                            );
+                        });
+                    </script>
                 </div>
 
                 <div id="errorBox" style="display: none; background: #fee2e2; color: #dc2626; padding: 1rem; border-radius: 12px; margin-bottom: 1.5rem; font-size: 0.9rem; font-weight: 500; border: 1px solid #fecaca; text-align: center;"></div>

@@ -94,8 +94,10 @@
     </div>
 
     <script>
-        const API_BASE_URL = 'http://127.0.0.1:5000/api';
-        const BACKEND_URL = 'http://127.0.0.1:5000';
+        const BACKEND_URL = window.location.hostname === '127.0.0.1' || window.location.hostname === 'localhost' 
+            ? 'http://127.0.0.1:5000' 
+            : 'https://civil-con.onrender.com';
+        const API_BASE_URL = `${BACKEND_URL}/api`;
         const token = localStorage.getItem('access_token');
         let currentRole, currentId;
 
@@ -160,6 +162,9 @@
                 'shopkeeper': [
                     { label: 'GST Document', key: 'gst_doc' },
                     { label: 'Shop Photo', key: 'shop_photo' }
+                ],
+                'renter': [
+                    { label: 'Aadhar/PAN Card', key: 'verification_doc_url' }
                 ]
             };
 
@@ -231,7 +236,8 @@
                 pendingList = [
                     ...(data.engineers || []).map(e => ({...e, role: 'engineer'})),
                     ...(data.workers || []).map(w => ({...w, role: 'worker'})),
-                    ...(data.shops || []).map(s => ({...s, role: 'shopkeeper'}))
+                    ...(data.shops || []).map(s => ({...s, role: 'shopkeeper'})),
+                    ...(data.renters || []).map(r => ({...r, role: 'renter'}))
                 ];
 
                 if (pendingList.length === 0) {
