@@ -554,7 +554,7 @@
         
         window.loadOrders = async () => {
             const token = localStorage.getItem('access_token');
-            const res = await fetch('http://127.0.0.1:5000/api/orders/all', {
+            const res = await fetch(`${window.location.origin}/api/orders/all`, {
                 headers: { 'Authorization': `Bearer ${token}` }
             });
 
@@ -596,7 +596,7 @@
             const trackingId = document.getElementById('editTrackingId').value;
             const token = localStorage.getItem('access_token');
             
-            const res = await fetch(`http://127.0.0.1:5000/api/orders/update/${id}`, {
+            const res = await fetch(`${window.location.origin}/api/orders/update/${id}`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
                 body: JSON.stringify({ status, tracking_id: trackingId })

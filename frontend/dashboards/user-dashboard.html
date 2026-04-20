@@ -233,8 +233,8 @@
     </div>
 
     <script>
-        const API_BASE_URL = 'http://127.0.0.1:5000/api';
-        const IMG_BASE_URL = 'http://127.0.0.1:5000';
+        const API_BASE_URL = window.location.origin + '/api';
+        const IMG_BASE_URL = window.location.origin;
         let mainMap = null;
 
         function closePortfolio() { document.getElementById('portfolioModal').style.display='none'; }
@@ -700,7 +700,7 @@
                 items.forEach(i => i.price = Math.round(i.price * (i.item_type === 'rent' ? 1.15 : 1.10)));
                 grid.innerHTML = items.map(item => `
                     <div class="p-card">
-                        <div style="height:180px; background-image: url('http://127.0.0.1:5000/uploads/${item.image_url?.split('/').pop() || 'placeholder.jpg'}'); background-size:cover; background-position:center;"></div>
+                        <div style="height:180px; background-image: url('${IMG_BASE_URL}/uploads/${item.image_url?.split('/').pop() || 'placeholder.jpg'}'); background-size:cover; background-position:center;"></div>
                         <div style="padding:1.5rem;">
                             <div style="display:flex; justify-content:space-between;">
                                 <h4 style="margin:0;">${item.name}</h4>

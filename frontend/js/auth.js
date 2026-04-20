@@ -1,6 +1,5 @@
-const API_BASE_URL = window.location.hostname === '127.0.0.1' || window.location.hostname === 'localhost' 
-    ? 'http://127.0.0.1:5000/api' 
-    : 'https://civil-con.onrender.com/api'; // 👈 Corrected Live URL
+const API_BASE_URL = window.location.origin + '/api';
+const IMG_BASE_URL = window.location.origin;
 
 export function initLogin(role) {
     const form = document.getElementById('loginForm');

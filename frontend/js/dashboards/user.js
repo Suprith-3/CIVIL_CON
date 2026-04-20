@@ -1,6 +1,5 @@
-const API_BASE_URL = window.location.hostname === '127.0.0.1' || window.location.hostname === 'localhost' 
-    ? 'http://127.0.0.1:5000/api' 
-    : 'https://civil-con.onrender.com/api';
+const API_BASE_URL = window.location.origin + '/api';
+const IMG_BASE_URL = window.location.origin;
 
 function initUserDashboard() {
     const userEmail = localStorage.getItem('user_email');
