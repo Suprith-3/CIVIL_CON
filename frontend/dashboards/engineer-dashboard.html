@@ -301,10 +301,14 @@
     </div></div>
 
     <script>
-        const API_BASE_URL = window.location.origin + '/api';
+        const API_BASE_URL = window.location.hostname === '127.0.0.1' || window.location.hostname === 'localhost' 
+            ? 'http://127.0.0.1:5000/api' 
+            : 'https://civil-con.onrender.com/api';
 
         const engineer_id = localStorage.getItem('user_id') || "397b607d-ecab-4803-9c58-523dc22b0144";
-        const IMG_BASE_URL = window.location.origin;
+        const IMG_BASE_URL = window.location.hostname === '127.0.0.1' || window.location.hostname === 'localhost' 
+            ? 'http://127.0.0.1:5000' 
+            : 'https://civil-con.onrender.com';
 
         function showSection(id, el) {
             document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));

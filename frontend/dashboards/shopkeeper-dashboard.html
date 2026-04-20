@@ -554,7 +554,8 @@
         
         window.loadOrders = async () => {
             const token = localStorage.getItem('access_token');
-            const res = await fetch(`${window.location.origin}/api/orders/all`, {
+            const backend = window.location.hostname === '127.0.0.1' || window.location.hostname === 'localhost' ? 'http://127.0.0.1:5000' : 'https://civil-con.onrender.com';
+            const res = await fetch(`${backend}/api/orders/all`, {
                 headers: { 'Authorization': `Bearer ${token}` }
             });
 
@@ -596,7 +597,8 @@
             const trackingId = document.getElementById('editTrackingId').value;
             const token = localStorage.getItem('access_token');
             
-            const res = await fetch(`${window.location.origin}/api/orders/update/${id}`, {
+            const backend = window.location.hostname === '127.0.0.1' || window.location.hostname === 'localhost' ? 'http://127.0.0.1:5000' : 'https://civil-con.onrender.com';
+            const res = await fetch(`${backend}/api/orders/update/${id}`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
                 body: JSON.stringify({ status, tracking_id: trackingId })

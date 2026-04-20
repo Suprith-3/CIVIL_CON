@@ -1,5 +1,9 @@
-const API_BASE_URL = window.location.origin + '/api';
-const IMG_BASE_URL = window.location.origin;
+const API_BASE_URL = window.location.hostname === '127.0.0.1' || window.location.hostname === 'localhost' 
+    ? 'http://127.0.0.1:5000/api' 
+    : 'https://civil-con.onrender.com/api';
+const IMG_BASE_URL = window.location.hostname === '127.0.0.1' || window.location.hostname === 'localhost'
+    ? 'http://127.0.0.1:5000'
+    : 'https://civil-con.onrender.com';
 
 export function initLogin(role) {
     const form = document.getElementById('loginForm');
@@ -39,7 +43,14 @@ export function initLogin(role) {
                 body: JSON.stringify({ email, password })
             });
 
-            const data = await response.json();
+            const text = await response.text();
+            let data = {};
+            try {
+                data = text ? JSON.parse(text) : {};
+            } catch (e) {
+                console.error("Malformed JSON response:", text);
+                throw new Error("Server error: Check if the backend is running. (JSON Parse Error)");
+            }
 
             if (!response.ok) {
                 throw new Error(data.message || 'Login failed');
