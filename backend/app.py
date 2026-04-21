@@ -14,7 +14,7 @@ def create_app():
     app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024  # 16 MB limit
 
     # Initialize extensions
-    CORS(app, resources={r"/api/*": {"origins": "*"}})
+    CORS(app, resources={r"/*": {"origins": "*"}})
     jwt = JWTManager(app)
 
     # JWT Error handlers
@@ -97,6 +97,15 @@ def create_app():
     def internal_error(error):
         return jsonify({'error': 'Internal Server Error', 'message': 'An unexpected error has occurred.'}), 500
 
+    @app.route('/')
+    def index():
+        return jsonify({
+            'status': 'online',
+            'service': 'CivilConnect API',
+            'version': '1.0.0',
+            'message': 'Construction Marketplace Backend is running successfully.'
+        }), 200
+
     @app.route('/health', methods=['GET'])
     def health_check():
         return jsonify({'status': 'healthy', 'message': 'API is running smoothly'}), 200
@@ -105,4 +114,7 @@ def create_app():
 
 if __name__ == '__main__':
     app = create_app()
-    app.run(host='0.0.0.0', port=5000, debug=True)
+    # Use the port assigned by Render or default to 10000
+    port = int(os.environ.get("PORT", 10000))
+    logging.info(f"Starting server on port {port}...")
+    app.run(host='0.0.0.0', port=port, debug=False)
