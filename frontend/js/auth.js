@@ -66,6 +66,19 @@ export function initLogin(role) {
                 throw new Error(data.message || 'Login failed');
             }
 
+            console.log("Login success data:", data);
+
+            // Safety check for user data
+            if (!data.user) {
+                console.error("Backend returned 200 OK but 'user' object is missing:", data);
+                throw new Error("Invalid response from server: Missing user profile data.");
+            }
+
+            if (!data.user.user_type) {
+                console.error("User object is present but 'user_type' is missing:", data.user);
+                throw new Error("Invalid user profile: Missing user type.");
+            }
+
             // Speed: Store tokens and full profile immediately
             localStorage.setItem('access_token', data.access_token);
             localStorage.setItem('refresh_token', data.refresh_token);
@@ -79,7 +92,9 @@ export function initLogin(role) {
             console.log(`Login roundtrip took: ${Math.round(endTime - startTime)}ms`);
 
             // Redirect instantly
-            window.location.href = `../dashboards/${data.user.user_type}-dashboard.html`;
+            const dashboardUrl = `../dashboards/${data.user.user_type}-dashboard.html`;
+            console.log("Redirecting to:", dashboardUrl);
+            window.location.href = dashboardUrl;
 
         } catch (err) {
             clearTimeout(timeoutId);
