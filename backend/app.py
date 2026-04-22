@@ -106,6 +106,11 @@ def create_app():
             'message': 'Construction Marketplace Backend is running successfully.'
         }), 200
 
+    @app.route('/google1d267d2c32708f29.html')
+    def google_verification():
+        from flask import send_from_directory
+        return send_from_directory(os.path.dirname(os.path.abspath(__file__)), 'google1d267d2c32708f29.html')
+
     @app.route('/health', methods=['GET'])
     def health_check():
         return jsonify({'status': 'healthy', 'message': 'API is running smoothly'}), 200

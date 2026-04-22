@@ -1,5 +1,10 @@
-const API_BASE_URL = window.location.origin + '/api';
-const IMG_BASE_URL = window.location.origin;
+const API_BASE_URL = window.location.hostname === '127.0.0.1' || window.location.hostname === 'localhost' 
+    ? 'http://127.0.0.1:10000/api' 
+    : 'https://civilconnect-m3lr.onrender.com/api';
+
+const IMG_BASE_URL = window.location.hostname === '127.0.0.1' || window.location.hostname === 'localhost'
+    ? 'http://127.0.0.1:10000'
+    : 'https://civilconnect-m3lr.onrender.com';
 
 function initUserDashboard() {
     const userEmail = localStorage.getItem('user_email');

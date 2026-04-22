@@ -1,5 +1,10 @@
-const BACKEND_URL = window.location.origin;
-const API_BASE_URL = `${BACKEND_URL}/api`;
+const API_BASE_URL = window.location.hostname === '127.0.0.1' || window.location.hostname === 'localhost' 
+    ? 'http://127.0.0.1:10000/api' 
+    : 'https://civilconnect-m3lr.onrender.com/api';
+
+const BACKEND_URL = window.location.hostname === '127.0.0.1' || window.location.hostname === 'localhost'
+    ? 'http://127.0.0.1:10000'
+    : 'https://civilconnect-m3lr.onrender.com';
 
 export function initShopDashboard() {
     const token = localStorage.getItem('access_token');

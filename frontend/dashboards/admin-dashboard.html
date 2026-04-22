@@ -38,7 +38,7 @@
             </div>
         </div>
         <div style="display:flex; gap:10px; align-items:center;">
-            <div id="google_translate_element"></div>
+            
             <div class="theme-toggle" title="Toggle Dark/Light Mode" style="position:static; width:40px; height:40px; border:1px solid var(--border);">
                 <i class="fa-solid fa-moon"></i>
                 <i class="fa-solid fa-sun"></i>
@@ -46,16 +46,6 @@
             <button class="btn-review" onclick="openSchemeModal()">+ Add Gov Scheme</button>
             <button class="btn-review" style="background:#334155;" onclick="logout()">Logout</button>
         </div>
-        <script type="text/javascript">
-            function googleTranslateElementInit() {
-                new google.translate.TranslateElement({
-                    pageLanguage: 'en',
-                    includedLanguages: 'hi,bn,te,mr,ta,gu,kn,ml,pa,ur,as,or,sa,en',
-                    layout: google.translate.TranslateElement.InlineLayout.SIMPLE
-                }, 'google_translate_element');
-            }
-        </script>
-        <script type="text/javascript" src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
     </header>
 
     <div class="admin-grid">
@@ -102,10 +92,10 @@
 
     <script>
         const API_BASE_URL = window.location.hostname === '127.0.0.1' || window.location.hostname === 'localhost' 
-            ? 'http://127.0.0.1:5000/api' 
+            ? 'http://127.0.0.1:10000/api' 
             : 'https://civilconnect-m3lr.onrender.com/api';
         const IMG_BASE_URL = window.location.hostname === '127.0.0.1' || window.location.hostname === 'localhost' 
-            ? 'http://127.0.0.1:5000' 
+            ? 'http://127.0.0.1:10000' 
             : 'https://civilconnect-m3lr.onrender.com';
         const token = localStorage.getItem('access_token');
         let currentRole, currentId;
