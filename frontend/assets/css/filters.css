@@ -1,0 +1,43 @@
+.filters-panel {
+  background: var(--color-white);
+  border-radius: var(--radius-lg);
+  padding: var(--space-lg);
+  box-shadow: var(--shadow-md);
+}
+
+.filter-group {
+  margin-bottom: var(--space-xl);
+}
+
+.filter-group h4 {
+  font-weight: 600;
+  margin-bottom: var(--space-md);
+  color: var(--color-gray-900);
+}
+
+.filter-options {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+}
+
+.checkbox-label {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  font-size: var(--font-size-body-sm);
+  color: var(--color-gray-600);
+  cursor: pointer;
+}
+
+.checkbox-label input {
+  width: 18px;
+  height: 18px;
+  border-radius: var(--radius-sm);
+  border: 2px solid var(--color-gray-300);
+}
+
+.price-range {
+  width: 100%;
+  margin-top: var(--space-sm);
+}

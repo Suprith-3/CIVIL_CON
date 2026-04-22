@@ -1,0 +1,110 @@
+.services-section {
+  background: var(--color-gray-50);
+  padding: var(--space-4xl) 0;
+}
+
+.section-header {
+  text-align: center;
+  margin-bottom: var(--space-3xl);
+}
+
+.section-header h2 {
+  font-size: var(--font-size-h2);
+  font-weight: 700;
+  color: var(--color-gray-900);
+  margin-bottom: var(--space-md);
+  font-family: var(--font-primary);
+}
+
+.services-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: var(--space-xl);
+}
+
+.service-card {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.card-image-wrapper {
+  position: relative;
+  aspect-ratio: 4/3;
+  overflow: hidden;
+  background: var(--color-gray-200);
+}
+
+.card-image-wrapper img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.5s ease;
+}
+
+.service-card:hover .card-image-wrapper img {
+  transform: scale(1.1);
+}
+
+.category-badge {
+  position: absolute;
+  top: var(--space-md);
+  left: var(--space-md);
+  background: rgba(0, 0, 0, 0.6);
+  color: var(--color-white);
+  padding: 4px 12px;
+  border-radius: var(--radius-full);
+  font-size: 12px;
+  font-weight: 600;
+  backdrop-filter: blur(4px);
+}
+
+.card-body {
+  padding: var(--space-lg);
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.service-title {
+  font-size: var(--font-size-h5);
+  font-weight: 600;
+  margin-bottom: var(--space-sm);
+  color: var(--color-gray-900);
+}
+
+.service-description {
+  font-size: var(--font-size-body-sm);
+  color: var(--color-gray-600);
+  margin-bottom: var(--space-lg);
+  flex: 1;
+}
+
+.card-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-top: var(--space-md);
+  border-top: 1px solid var(--color-gray-100);
+}
+
+.price {
+  font-weight: 700;
+  color: var(--color-primary);
+  font-size: var(--font-size-body-lg);
+}
+
+/* Bento Grid Specifics */
+@media (min-width: 1024px) {
+  .services-grid-bento {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    grid-template-rows: repeat(2, 300px);
+    gap: var(--space-lg);
+  }
+
+  .service-card-large {
+    grid-column: span 2;
+    grid-row: span 2;
+  }
+}
