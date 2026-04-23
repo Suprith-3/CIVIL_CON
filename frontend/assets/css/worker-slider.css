@@ -1,7 +1,7 @@
 /* Worker Slider Section */
 .worker-slider-section {
     padding: var(--space-4xl) 0;
-    background: var(--color-white);
+    background: transparent;
     overflow: hidden;
 }
 

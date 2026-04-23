@@ -1,7 +1,7 @@
 .hero-uc {
   padding-top: calc(var(--header-height) + var(--space-2xl));
   padding-bottom: var(--space-4xl);
-  background: var(--color-white);
+  background: transparent;
   min-height: 600px;
   display: flex;
   align-items: center;
@@ -33,29 +33,45 @@
 }
 
 @keyframes flicker-light {
-  0%, 19.999%, 22%, 62.999%, 64%, 64.999%, 70%, 100% {
+
+  0%,
+  19.999%,
+  22%,
+  62.999%,
+  64%,
+  64.999%,
+  70%,
+  100% {
     opacity: 1;
     text-shadow: 0 0 10px rgba(102, 126, 234, 0.2);
   }
-  20%, 21.999%, 63%, 63.999%, 65%, 69.999% {
+
+  20%,
+  21.999%,
+  63%,
+  63.999%,
+  65%,
+  69.999% {
     opacity: 0.8;
     text-shadow: none;
   }
 }
 
 .search-card {
-  background: var(--color-white);
+  background: rgba(255, 255, 255, 0.78);
+  backdrop-filter: blur(12px);
   border-radius: var(--radius-lg);
   padding: var(--space-xl);
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
-  border: 1px solid var(--color-gray-100);
+  border: 1px solid rgba(255, 255, 255, 0.4);
 }
 
 .search-card-title {
-  font-size: var(--font-size-h5);
-  font-weight: 600;
-  margin-bottom: var(--space-lg);
-  color: var(--color-gray-800);
+  font-size: 1.75rem;
+  font-weight: 800;
+  margin-bottom: var(--space-xl);
+  color: var(--color-gray-900);
+  letter-spacing: -0.5px;
 }
 
 .service-icon-grid {
@@ -143,8 +159,10 @@
   border-radius: var(--radius-lg);
   overflow: hidden;
   box-shadow: var(--shadow-md);
-  background: var(--color-gray-100); /* Placeholder color */
-  height: 215px; /* Default height for small items */
+  background: var(--color-gray-100);
+  /* Placeholder color */
+  height: 215px;
+  /* Default height for small items */
 }
 
 .collage-item img {
@@ -162,6 +180,7 @@
   .hero-container {
     grid-template-columns: 1fr;
   }
+
   .hero-right {
     display: none;
   }

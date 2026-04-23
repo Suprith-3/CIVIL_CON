@@ -19,15 +19,21 @@
     <style>
         body {
             display: flex;
-            background: var(--bg-alt);
+            background: linear-gradient(rgba(249, 250, 251, 0.85), rgba(249, 250, 251, 0.85)), 
+                        url('https://images.pexels.com/photos/28431130/pexels-photo-28431130.jpeg');
+            background-size: cover;
+            background-attachment: fixed;
+            background-position: center;
             color: var(--text-main);
             transition: 0.3s;
+            min-height: 100vh;
         }
 
         .sidebar {
             width: 260px;
             height: 100vh;
-            background: #0f172a;
+            background: rgba(15, 23, 42, 0.82);
+            backdrop-filter: blur(15px);
             color: white;
             position: fixed;
             padding: 2rem 1rem;
@@ -83,7 +89,8 @@
         }
 
         .modal-content {
-            background: var(--bg-light);
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(12px);
             padding: 2.5rem;
             border-radius: 20px;
             width: 550px;
@@ -160,6 +167,16 @@
             margin-top: 1rem;
             border: 2px solid #e2e8f0;
             z-index: 10;
+        }
+
+        .card {
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(10px);
+            border-radius: 24px;
+            padding: 2rem;
+            border: 1px solid rgba(255, 255, 255, 0.4);
+            box-shadow: var(--card-shadow);
+            margin-bottom: 2rem;
         }
     </style>
 </head>

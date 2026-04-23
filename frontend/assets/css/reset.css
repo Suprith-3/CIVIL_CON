@@ -23,7 +23,11 @@ body {
   line-height: 1.5;
   font-family: var(--font-secondary);
   color: var(--color-gray-900);
-  background-color: var(--color-gray-50);
+  background: linear-gradient(rgba(249, 250, 251, 0.78), rgba(249, 250, 251, 0.78)), 
+              url('https://images.pexels.com/photos/28137403/pexels-photo-28137403.jpeg');
+  background-size: cover;
+  background-attachment: fixed;
+  background-position: center;
 }
 
 a:not([class]) {

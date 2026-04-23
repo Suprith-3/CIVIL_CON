@@ -14,12 +14,25 @@
     <link rel="stylesheet" href="../css/style.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
-        body { background-color: var(--bg-alt); display: flex; min-height: 100vh; color: var(--text-main); font-family: 'Inter', sans-serif; margin:0; transition: 0.3s; }
+        body { 
+            background: linear-gradient(rgba(249, 250, 251, 0.82), rgba(249, 250, 251, 0.82)), 
+                        url('https://images.pexels.com/photos/7937323/pexels-photo-7937323.jpeg');
+            background-size: cover;
+            background-attachment: fixed;
+            background-position: center;
+            display: flex; 
+            min-height: 100vh; 
+            color: var(--text-main); 
+            font-family: 'Inter', sans-serif; 
+            margin:0; 
+            transition: 0.3s; 
+        }
         
         /* Sidebar Fix */
         .sidebar { 
             width: 280px; 
-            background: #ffffff; 
+            background: rgba(255, 255, 255, 0.7); 
+            backdrop-filter: blur(15px);
             padding: 2.5rem 1.2rem; 
             position: fixed; 
             height: 100vh; 
@@ -86,9 +99,9 @@
             to { opacity: 1; transform: translateY(0); } 
         }
 
-        .card { background: var(--bg-light); border-radius: 24px; padding: 2rem; border: 1px solid var(--border); box-shadow: var(--card-shadow); margin-bottom: 2rem; color: var(--text-main); }
+        .card { background: rgba(255, 255, 255, 0.85); backdrop-filter: blur(10px); border-radius: 24px; padding: 2rem; border: 1px solid rgba(255, 255, 255, 0.4); box-shadow: var(--card-shadow); margin-bottom: 2rem; color: var(--text-main); }
         .stats-strip { display: flex; gap: 2rem; margin-bottom: 2.5rem; }
-        .mini-stat { background: var(--bg-light); padding: 1.5rem; border-radius: 20px; border: 1px solid var(--border); flex: 1; color: var(--text-main); }
+        .mini-stat { background: rgba(255, 255, 255, 0.85); backdrop-filter: blur(8px); padding: 1.5rem; border-radius: 20px; border: 1px solid rgba(255, 255, 255, 0.4); flex: 1; color: var(--text-main); }
         .mini-stat label { color: var(--text-muted); font-size: 0.75rem; font-weight: 800; text-transform: uppercase; margin-bottom: 5px; display: block; }
         .mini-stat .value { font-size: 1.8rem; font-weight: 800; color: var(--text-main); }
         .btn-primary { background: #2563eb; color: white; border: none; padding: 12px 24px; border-radius: 12px; font-weight: 700; cursor: pointer; transition: 0.2s; }

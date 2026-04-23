@@ -1,13 +1,17 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <!-- Google Tag Manager -->
-    <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
-    new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
-    j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
-    'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
-    })(window,document,'script','dataLayer','GTM-T4X4SVS5');</script>
+    <script>(function (w, d, s, l, i) {
+            w[l] = w[l] || []; w[l].push({
+                'gtm.start':
+                    new Date().getTime(), event: 'gtm.js'
+            }); var f = d.getElementsByTagName(s)[0],
+                j = d.createElement(s), dl = l != 'dataLayer' ? '&l=' + l : ''; j.async = true; j.src =
+                    'https://www.googletagmanager.com/gtm.js?id=' + i + dl; f.parentNode.insertBefore(j, f);
+        })(window, document, 'script', 'dataLayer', 'GTM-T4X4SVS5');</script>
     <!-- End Google Tag Manager -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>User Dashboard | CIVIL CONNECTION</title>
@@ -17,42 +21,207 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.js"></script>
     <style>
-        body { background-color: var(--bg-alt); display: flex; min-height: 100vh; font-family: 'Inter', sans-serif; margin:0; color: var(--text-main); transition: background 0.3s, color 0.3s; }
-        .sidebar { width: 260px; background: #0f172a; color: white; display: flex; flex-direction: column; padding: 2rem 1.5rem; position: fixed; height: 100vh; box-sizing: border-box; }
-        .sidebar .logo { font-size: 1.5rem; font-weight: 800; margin-bottom: 3rem; }
-        .nav-menu { display: flex; flex-direction: column; gap: 8px; flex-grow: 1; }
-        .nav-item { display: flex; align-items: center; gap: 12px; padding: 12px 15px; text-decoration: none; color: #94a3b8; border-radius: 12px; transition: 0.2s; font-weight: 600; cursor: pointer; }
-        .nav-item:hover, .nav-item.active { background: rgba(255, 255, 255, 0.1); color: white; }
-        .main-content { margin-left: 260px; flex-grow: 1; padding: 2.5rem 3rem; width: calc(100% - 260px); box-sizing: border-box; }
-        .top-bar { display: flex; justify-content: space-between; align-items: center; background: white; padding: 1rem 2rem; border-radius: 16px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); margin-bottom: 2rem; }
-        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1.5rem; margin-bottom: 2.5rem; }
-        .stat-card { background: white; padding: 1.5rem; border-radius: 20px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); }
-        .stat-card label { color: #64748b; font-size: 0.8rem; font-weight: 700; display: block; margin-bottom: 5px; }
-        .stat-card .value { font-size: 1.8rem; font-weight: 800; }
-        .section-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; }
-        .grid-container { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 2rem; }
-        .p-card { background: white; border-radius: 20px; overflow: hidden; border: 1px solid #e2e8f0; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); transition: 0.3s; }
-        .p-card:hover { transform: translateY(-5px); box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1); }
-        .modal { display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); z-index:2000; align-items:center; justify-content:center; backdrop-filter: blur(8px); }
-        .btn-primary { background: #2563eb; color: white; border: none; padding: 12px 24px; border-radius: 12px; font-weight: 700; cursor: pointer; }
-        #atlasMap { height: 500px; width: 100%; border-radius: 15px; margin-top: 1rem; }
+        body {
+            background: linear-gradient(rgba(249, 250, 251, 0.88), rgba(249, 250, 251, 0.88)),
+                url('https://images.pexels.com/photos/10945894/pexels-photo-10945894.jpeg');
+            background-size: cover;
+            background-attachment: fixed;
+            background-position: center;
+            display: flex;
+            min-height: 100vh;
+            font-family: 'Inter', sans-serif;
+            margin: 0;
+            color: var(--text-main);
+            transition: background 0.3s, color 0.3s;
+        }
+
+        .sidebar {
+            width: 260px;
+            background: #0f172a;
+            color: white;
+            display: flex;
+            flex-direction: column;
+            padding: 2rem 1.5rem;
+            position: fixed;
+            height: 100vh;
+            box-sizing: border-box;
+        }
+
+        .sidebar .logo {
+            font-size: 1.5rem;
+            font-weight: 800;
+            margin-bottom: 3rem;
+        }
+
+        .nav-menu {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            flex-grow: 1;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 15px;
+            text-decoration: none;
+            color: #94a3b8;
+            border-radius: 12px;
+            transition: 0.2s;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .nav-item:hover,
+        .nav-item.active {
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+        }
+
+        .main-content {
+            margin-left: 260px;
+            flex-grow: 1;
+            padding: 2.5rem 3rem;
+            width: calc(100% - 260px);
+            box-sizing: border-box;
+        }
+
+        .top-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(10px);
+            padding: 1rem 2rem;
+            border-radius: 16px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+            margin-bottom: 2rem;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2.5rem;
+        }
+
+        .stat-card {
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(8px);
+            padding: 1.5rem;
+            border-radius: 20px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .stat-card label {
+            color: #64748b;
+            font-size: 0.8rem;
+            font-weight: 700;
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        .stat-card .value {
+            font-size: 1.8rem;
+            font-weight: 800;
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .grid-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 2rem;
+        }
+
+        .p-card {
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(8px);
+            border-radius: 20px;
+            overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+            transition: 0.3s;
+        }
+
+        .p-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            z-index: 2000;
+            align-items: center;
+            justify-content: center;
+            backdrop-filter: blur(8px);
+        }
+
+        .btn-primary {
+            background: #2563eb;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 12px;
+            font-weight: 700;
+            cursor: pointer;
+        }
+
+        #atlasMap {
+            height: 500px;
+            width: 100%;
+            border-radius: 15px;
+            margin-top: 1rem;
+        }
 
         @media (max-width: 1024px) {
-            .sidebar { width: 80px; padding: 1.5rem 0.5rem; }
-            .sidebar .logo, .nav-item span { display: none; }
-            .main-content { margin-left: 80px; width: calc(100% - 80px); padding: 1.5rem; }
-            .stats-grid { grid-template-columns: 1fr; }
+            .sidebar {
+                width: 80px;
+                padding: 1.5rem 0.5rem;
+            }
+
+            .sidebar .logo,
+            .nav-item span {
+                display: none;
+            }
+
+            .main-content {
+                margin-left: 80px;
+                width: calc(100% - 80px);
+                padding: 1.5rem;
+            }
+
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
         }
     </style>
 </head>
+
 <body>
     <!-- Google Tag Manager (noscript) -->
-    <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-T4X4SVS5"
-    height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+    <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-T4X4SVS5" height="0" width="0"
+            style="display:none;visibility:hidden"></iframe></noscript>
     <!-- End Google Tag Manager (noscript) -->
     <a href="../index.html" class="home-btn" title="Go to Home">
-        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" d="m2.25 12 8.954-8.955c.44-.439 1.152-.439 1.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75M8.25 21h8.25" />
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+            stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round"
+                d="m2.25 12 8.954-8.955c.44-.439 1.152-.439 1.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75M8.25 21h8.25" />
         </svg>
     </a>
 
@@ -92,16 +261,22 @@
                         }, 'google_translate_element');
                     }
                 </script>
-                <script type="text/javascript" src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
-                
-                <button onclick="openNearbyMap()" style="padding:10px 15px; background:#eff6ff; color:#2563eb; border:1px solid #dbeafe; border-radius:10px; font-weight:700; cursor:pointer; font-size:0.8rem;">📍 Find Near By Worker</button>
+                <script type="text/javascript"
+                    src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
+
+                <button onclick="openNearbyMap()"
+                    style="padding:10px 15px; background:#eff6ff; color:#2563eb; border:1px solid #dbeafe; border-radius:10px; font-weight:700; cursor:pointer; font-size:0.8rem;">📍
+                    Find Near By Worker</button>
                 <div style="text-align:right;">
                     <span id="userEmail" style="color:#64748b; font-size:0.8rem; display:block;">user@gmail.com</span>
                 </div>
-                <div id="topBarAvatar" style="width:40px; height:40px; background:#2563eb; color:white; border-radius:50%; display:flex; align-items:center; justify-content:center; font-weight:700; background-size:cover; background-position:center; border:2px solid #fff; box-shadow:0 4px 6px -1px rgba(0,0,0,0.1);">U</div>
-                
+                <div id="topBarAvatar"
+                    style="width:40px; height:40px; background:#2563eb; color:white; border-radius:50%; display:flex; align-items:center; justify-content:center; font-weight:700; background-size:cover; background-position:center; border:2px solid #fff; box-shadow:0 4px 6px -1px rgba(0,0,0,0.1);">
+                    U</div>
+
                 <!-- Theme Toggle -->
-                <div class="theme-toggle" title="Toggle Dark/Light Mode" style="position:static; width:40px; height:40px; box-shadow:none; border:1px solid var(--border);">
+                <div class="theme-toggle" title="Toggle Dark/Light Mode"
+                    style="position:static; width:40px; height:40px; box-shadow:none; border:1px solid var(--border);">
                     <i class="fa-solid fa-moon"></i>
                     <i class="fa-solid fa-sun"></i>
                 </div>
@@ -109,9 +284,15 @@
         </div>
 
         <div id="homeStats" class="stats-grid">
-            <div class="stat-card"><label>Total Orders</label><div class="value">0</div></div>
-            <div class="stat-card"><label>Active Schemes</label><div class="value">12</div></div>
-            <div class="stat-card"><label>Inquiries</label><div class="value">0</div></div>
+            <div class="stat-card"><label>Total Orders</label>
+                <div class="value">0</div>
+            </div>
+            <div class="stat-card"><label>Active Schemes</label>
+                <div class="value">12</div>
+            </div>
+            <div class="stat-card"><label>Inquiries</label>
+                <div class="value">0</div>
+            </div>
         </div>
 
         <div class="section-header">
@@ -134,18 +315,24 @@
             <div id="verificationGate" style="display:block;">
                 <div class="p-card" style="max-width:600px; margin:2rem auto; padding:2rem; text-align:center;">
                     <h2 style="color:#0f172a;">🚜 Rental Security Verification</h2>
-                    <p style="color:#64748b; margin-bottom:2rem;">To rent heavy machinery or tools, we require a one-time identity verification. Please upload your documents to unlock this feature.</p>
-                    
+                    <p style="color:#64748b; margin-bottom:2rem;">To rent heavy machinery or tools, we require a
+                        one-time identity verification. Please upload your documents to unlock this feature.</p>
+
                     <form id="rentalVerifyForm">
                         <div style="text-align:left; margin-bottom:1.5rem;">
-                            <label style="display:block; font-size:0.85rem; font-weight:700; margin-bottom:8px;">1. Aadhar Card Photo</label>
-                            <input type="file" id="rAadhar" required class="form-control" style="width:100%; padding:10px; border:1px solid #e2e8f0; border-radius:10px;">
+                            <label style="display:block; font-size:0.85rem; font-weight:700; margin-bottom:8px;">1.
+                                Aadhar Card Photo</label>
+                            <input type="file" id="rAadhar" required class="form-control"
+                                style="width:100%; padding:10px; border:1px solid #e2e8f0; border-radius:10px;">
                         </div>
                         <div style="text-align:left; margin-bottom:2rem;">
-                            <label style="display:block; font-size:0.85rem; font-weight:700; margin-bottom:8px;">2. Driving License (DL) Photo</label>
-                            <input type="file" id="rDL" required class="form-control" style="width:100%; padding:10px; border:1px solid #e2e8f0; border-radius:10px;">
+                            <label style="display:block; font-size:0.85rem; font-weight:700; margin-bottom:8px;">2.
+                                Driving License (DL) Photo</label>
+                            <input type="file" id="rDL" required class="form-control"
+                                style="width:100%; padding:10px; border:1px solid #e2e8f0; border-radius:10px;">
                         </div>
-                        <button type="submit" class="btn-primary" style="width:100%; padding:1rem; font-size:1rem;">🔓 Upload & Unlock Rentals</button>
+                        <button type="submit" class="btn-primary" style="width:100%; padding:1rem; font-size:1rem;">🔓
+                            Upload & Unlock Rentals</button>
                     </form>
                 </div>
             </div>
@@ -166,56 +353,85 @@
             <div class="p-card" style="max-width:850px; margin:0 auto; padding:2.5rem; background:white;">
                 <div style="display:flex; gap:3rem; align-items:start;">
                     <div style="text-align:center;">
-                        <div id="userProfilePic" style="width:160px; height:160px; border-radius:50%; background:#f1f5f9; background-size:cover; background-position:center; margin-bottom:1.5rem; border:5px solid #fff; box-shadow:0 10px 25px -5px rgba(0,0,0,0.1);"></div>
+                        <div id="userProfilePic"
+                            style="width:160px; height:160px; border-radius:50%; background:#f1f5f9; background-size:cover; background-position:center; margin-bottom:1.5rem; border:5px solid #fff; box-shadow:0 10px 25px -5px rgba(0,0,0,0.1);">
+                        </div>
                         <input type="file" id="uPhotoInput" style="display:none;" onchange="previewUserPhoto(this)">
-                        <button class="btn-primary" onclick="document.getElementById('uPhotoInput').click()" style="padding:10px 20px; font-size:0.75rem; background:#0f172a;">Change Photo</button>
+                        <button class="btn-primary" onclick="document.getElementById('uPhotoInput').click()"
+                            style="padding:10px 20px; font-size:0.75rem; background:#0f172a;">Change Photo</button>
                     </div>
-                    
+
                     <div style="flex-grow:1;">
-                        <h2 style="margin-top:0; margin-bottom:2rem;">Your Personal <span style="color:#2563eb;">Profile</span></h2>
+                        <h2 style="margin-top:0; margin-bottom:2rem;">Your Personal <span
+                                style="color:#2563eb;">Profile</span></h2>
                         <form id="userProfileForm">
                             <div style="display:grid; grid-template-columns:1fr 1fr; gap:1.5rem; margin-bottom:1.5rem;">
                                 <div>
-                                    <label style="display:block; font-size:0.8rem; font-weight:700; color:#64748b; margin-bottom:8px;">Full Name</label>
-                                    <input type="text" id="uName" required placeholder="Enter your name" style="width:100%; padding:12px; border:1px solid #e2e8f0; border-radius:12px; font-family:inherit;">
+                                    <label
+                                        style="display:block; font-size:0.8rem; font-weight:700; color:#64748b; margin-bottom:8px;">Full
+                                        Name</label>
+                                    <input type="text" id="uName" required placeholder="Enter your name"
+                                        style="width:100%; padding:12px; border:1px solid #e2e8f0; border-radius:12px; font-family:inherit;">
                                 </div>
                                 <div>
-                                    <label style="display:block; font-size:0.8rem; font-weight:700; color:#64748b; margin-bottom:8px;">Age</label>
-                                    <input type="number" id="uAge" placeholder="Your age" style="width:100%; padding:12px; border:1px solid #e2e8f0; border-radius:12px; font-family:inherit;">
+                                    <label
+                                        style="display:block; font-size:0.8rem; font-weight:700; color:#64748b; margin-bottom:8px;">Age</label>
+                                    <input type="number" id="uAge" placeholder="Your age"
+                                        style="width:100%; padding:12px; border:1px solid #e2e8f0; border-radius:12px; font-family:inherit;">
                                 </div>
                             </div>
-                            
+
                             <div style="margin-bottom: 1.5rem;">
-                                <label style="display:block; font-size:0.8rem; font-weight:700; color:#64748b; margin-bottom:8px;">Full Address</label>
-                                <textarea id="uAddress" placeholder="Enter your full written address here..." style="width:100%; padding:12px; border:1px solid #e2e8f0; border-radius:12px; height:80px; resize:none; font-family:inherit;"></textarea>
+                                <label
+                                    style="display:block; font-size:0.8rem; font-weight:700; color:#64748b; margin-bottom:8px;">Full
+                                    Address</label>
+                                <textarea id="uAddress" placeholder="Enter your full written address here..."
+                                    style="width:100%; padding:12px; border:1px solid #e2e8f0; border-radius:12px; height:80px; resize:none; font-family:inherit;"></textarea>
                             </div>
 
                             <div style="display:grid; grid-template-columns:1fr 1fr; gap:1.5rem; margin-bottom:1.5rem;">
                                 <div>
-                                    <label style="display:block; font-size:0.8rem; font-weight:700; color:#64748b; margin-bottom:8px;">Years of Experience</label>
-                                    <input type="number" id="uExp" placeholder="e.g. 5" style="width:100%; padding:12px; border:1px solid #e2e8f0; border-radius:12px; font-family:inherit;">
+                                    <label
+                                        style="display:block; font-size:0.8rem; font-weight:700; color:#64748b; margin-bottom:8px;">Years
+                                        of Experience</label>
+                                    <input type="number" id="uExp" placeholder="e.g. 5"
+                                        style="width:100%; padding:12px; border:1px solid #e2e8f0; border-radius:12px; font-family:inherit;">
                                 </div>
                                 <div>
-                                    <label style="display:block; font-size:0.8rem; font-weight:700; color:#64748b; margin-bottom:8px;">Projects Completed</label>
-                                    <input type="number" id="uProj" placeholder="e.g. 12" style="width:100%; padding:12px; border:1px solid #e2e8f0; border-radius:12px; font-family:inherit;">
+                                    <label
+                                        style="display:block; font-size:0.8rem; font-weight:700; color:#64748b; margin-bottom:8px;">Projects
+                                        Completed</label>
+                                    <input type="number" id="uProj" placeholder="e.g. 12"
+                                        style="width:100%; padding:12px; border:1px solid #e2e8f0; border-radius:12px; font-family:inherit;">
                                 </div>
                             </div>
-                            
+
                             <div style="margin-bottom:1.5rem;">
-                                <label style="display:block; font-size:0.8rem; font-weight:700; color:#64748b; margin-bottom:8px;">Bio / Expertise</label>
-                                <textarea id="uBio" placeholder="Tell others about your expertise or construction needs..." style="width:100%; padding:12px; border:1px solid #e2e8f0; border-radius:12px; height:100px; resize:none; font-family:inherit;"></textarea>
+                                <label
+                                    style="display:block; font-size:0.8rem; font-weight:700; color:#64748b; margin-bottom:8px;">Bio
+                                    / Expertise</label>
+                                <textarea id="uBio"
+                                    placeholder="Tell others about your expertise or construction needs..."
+                                    style="width:100%; padding:12px; border:1px solid #e2e8f0; border-radius:12px; height:100px; resize:none; font-family:inherit;"></textarea>
                             </div>
 
                             <div style="margin-bottom:2rem;">
-                                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
-                                    <label style="font-size:0.8rem; font-weight:700; color:#64748b;">Live Location (OpenStreetMap)</label>
-                                    <button type="button" onclick="detectUserLoc()" style="font-size:0.7rem; border:none; background:#f1f5f9; padding:5px 10px; border-radius:8px; color:#2563eb; font-weight:800; cursor:pointer;">📍 Detect Live Location</button>
+                                <div
+                                    style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+                                    <label style="font-size:0.8rem; font-weight:700; color:#64748b;">Live Location
+                                        (OpenStreetMap)</label>
+                                    <button type="button" onclick="detectUserLoc()"
+                                        style="font-size:0.7rem; border:none; background:#f1f5f9; padding:5px 10px; border-radius:8px; color:#2563eb; font-weight:800; cursor:pointer;">📍
+                                        Detect Live Location</button>
                                 </div>
-                                <div id="userLocMap" style="height:250px; border-radius:20px; border:1px solid #e2e8f0; overflow:hidden;"></div>
+                                <div id="userLocMap"
+                                    style="height:250px; border-radius:20px; border:1px solid #e2e8f0; overflow:hidden;">
+                                </div>
                                 <input type="hidden" id="uLat"><input type="hidden" id="uLng">
                             </div>
 
-                            <button type="submit" class="btn-primary" style="width:100%; padding:1rem;">Save Profile Settings</button>
+                            <button type="submit" class="btn-primary" style="width:100%; padding:1rem;">Save Profile
+                                Settings</button>
                         </form>
                     </div>
                 </div>
@@ -225,40 +441,47 @@
 
     <!-- Portfolio Modal -->
     <div id="portfolioModal" class="modal">
-        <div style="background:white; padding:2.5rem; border-radius:30px; width:800px; max-height:85vh; overflow-y:auto; position:relative;">
-            <span style="position:absolute; top:1.5rem; right:2rem; cursor:pointer; font-size:2rem;" onclick="closePortfolio()">&times;</span>
+        <div
+            style="background:white; padding:2.5rem; border-radius:30px; width:800px; max-height:85vh; overflow-y:auto; position:relative;">
+            <span style="position:absolute; top:1.5rem; right:2rem; cursor:pointer; font-size:2rem;"
+                onclick="closePortfolio()">&times;</span>
             <div id="portfolioContent"></div>
         </div>
     </div>
 
     <!-- Project Detail Modal -->
     <div id="projectDetailModal" class="modal" style="z-index:3000;">
-        <div style="background:white; padding:2.5rem; border-radius:30px; width:900px; max-height:85vh; overflow-y:auto; position:relative;">
-            <span style="position:absolute; top:1.5rem; right:2rem; cursor:pointer; font-size:2rem;" onclick="closeProjectDetail()">&times;</span>
+        <div
+            style="background:white; padding:2.5rem; border-radius:30px; width:900px; max-height:85vh; overflow-y:auto; position:relative;">
+            <span style="position:absolute; top:1.5rem; right:2rem; cursor:pointer; font-size:2rem;"
+                onclick="closeProjectDetail()">&times;</span>
             <div id="projectDetailContent"></div>
         </div>
     </div>
 
     <!-- Nearby Workers Map Modal -->
     <div id="nearbyMapModal" class="modal">
-        <div style="background:white; padding:2rem; border-radius:30px; width:900px; max-height:90vh; position:relative;">
-            <span style="position:absolute; top:1.5rem; right:2rem; cursor:pointer; font-size:2rem; z-index:2001;" onclick="closeNearbyMap()">&times;</span>
+        <div
+            style="background:white; padding:2rem; border-radius:30px; width:900px; max-height:90vh; position:relative;">
+            <span style="position:absolute; top:1.5rem; right:2rem; cursor:pointer; font-size:2rem; z-index:2001;"
+                onclick="closeNearbyMap()">&times;</span>
             <h2 style="margin-top:0;">Nearby Construction Workers (20km Radius)</h2>
-            <p style="color:#64748b; margin-bottom:1.5rem;">Discover skilled labor currently active in your vicinity.</p>
+            <p style="color:#64748b; margin-bottom:1.5rem;">Discover skilled labor currently active in your vicinity.
+            </p>
             <div id="atlasMap"></div>
         </div>
     </div>
 
     <script>
-        const API_BASE_URL = window.location.hostname === '127.0.0.1' || window.location.hostname === 'localhost' 
-            ? 'http://127.0.0.1:10000/api' 
+        const API_BASE_URL = window.location.hostname === '127.0.0.1' || window.location.hostname === 'localhost'
+            ? 'http://127.0.0.1:10000/api'
             : 'https://civilconnect-m3lr.onrender.com/api';
-        const IMG_BASE_URL = window.location.hostname === '127.0.0.1' || window.location.hostname === 'localhost' 
-            ? 'http://127.0.0.1:10000' 
+        const IMG_BASE_URL = window.location.hostname === '127.0.0.1' || window.location.hostname === 'localhost'
+            ? 'http://127.0.0.1:10000'
             : 'https://civilconnect-m3lr.onrender.com';
         let mainMap = null;
 
-        function closePortfolio() { document.getElementById('portfolioModal').style.display='none'; }
+        function closePortfolio() { document.getElementById('portfolioModal').style.display = 'none'; }
         function closeProjectDetail() { document.getElementById('projectDetailModal').style.display = 'none'; }
 
         async function openPortfolio(engineerId) {
@@ -301,8 +524,8 @@
                         `).join('')}
                     </div>
                 `;
-            } catch(e) { 
-                content.innerHTML = '<p style="color:#ef4444; text-align:center;">Error loading portfolio. Please try again.</p>'; 
+            } catch (e) {
+                content.innerHTML = '<p style="color:#ef4444; text-align:center;">Error loading portfolio. Please try again.</p>';
             }
         }
 
@@ -367,19 +590,19 @@
                         </div>
                     </div>
                 `;
-            } catch(e) { content.innerHTML = '<p>Error loading project details.</p>'; }
+            } catch (e) { content.innerHTML = '<p>Error loading project details.</p>'; }
         }
         function logout() { localStorage.clear(); window.location.href = '../index.html'; }
-        
-        function closeNearbyMap() { 
-            document.getElementById('nearbyMapModal').style.display = 'none'; 
-            if(mainMap) { mainMap.remove(); mainMap = null; }
+
+        function closeNearbyMap() {
+            document.getElementById('nearbyMapModal').style.display = 'none';
+            if (mainMap) { mainMap.remove(); mainMap = null; }
         }
 
         function previewUserPhoto(input) {
             if (input.files && input.files[0]) {
                 const reader = new FileReader();
-                reader.onload = function(e) {
+                reader.onload = function (e) {
                     document.getElementById('userProfilePic').style.backgroundImage = `url(${e.target.result})`;
                 }
                 reader.readAsDataURL(input.files[0]);
@@ -392,7 +615,7 @@
                 const { latitude, longitude } = pos.coords;
                 document.getElementById('uLat').value = latitude;
                 document.getElementById('uLng').value = longitude;
-                
+
                 // Update small map in profile
                 const pMap = L.map('userLocMap').setView([latitude, longitude], 15);
                 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(pMap);
@@ -404,31 +627,31 @@
             const modal = document.getElementById('nearbyMapModal');
             modal.style.display = 'flex';
             if (!navigator.geolocation) return alert("Geolocation not supported");
-            
+
             navigator.geolocation.getCurrentPosition(async (position) => {
                 const { latitude, longitude } = position.coords;
                 if (!mainMap) {
                     mainMap = L.map('atlasMap').setView([latitude, longitude], 12);
                     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(mainMap);
                 }
-                
+
                 // Add "You are here" marker
                 L.marker([latitude, longitude], { icon: L.icon({ iconUrl: 'https://cdn-icons-png.flaticon.com/512/1673/1673188.png', iconSize: [30, 30] }) })
-                .addTo(mainMap).bindPopup("<b>You are here</b>").openPopup();
+                    .addTo(mainMap).bindPopup("<b>You are here</b>").openPopup();
 
                 // FETCH & SHOW REAL SHOPS! 🏪📍
                 try {
                     const res = await fetch(`${API_BASE_URL}/auth/all-shops`);
                     const shops = await res.json();
-                    
+
                     shops.forEach(shop => {
                         if (shop.latitude && shop.longitude) {
                             L.marker([shop.latitude, shop.longitude])
-                            .addTo(mainMap)
-                            .bindPopup(`<b>${shop.full_name}</b><br>🏠 ${shop.shop_address || 'Store Location'}<br>🕰️ ${shop.opening_hours || 'Open'}`);
+                                .addTo(mainMap)
+                                .bindPopup(`<b>${shop.full_name}</b><br>🏠 ${shop.shop_address || 'Store Location'}<br>🕰️ ${shop.opening_hours || 'Open'}`);
                         }
                     });
-                } catch(e) { console.error("Could not load shops on map", e); }
+                } catch (e) { console.error("Could not load shops on map", e); }
             });
         }
 
@@ -438,9 +661,9 @@
             let cart = JSON.parse(localStorage.getItem('cart') || '[]');
             cart.push(item);
             localStorage.setItem('cart', JSON.stringify(cart));
-            
+
             if (confirm(`${item.name} added! Would you like to proceed to Cart now?`)) {
-                window.location.href = 'cart.html'; 
+                window.location.href = 'cart.html';
             }
         }
 
@@ -450,13 +673,13 @@
             const stats = document.getElementById('homeStats');
             const pSec = document.getElementById('profileSection');
             const mbSec = document.getElementById('myBookingsSection');
-            
+
             header.textContent = "Your Construction Marketplace Overview";
             stats.style.display = 'grid';
             pSec.style.display = 'none';
             mbSec.style.display = 'none';
             grid.style.display = 'block'; // Use block for sections
-            
+
             grid.innerHTML = `
                 <div style="margin-bottom: 3rem; background: linear-gradient(135deg, #eff6ff 0%, #ffffff 100%); padding: 1.5rem; border-radius: 24px; border: 1px solid #dbeafe;">
                     <h3 style="display:flex; justify-content:space-between; align-items:center; margin-top:0;">⚡ Live Project Stream <span style="font-size:0.8rem; background:#2563eb; color:white; padding:4px 10px; border-radius:20px; animation: pulse 2s infinite;">NEW</span></h3>
@@ -519,7 +742,7 @@
                         </div>
                     </div>
                 `).join('');
-            } catch(e) { console.error("Live project feed failed", e); }
+            } catch (e) { console.error("Live project feed failed", e); }
         }
 
         async function loadHomeEngineers() {
@@ -527,7 +750,7 @@
             try {
                 const res = await fetch(`${API_BASE_URL}/admin/approved-engineers`);
                 const engs = await res.json();
-                
+
                 if (!engs || engs.length === 0) {
                     container.innerHTML = '<p style="color:#64748b; font-size:0.85rem; padding:10px;">No engineers approved yet.</p>';
                     return;
@@ -541,7 +764,7 @@
                         <button onclick="openPortfolio('${e.id}')" class="btn-primary" style="width:100%; border-radius:10px; font-size:0.8rem; padding:8px; background:#0f172a;">View Projects</button>
                     </div>
                 `).join('');
-            } catch(e) { 
+            } catch (e) {
                 console.error("Home Eng Load Fail:", e);
                 container.innerHTML = '<p style="color:#ef4444; font-size:0.8rem;">Sync Error.</p>';
             }
@@ -562,7 +785,7 @@
                         </div>
                     </div>
                 `).join('');
-            } catch(e) {}
+            } catch (e) { }
         }
 
         async function loadHomeShops() {
@@ -581,7 +804,7 @@
                         </div>
                     </div>
                 `).join('');
-            } catch(e) {}
+            } catch (e) { }
         }
 
         async function loadHomeRentals() {
@@ -600,7 +823,7 @@
                         </div>
                     </div>
                 `).join('');
-            } catch(e) {}
+            } catch (e) { }
         }
 
         async function loadHomeSchemes() {
@@ -620,11 +843,11 @@
 
         function showSection(section, el) {
             document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
-            if(el) el.classList.add('active');
+            if (el) el.classList.add('active');
             else {
-                 document.querySelectorAll('.sidebar .nav-item').forEach(i => {
-                    if(i.textContent.toLowerCase().includes(section)) i.classList.add('active');
-                 });
+                document.querySelectorAll('.sidebar .nav-item').forEach(i => {
+                    if (i.textContent.toLowerCase().includes(section)) i.classList.add('active');
+                });
             }
 
             const grid = document.getElementById('mainGrid');
@@ -633,7 +856,7 @@
             const stats = document.getElementById('homeStats');
             const mbSec = document.getElementById('myBookingsSection');
             const rentSec = document.getElementById('rentalsSection');
-            
+
             stats.style.display = (section === 'home') ? 'grid' : 'none';
             pSec.style.display = (section === 'profile') ? 'block' : 'none';
             mbSec.style.display = (section === 'my-bookings') ? 'block' : 'none';
@@ -660,7 +883,7 @@
                 });
                 const data = await res.json();
                 container.innerHTML = '';
-                
+
                 if (data.bookings && data.bookings.length > 0) {
                     data.bookings.forEach(b => {
                         const balance = b.total_amount * 0.15;
@@ -686,12 +909,12 @@
                 } else {
                     container.innerHTML = '<p style="grid-column: 1/-1; text-align: center; color: #94a3b8;">You haven\'t hired any workers yet.</p>';
                 }
-            } catch(e) { container.innerHTML = '<p>Error loading projects.</p>'; }
+            } catch (e) { container.innerHTML = '<p>Error loading projects.</p>'; }
         }
 
         async function payFinalMilestone(bookingId, amount) {
             const token = localStorage.getItem('access_token');
-            const RZP_KEY = "rzp_test_SLEACrszBCNIIo"; 
+            const RZP_KEY = "rzp_test_SLEACrszBCNIIo";
 
             const options = {
                 "key": RZP_KEY,
@@ -741,7 +964,7 @@
             try {
                 const res = await fetch(`${API_BASE_URL}/admin/approved-engineers`);
                 const engs = await res.json();
-                
+
                 if (!engs || engs.length === 0) {
                     grid.innerHTML = '<p style="grid-column:1/-1; text-align:center; padding:3rem; color:#64748b;">No engineers available right now.</p>';
                 } else {
@@ -757,7 +980,7 @@
                         </div>
                     `).join('');
                 }
-            } catch(e) { grid.innerHTML = '<p>Error loading engineers.</p>'; }
+            } catch (e) { grid.innerHTML = '<p>Error loading engineers.</p>'; }
         }
 
         async function loadSchemes() {
@@ -767,7 +990,7 @@
                 const res = await fetch(`${API_BASE_URL}/admin/schemes`);
                 const data = await res.json();
                 const schemes = data.schemes || [];
-                
+
                 if (schemes.length === 0) {
                     grid.innerHTML = '<p style="grid-column:1/-1; text-align:center; padding:3rem; color:#64748b;">No government schemes found at this time.</p>';
                 } else {
@@ -780,7 +1003,7 @@
                         </div>
                     `).join('');
                 }
-            } catch(e) { grid.innerHTML = '<p>Error loading schemes.</p>'; }
+            } catch (e) { grid.innerHTML = '<p>Error loading schemes.</p>'; }
         }
 
         async function loadRecentProjects() {
@@ -794,7 +1017,7 @@
                         <p>📍 ${p.location}</p>
                     </div>
                 `).join('');
-            } catch(e) {}
+            } catch (e) { }
         }
 
         async function loadWorkers() {
@@ -835,7 +1058,7 @@
                         </div>
                     </div>
                 `).join('');
-            } catch(e) { grid.innerHTML = '<p>Error loading workers.</p>'; }
+            } catch (e) { grid.innerHTML = '<p>Error loading workers.</p>'; }
         }
 
         async function viewWorkerPortfolio(workerId) {
@@ -873,13 +1096,13 @@
                         `).join('')}
                     </div>
                 `;
-            } catch(e) { content.innerHTML = '<p>Error loading portfolio.</p>'; }
+            } catch (e) { content.innerHTML = '<p>Error loading portfolio.</p>'; }
         }
 
         async function initiateWorkerBooking(workId, title, cost, workerId) {
             const upfrontAmount = cost * 0.85; // 85% Upfront
             const balanceAmount = cost * 0.15; // 15% Balance
-            
+
             if (!confirm(`BOOKING CONFIRMATION:\nWork: ${title}\nTotal: ₹${cost}\n\nPay 85% Upfront: ₹${upfrontAmount.toFixed(2)}\nPay 15% on Completion: ₹${balanceAmount.toFixed(2)}\n\nProceed to payment?`)) return;
 
             const token = localStorage.getItem('access_token');
@@ -898,12 +1121,12 @@
                         paid_initial: upfrontAmount
                     })
                 });
-                
+
                 const booking = await res.json();
-                
+
                 // 2. Trigger Razorpay
-                const RZP_KEY = "rzp_test_SLEACrszBCNIIo"; 
-                
+                const RZP_KEY = "rzp_test_SLEACrszBCNIIo";
+
                 const options = {
                     "key": RZP_KEY,
                     "amount": Math.round(upfrontAmount * 100),
@@ -924,7 +1147,7 @@
                 const rzp = new Razorpay(options);
                 rzp.open();
 
-            } catch(e) { alert("Booking failed. Please try again."); }
+            } catch (e) { alert("Booking failed. Please try again."); }
         }
 
         function closePortfolio() {
@@ -933,11 +1156,11 @@
 
         async function loadUserProfile() {
             const user_id = localStorage.getItem('user_id');
-            if(!user_id) return;
+            if (!user_id) return;
             try {
                 const res = await fetch(`${API_BASE_URL}/auth/profile?user_id=${user_id}`);
                 const data = await res.json();
-                if(data.profile) {
+                if (data.profile) {
                     const p = data.profile;
                     document.getElementById('userEmail').textContent = p.email || localStorage.getItem('user_email');
                     document.getElementById('uName').value = p.full_name || '';
@@ -946,30 +1169,30 @@
                     document.getElementById('uAddress').value = p.address || p.location?.address || '';
                     document.getElementById('uExp').value = p.experience_years || '';
                     document.getElementById('uProj').value = p.completed_projects || '';
-                    
-                    if(p.profile_pic_url) {
+
+                    if (p.profile_pic_url) {
                         const url = p.profile_pic_url.startsWith('http') ? p.profile_pic_url : `${IMG_BASE_URL}${p.profile_pic_url}`;
                         document.getElementById('userProfilePic').style.backgroundImage = `url(${url})`;
                         document.getElementById('topBarAvatar').style.backgroundImage = `url(${url})`;
                         document.getElementById('topBarAvatar').textContent = '';
                     }
-                    
-                    if(p.location && p.location.lat) {
+
+                    if (p.location && p.location.lat) {
                         document.getElementById('uLat').value = p.location.lat;
                         document.getElementById('uLng').value = p.location.lng;
                     }
                 }
-            } catch(e) { console.error("Profile load failed", e); }
+            } catch (e) { console.error("Profile load failed", e); }
         }
 
         document.getElementById('userProfileForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             const user_id = localStorage.getItem('user_id');
             const formData = new FormData();
-            
+
             const photoFile = document.getElementById('uPhotoInput').files[0];
             if (photoFile) formData.append('photo', photoFile);
-            
+
             formData.append('user_id', user_id);
             formData.append('name', document.getElementById('uName').value);
             formData.append('age', document.getElementById('uAge').value);
@@ -986,13 +1209,13 @@
                     body: formData
                 });
                 const result = await res.json();
-                if(res.ok) {
+                if (res.ok) {
                     alert("Profile updated successfully!");
                     loadUserProfile(); // Reload to update top bar
                 } else {
                     alert("Update failed: " + result.message);
                 }
-            } catch(err) {
+            } catch (err) {
                 alert("Error saving profile settings.");
             }
         });
@@ -1003,13 +1226,13 @@
             const stats = document.getElementById('homeStats');
             const mbSec = document.getElementById('myBookingsSection');
             const pSec = document.getElementById('profileSection');
-            
+
             header.textContent = "Verified Government Schemes & AI Assistant";
             stats.style.display = 'none';
             mbSec.style.display = 'none';
             pSec.style.display = 'none';
             grid.style.display = 'grid';
-            
+
             grid.innerHTML = `
                 <!-- Admin Posted Schemes Section -->
                 <div id="adminSchemesList" style="grid-column: 1 / -1; margin-bottom: 2rem; display: grid; grid-template-columns: repeat(auto-fill, minmax(350px, 1fr)); gap: 1.5rem;">
@@ -1042,7 +1265,7 @@
                 const res = await fetch(`${API_BASE_URL}/admin/schemes`);
                 const data = await res.json();
                 const container = document.getElementById('adminSchemesList');
-                
+
                 if (data.schemes && data.schemes.length > 0) {
                     container.innerHTML = `
                         <p style="grid-column: 1/-1; color: #1e293b; font-weight: 700; font-size: 1.1rem; display: flex; align-items: center; gap: 10px;">
@@ -1070,7 +1293,7 @@
         async function fetchAISchemes() {
             const resultDiv = document.getElementById('schemesResult');
             const query = document.getElementById('schemeQuery').value;
-            if(!query) return alert("Please enter a search query.");
+            if (!query) return alert("Please enter a search query.");
 
             resultDiv.innerHTML = `
                 <div style="text-align:center; padding: 2rem;">
@@ -1078,16 +1301,16 @@
                     <p style="margin-top:1rem; color:#2563eb; font-weight:700;">AI is researching live links for you...</p>
                 </div>
             `;
-            
+
             try {
                 const res = await fetch(`${API_BASE_URL}/ai/schemes?query=${encodeURIComponent(query)}`);
                 const data = await res.json();
-                
+
                 // Better formatting for AI results (link detection)
                 let formatted = data.result || "No specific schemes found.";
                 formatted = formatted.replace(/(https?:\/\/[^\s]+)/g, '<a href="$1" target="_blank" style="color:#2563eb; font-weight:700; text-decoration:underline;">$1</a>');
                 formatted = formatted.replace(/\n/g, '<br>');
-                
+
                 resultDiv.innerHTML = `
                     <div style="font-size: 1.05rem; color: #334155; animation: fadeIn 0.5s ease-out;">
                         <div style="background: #eff6ff; padding: 10px 15px; border-radius: 12px; margin-bottom: 1.5rem; display: flex; align-items: center; gap: 10px;">
@@ -1118,19 +1341,19 @@
             try {
                 const res = await fetch(`${API_BASE_URL}/auth/profile?user_id=${user_id}`);
                 const { profile } = await res.json();
-                
+
                 const alreadyUploaded = profile && (profile.verification_status === 'pending' || (profile.aadhar_url && profile.dl_url));
-                
+
                 if (force || (profile && profile.is_id_verified) || alreadyUploaded) {
                     gate.style.display = 'none';
                     marketplace.style.display = 'block';
-                    
+
                     // Load actual rental items
                     const itemsRes = await fetch(`${API_BASE_URL}/items/`);
                     const items = await itemsRes.json();
                     items.forEach(i => i.price = Math.round(i.price * (i.item_type === 'rent' ? 1.15 : 1.10)));
                     const rentals = items.filter(i => i.item_type === 'rent');
-                    
+
                     if (rentals.length === 0) {
                         grid.innerHTML = '<p style="grid-column: 1/-1; text-align:center; padding:3rem; color:#64748b;">No rental equipment available right now.</p>';
                     } else {
@@ -1150,7 +1373,7 @@
                     gate.style.display = 'block';
                     marketplace.style.display = 'none';
                 }
-            } catch(e) { console.error("Rental load failed", e); }
+            } catch (e) { console.error("Rental load failed", e); }
         }
 
         window.initiateRentalBooking = async (itemData) => {
@@ -1158,20 +1381,20 @@
             const user_id = localStorage.getItem('user_id');
             const token = localStorage.getItem('access_token');
             const advance = Math.round(item.price * 0.50);
-            
+
             // 1. Show the Trust Modal (Simplified for now, can be a styled div)
             if (!confirm(`🤝 RENTAL TRUST AGREEMENT\n\n` +
-                        `🚜 Item: ${item.name}\n` +
-                        `✅ Insurance: Verified & Available\n` +
-                        `✅ Owner Contact: Provided after booking\n\n` +
-                        `💳 PAYMENT SPLIT:\n` +
-                        `• Pay 50% (₹${advance}) Online NOW\n` +
-                        `• Pay 50% balance on return to owner\n\n` +
-                        `Do you agree to share your Aadhar/DL with the owner and proceed?`)) return;
+                `🚜 Item: ${item.name}\n` +
+                `✅ Insurance: Verified & Available\n` +
+                `✅ Owner Contact: Provided after booking\n\n` +
+                `💳 PAYMENT SPLIT:\n` +
+                `• Pay 50% (₹${advance}) Online NOW\n` +
+                `• Pay 50% balance on return to owner\n\n` +
+                `Do you agree to share your Aadhar/DL with the owner and proceed?`)) return;
 
             try {
                 // 2. Trigger Razorpay for 50%
-                const RZP_KEY = "rzp_test_SLEACrszBCNIIo"; 
+                const RZP_KEY = "rzp_test_SLEACrszBCNIIo";
                 const options = {
                     "key": RZP_KEY,
                     "amount": advance * 100,
@@ -1197,7 +1420,7 @@
                 };
                 const rzp = new Razorpay(options);
                 rzp.open();
-            } catch(e) { alert("Booking process failed."); }
+            } catch (e) { alert("Booking process failed."); }
         };
 
         document.getElementById('rentalVerifyForm').onsubmit = async (e) => {
@@ -1219,7 +1442,7 @@
                 });
                 if (res.ok) {
                     alert("Documents uploaded successfully! 📄🏆\n\nYour identity is being verified by Admin, but you can now explore the machinery marketplace.");
-                    
+
                     // Immediately show marketplace
                     document.getElementById('verificationGate').style.display = 'none';
                     document.getElementById('rentalMarketplace').style.display = 'block';
@@ -1227,7 +1450,7 @@
                 } else {
                     alert("Upload failed. Please try again.");
                 }
-            } catch(err) { alert("Network Error"); }
+            } catch (err) { alert("Network Error"); }
             btn.textContent = '🔓 Upload & Unlock Rentals';
             btn.disabled = false;
         };
@@ -1244,4 +1467,5 @@
     <script src="../js/dashboards/user.js"></script>
     <script src="../js/theme.js"></script>
 </body>
+
 </html>

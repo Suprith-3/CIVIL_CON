@@ -1,5 +1,5 @@
 .services-section {
-  background: var(--color-gray-50);
+  background: transparent;
   padding: var(--space-4xl) 0;
 }
 
@@ -14,6 +14,35 @@
   color: var(--color-gray-900);
   margin-bottom: var(--space-md);
   font-family: var(--font-primary);
+}
+
+.section-subtitle-premium {
+  font-size: 1.25rem;
+  font-weight: 500;
+  color: var(--color-gray-600);
+  max-width: 650px;
+  margin: 0 auto;
+  line-height: 1.6;
+}
+
+.section-subtitle-premium .highlight {
+  position: relative;
+  color: var(--color-primary-dark);
+  font-weight: 700;
+  padding: 0 4px;
+}
+
+.section-subtitle-premium .highlight::after {
+  content: '';
+  position: absolute;
+  bottom: 4px;
+  left: 0;
+  width: 100%;
+  height: 8px;
+  background: var(--color-primary);
+  opacity: 0.15;
+  z-index: -1;
+  border-radius: 2px;
 }
 
 .services-grid {
