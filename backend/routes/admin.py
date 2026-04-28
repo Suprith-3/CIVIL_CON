@@ -175,19 +175,35 @@ def get_schemes():
 
 @admin_bp.route('/view-document')
 def view_document():
-    # Proxy route to serve private documents from Supabase
+    # Proxy route to serve private documents from Supabase using SDK
     url = request.args.get('url')
     if not url:
         return "Missing URL", 400
         
     try:
-        # Extract bucket and path from the URL
-        # Example: https://xxx.supabase.co/storage/v1/object/public/documents/2026/04/xxx.jpg
-        import requests
-        resp = requests.get(url, stream=True)
+        # Extract bucket and path from the Supabase URL
+        # URL format: .../storage/v1/object/public/bucket_name/path/to/file
+        # Note: Even if it says 'public' in URL, we'll use SDK to be sure
+        parts = url.split('/storage/v1/object/public/')
+        if len(parts) < 2:
+            # Try 'authenticated' if 'public' is not there
+            parts = url.split('/storage/v1/object/authenticated/')
+            
+        if len(parts) < 2:
+            return f"Invalid Supabase URL format: {url}", 400
+            
+        storage_path = parts[1]
+        bucket, path = storage_path.split('/', 1)
         
-        # If the public URL fails (because bucket is private), try a fallback or just return the response
+        # Download using Supabase SDK (which uses the SUPABASE_KEY)
+        file_data = supabase.storage.from_(bucket).download(path)
+        
         from flask import Response
-        return Response(resp.content, mimetype=resp.headers.get('Content-Type'))
+        # Detect extension for mimetype
+        ext = path.rsplit('.', 1)[1].lower() if '.' in path else 'jpeg'
+        mimetype = f'image/{ext}' if ext in ['jpg', 'jpeg', 'png', 'webp'] else 'application/pdf'
+        
+        return Response(file_data, mimetype=mimetype)
     except Exception as e:
+        logger.error(f"Proxy Error: {str(e)}")
         return str(e), 500
