@@ -525,24 +525,33 @@
             e.preventDefault();
             const btn = e.target.querySelector('button');
             const originalText = btn.textContent;
+            
+            // CRITICAL CHECK: Ensure engineer_id is available before submitting
+            const current_engineer_id = localStorage.getItem('user_id');
+            if (!current_engineer_id) {
+                alert('❌ Session Error: Your user ID is missing. Please LOG OUT and LOG IN again before publishing a project.');
+                return;
+            }
+            
             btn.textContent = 'Publishing...';
             btn.disabled = true;
 
             const formData = new FormData(e.target);
-            formData.append('engineer_id', engineer_id);
+            formData.append('engineer_id', current_engineer_id);
+            console.log('Publishing project for engineer_id:', current_engineer_id);
             
             try {
                 const res = await fetch(`${API_BASE_URL}/engineer/project`, { method: 'POST', body: formData });
                 if (res.ok) {
-                    alert("✅ Project Published Successfully!");
+                    alert('✅ Project Published Successfully! It will now appear in the customer marketplace.');
                     closeAllModals(); 
                     loadPortfolio();
                 } else {
                     const data = await res.json();
-                    alert("❌ Error: " + (data.message || data.error || "Failed to publish"));
+                    alert('❌ Error: ' + (data.error || data.message || 'Failed to publish'));
                 }
             } catch (err) {
-                alert("❌ Network Error. Please check your connection.");
+                alert('❌ Network Error. Please check your connection.');
             } finally {
                 btn.textContent = originalText;
                 btn.disabled = false;
@@ -680,6 +689,15 @@
         };
 
         window.onload = () => { 
+            // Session guard: ensure engineer is logged in
+            const _token = localStorage.getItem('access_token');
+            const _eid = localStorage.getItem('user_id');
+            if (!_token || !_eid) {
+                alert('Session expired. Please log in again.');
+                window.location.href = '../pages/login.html';
+                return;
+            }
+            console.log('Engineer session active, user_id:', _eid);
             loadPortfolio(); 
             loadAttendance(); 
             loadCerts(); 

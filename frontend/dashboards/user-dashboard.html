@@ -747,22 +747,24 @@
                 const res = await fetch(`${API_BASE_URL}/admin/approved-engineers`);
                 const engs = await res.json();
 
-                if (!engs || engs.length === 0) {
-                    container.innerHTML = '<p style="color:#64748b; font-size:0.85rem; padding:10px;">No engineers approved yet.</p>';
+                // Handle if API returned an error object instead of array
+                if (!res.ok || !Array.isArray(engs) || engs.length === 0) {
+                    container.innerHTML = '<p style="color:#64748b; font-size:0.85rem; padding:10px;">No engineers approved yet. Check back soon!</p>';
                     return;
                 }
 
                 container.innerHTML = engs.slice(0, 4).map(e => `
                     <div class="p-card" style="padding:1.5rem; text-align:center;">
-                        <div style="width:70px; height:70px; background:#dcfce7; color:#166534; border-radius:50%; margin:0 auto 1rem; display:flex; align-items:center; justify-content:center; font-weight:800; font-size:1.5rem;">${(e.full_name || 'E')[0]}</div>
+                        <div style="width:70px; height:70px; ${ e.profile_pic_url ? `background-image:url('${IMG_BASE_URL}${e.profile_pic_url}'); background-size:cover; background-position:center;` : `background:#dcfce7; color:#166534; display:flex; align-items:center; justify-content:center; font-weight:800; font-size:1.5rem;`} border-radius:50%; margin:0 auto 1rem;">${ e.profile_pic_url ? '' : (e.full_name || 'E')[0]}</div>
                         <h4 style="margin:0;">${e.full_name || 'Expert Engineer'}</h4>
-                        <p style="font-size:0.8rem; color:#64748b; margin:5px 0;">Civil Expert • ⭐ 4.9</p>
-                        <button onclick="openPortfolio('${e.id}')" class="btn-primary" style="width:100%; border-radius:10px; font-size:0.8rem; padding:8px; background:#0f172a;">View Projects</button>
+                        <p style="font-size:0.8rem; color:#2563eb; font-weight:700; margin:5px 0;">${e.specialty || 'Civil & Structural Engineer'}</p>
+                        <p style="font-size:0.75rem; color:#64748b; margin:3px 0;">⭐ 4.9 • ${e.experience_years ? e.experience_years + ' yrs exp' : 'Verified Expert'}</p>
+                        <button onclick="openPortfolio('${e.id}')" class="btn-primary" style="width:100%; border-radius:10px; font-size:0.8rem; padding:8px; background:#0f172a; margin-top:10px;">View Projects</button>
                     </div>
                 `).join('');
             } catch (e) {
                 console.error("Home Eng Load Fail:", e);
-                container.innerHTML = '<p style="color:#ef4444; font-size:0.8rem;">Sync Error.</p>';
+                container.innerHTML = '<p style="color:#64748b; font-size:0.8rem; padding:10px;">Could not load engineers right now.</p>';
             }
         }
 
@@ -961,22 +963,24 @@
                 const res = await fetch(`${API_BASE_URL}/admin/approved-engineers`);
                 const engs = await res.json();
 
-                if (!engs || engs.length === 0) {
-                    grid.innerHTML = '<p style="grid-column:1/-1; text-align:center; padding:3rem; color:#64748b;">No engineers available right now.</p>';
-                } else {
-                    grid.innerHTML = engs.map(e => `
-                        <div class="p-card">
-                            <div style="height:200px; background:#dcfce7; color:#166534; display:flex; align-items:center; justify-content:center; font-size:3rem; font-weight:800;">${(e.full_name || 'E')[0]}</div>
-                            <div style="padding:1.5rem;">
-                                <h3 style="margin:0;">${e.full_name || 'Expert Engineer'}</h3>
-                                <p style="color:#64748b; font-size:0.85rem; margin:10px 0;">Civil Expert • Specializing in Structural Design</p>
-                                <div style="display:flex; align-items:center; gap:5px; color:#f59e0b; margin-bottom:1rem;">⭐⭐⭐⭐⭐ (4.9)</div>
-                                <button onclick="openPortfolio('${e.id}')" class="btn-primary" style="width:100%; background:#0f172a;">Contact & View Projects</button>
-                            </div>
-                        </div>
-                    `).join('');
+                if (!res.ok || !Array.isArray(engs) || engs.length === 0) {
+                    grid.innerHTML = '<p style="grid-column:1/-1; text-align:center; padding:3rem; color:#64748b;">No engineers are approved yet. Please check back soon.</p>';
+                    return;
                 }
-            } catch (e) { grid.innerHTML = '<p>Error loading engineers.</p>'; }
+
+                grid.innerHTML = engs.map(e => `
+                    <div class="p-card">
+                        <div style="height:200px; ${ e.profile_pic_url ? `background-image:url('${IMG_BASE_URL}${e.profile_pic_url}'); background-size:cover; background-position:center;` : `background:#dcfce7; color:#166534; display:flex; align-items:center; justify-content:center; font-size:3rem; font-weight:800;`}">${ e.profile_pic_url ? '' : (e.full_name || 'E')[0]}</div>
+                        <div style="padding:1.5rem;">
+                            <h3 style="margin:0;">${e.full_name || 'Expert Engineer'}</h3>
+                            <p style="color:#2563eb; font-size:0.85rem; font-weight:700; margin:5px 0;">${e.specialty || 'Civil & Structural Engineering'}</p>
+                            <p style="color:#64748b; font-size:0.8rem; margin:5px 0;">Experience: ${e.experience_years || 'N/A'} years</p>
+                            <div style="display:flex; align-items:center; gap:5px; color:#f59e0b; margin-bottom:1rem;">⭐⭐⭐⭐⭐ (4.9)</div>
+                            <button onclick="openPortfolio('${e.id}')" class="btn-primary" style="width:100%; background:#0f172a;">Contact & View Projects</button>
+                        </div>
+                    </div>
+                `).join('');
+            } catch (e) { grid.innerHTML = '<p>Error loading engineers. Please refresh.</p>'; }
         }
 
         async function loadSchemes() {
@@ -1044,7 +1048,7 @@
 
                 grid.innerHTML = workers.map(w => `
                     <div class="p-card">
-                        <div style="height:200px; background-image: url('http://127.0.0.1:5000${w.profile_pic_url || '/uploads/placeholder.jpg'}'); background-size:cover; background-position:center;"></div>
+                        <div style="height:200px; background-image: url('${IMG_BASE_URL}${w.profile_pic_url || '/uploads/placeholder.jpg'}'); background-size:cover; background-position:center;"></div>
                         <div style="padding:1.5rem;">
                             <h3 style="margin:0;">${w.name}</h3>
                             <p style="color:#2563eb; font-weight:700; margin:0.5rem 0;">🏗️ ${w.work_type}</p>
@@ -1079,7 +1083,7 @@
                     <div style="display:grid; grid-template-columns:1fr 1fr; gap:1.5rem;">
                         ${portfolio.map(p => `
                             <div style="border:1px solid #e2e8f0; border-radius:15px; overflow:hidden;">
-                                <div style="height:150px; background-image:url('http://127.0.0.1:5000${p.image_url}'); background-size:cover; background-position:center;"></div>
+                                <div style="height:150px; background-image:url('${IMG_BASE_URL}${p.image_url}'); background-size:cover; background-position:center;"></div>
                                 <div style="padding:1rem;">
                                     <h4 style="margin:0;">${p.title}</h4>
                                     <p style="font-size:0.8rem; color:#64748b;">${p.description}</p>

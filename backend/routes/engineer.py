@@ -9,7 +9,12 @@ engineer_bp = Blueprint('engineer', __name__)
 
 @engineer_bp.route('/project', methods=['POST'])
 def add_project():
-    user_id = request.form.get('engineer_id') or "397b607d-ecab-4803-9c58-523dc22b0144" 
+    user_id = request.form.get('engineer_id')
+    
+    # CRITICAL: Never use a fallback hardcoded ID. Require the real engineer ID.
+    if not user_id:
+        return jsonify({'error': 'Missing engineer_id. Please log out and log in again.'}), 400
+    
     data = request.form
     
     # 1. Save Sketch to Supabase (media bucket)
@@ -41,7 +46,9 @@ def add_project():
 
 @engineer_bp.route('/portfolio', methods=['GET'])
 def get_portfolio():
-    user_id = request.args.get('engineer_id') or "397b607d-ecab-4803-9c58-523dc22b0144"
+    user_id = request.args.get('engineer_id')
+    if not user_id:
+        return jsonify({'projects': [], 'error': 'Missing engineer_id'}), 200
     try:
         res = supabase.table('engineer_projects').select('*').eq('engineer_id', user_id).execute()
         return jsonify({'projects': res.data}), 200
@@ -51,7 +58,9 @@ def get_portfolio():
 @engineer_bp.route('/attendance', methods=['POST'])
 def add_attendance():
     data = request.json
-    engineer_id = data.get('engineer_id') or "397b607d-ecab-4803-9c58-523dc22b0144"
+    engineer_id = data.get('engineer_id')
+    if not engineer_id:
+        return jsonify({'error': 'Missing engineer_id'}), 400
     try:
         supabase.table('worker_management').insert({
             'engineer_id': engineer_id,
@@ -67,14 +76,18 @@ def add_attendance():
 
 @engineer_bp.route('/attendance', methods=['GET'])
 def get_attendance():
-    engineer_id = request.args.get('engineer_id') or "397b607d-ecab-4803-9c58-523dc22b0144"
+    engineer_id = request.args.get('engineer_id')
+    if not engineer_id:
+        return jsonify({'attendance': []}), 200
     res = supabase.table('worker_management').select('*').eq('engineer_id', engineer_id).execute()
     return jsonify({'attendance': res.data}), 200
 
 @engineer_bp.route('/certification', methods=['POST'])
 def add_certification():
     data = request.form
-    engineer_id = data.get('engineer_id') or "397b607d-ecab-4803-9c58-523dc22b0144"
+    engineer_id = data.get('engineer_id')
+    if not engineer_id:
+        return jsonify({'error': 'Missing engineer_id'}), 400
     # Save Certification to Supabase Storage (documents bucket)
     file = request.files.get('cert_file')
     img_url = upload_file_to_supabase(file, 'documents') or "not_uploaded"
@@ -92,15 +105,23 @@ def add_certification():
 
 @engineer_bp.route('/certification', methods=['GET'])
 def get_certification():
-    engineer_id = request.args.get('engineer_id') or "397b607d-ecab-4803-9c58-523dc22b0144"
+    engineer_id = request.args.get('engineer_id')
+    if not engineer_id:
+        return jsonify({'certifications': []}), 200
     res = supabase.table('engineer_certifications').select('*').eq('engineer_id', engineer_id).execute()
     return jsonify({'certifications': res.data}), 200
 
 @engineer_bp.route('/all-projects', methods=['GET'])
 def get_all_recent_projects():
     try:
-        # Fetching the latest 10 projects from all engineers to show on home screen
-        res = supabase.table('engineer_projects').select('*').order('created_at', desc=True).limit(10).execute()
+        # Only show projects from APPROVED engineers
+        approved_res = supabase.table('engineer_registrations').select('user_id').eq('status', 'approved').execute()
+        approved_ids = [row['user_id'] for row in approved_res.data]
+        
+        if not approved_ids:
+            return jsonify({'projects': []}), 200
+        
+        res = supabase.table('engineer_projects').select('*').in_('engineer_id', approved_ids).order('created_at', desc=True).limit(10).execute()
         return jsonify({'projects': res.data}), 200
     except Exception as e:
         return jsonify({'error': str(e)}), 500

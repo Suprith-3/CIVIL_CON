@@ -360,12 +360,8 @@
     </div>
 
     <script>
-        const API_BASE_URL = window.location.hostname === '127.0.0.1' || window.location.hostname === 'localhost' 
-            ? 'http://127.0.0.1:10000/api' 
-            : 'https://civilconnect-m3lr.onrender.com/api';
-        const IMG_BASE_URL = window.location.hostname === '127.0.0.1' || window.location.hostname === 'localhost' 
-            ? 'http://127.0.0.1:10000' 
-            : 'https://civilconnect-m3lr.onrender.com';
+        const API_BASE_URL = '/api';
+        const IMG_BASE_URL = window.location.origin;
         const worker_id = localStorage.getItem('user_id');
 
         function openModal() { document.getElementById('workModal').style.display = 'flex'; }
@@ -376,7 +372,6 @@
             try {
                 const current_worker_id = localStorage.getItem('user_id');
                 const token = localStorage.getItem('access_token');
-                console.log("Checking status for:", current_worker_id);
                 
                 const res = await fetch(`${API_BASE_URL}/auth/status?user_id=${current_worker_id}`, {
                     headers: { 'Authorization': `Bearer ${token}` }
@@ -542,6 +537,8 @@
         async function loadBookings() {
             const list = document.getElementById('bookingList');
             const badge = document.getElementById('bookingBadge');
+            const API_BASE_URL = '/api';
+            const IMG_BASE_URL = window.location.origin;
             list.innerHTML = '<p>Loading active projects...</p>';
             try {
                 const token = localStorage.getItem('access_token');
@@ -579,6 +576,9 @@
                                         <p style="font-size:0.9rem; color:#1e293b; margin:10px 0; font-weight:700;">👤 Customer: ${user.full_name || 'Anonymous'}</p>
                                     </div>
                                     <span style="font-size:0.7rem; font-weight:800; background:#e2e8f0; padding:5px 10px; border-radius:5px; text-transform:uppercase;">${b.status}</span>
+                                    <a href="${IMG_BASE_URL}${b.dl_snapshot}" target="_blank">
+                                        <div style="height:120px; background-image:url('${IMG_BASE_URL}${b.dl_snapshot}'); background-size:cover; background-position:center; border-radius:10px; border:1px solid #cbd5e1;"></div>
+                                    </a>
                                 </div>
 
                                 <div style="background:#f8fafc; padding:15px; border-radius:12px; border: 1px solid #e2e8f0; margin:1rem 0;">
@@ -689,6 +689,8 @@
         window.onload = () => {
             const token = localStorage.getItem('access_token');
             const user_id = localStorage.getItem('user_id');
+            const API_BASE_URL = '/api';
+            const IMG_BASE_URL = window.location.origin;
             
             if (!token || !user_id) {
                 alert("Please login first!");

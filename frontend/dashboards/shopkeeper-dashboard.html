@@ -450,12 +450,8 @@
             try {
                 const token = localStorage.getItem('access_token');
                 const user_id = localStorage.getItem('user_id');
-                const API_BASE_URL = window.location.hostname === '127.0.0.1' || window.location.hostname === 'localhost' 
-                    ? 'http://127.0.0.1:10000/api' 
-                    : 'https://civilconnect-m3lr.onrender.com/api';
-                const IMG_BASE_URL = window.location.hostname === '127.0.0.1' || window.location.hostname === 'localhost' 
-                    ? 'http://127.0.0.1:10000' 
-                    : 'https://civilconnect-m3lr.onrender.com';
+                const API_BASE_URL = '/api';
+                const IMG_BASE_URL = window.location.origin;
                 const res = await fetch(`${API_BASE_URL}/auth/profile?user_id=${user_id}`);
                 const { profile } = await res.json();
                 
@@ -469,9 +465,7 @@
                     if (profile.shop_images && Array.isArray(profile.shop_images)) {
                         profile.shop_images.forEach(url => {
                             const img = document.createElement('img');
-                            const IMG_BASE_URL = window.location.hostname === '127.0.0.1' || window.location.hostname === 'localhost' 
-                                ? 'http://127.0.0.1:10000' 
-                                : 'https://civilconnect-m3lr.onrender.com';
+                            const IMG_BASE_URL = window.location.origin;
                             img.src = `${IMG_BASE_URL}${url}`;
                             img.style.width = '80px'; img.style.height = '80px'; img.style.objectFit = 'cover'; img.style.borderRadius = '8px';
                             galleryList.appendChild(img);
@@ -541,7 +535,7 @@
 
             const token = localStorage.getItem('access_token');
             try {
-                const res = await fetch('http://127.0.0.1:10000/api/auth/update-profile', {
+                const res = await fetch(`${API_BASE_URL}/auth/update-profile`, {
                     method: 'POST',
                     headers: { 'Authorization': `Bearer ${token}` },
                     body: formData
@@ -591,8 +585,7 @@
         
         window.loadOrders = async () => {
             const token = localStorage.getItem('access_token');
-            const backend = window.location.hostname === '127.0.0.1' || window.location.hostname === 'localhost' ? 'http://127.0.0.1:10000' : 'https://civilconnect-m3lr.onrender.com';
-            const res = await fetch(`${backend}/api/orders/all`, {
+            const res = await fetch(`${API_BASE_URL}/orders/all`, {
                 headers: { 'Authorization': `Bearer ${token}` }
             });
 
@@ -634,8 +627,7 @@
             const trackingId = document.getElementById('editTrackingId').value;
             const token = localStorage.getItem('access_token');
             
-            const backend = window.location.hostname === '127.0.0.1' || window.location.hostname === 'localhost' ? 'http://127.0.0.1:10000' : 'https://civilconnect-m3lr.onrender.com';
-            const res = await fetch(`${backend}/api/orders/update/${id}`, {
+            const res = await fetch(`${API_BASE_URL}/orders/update/${id}`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
                 body: JSON.stringify({ status, tracking_id: trackingId })

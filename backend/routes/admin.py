@@ -1,4 +1,4 @@
-from flask import Blueprint, request, jsonify
+from flask import Blueprint, request, jsonify, redirect, Response
 from flask_jwt_extended import jwt_required, get_jwt_identity
 from config import supabase
 import logging
@@ -36,16 +36,35 @@ def get_pending():
 @admin_bp.route('/approved-engineers', methods=['GET'])
 def get_approved_engineers():
     try:
-        # Step 1: Get all IDs of approved engineers
-        approved_res = supabase.table('engineer_registrations').select('user_id').eq('status', 'approved').execute()
-        approved_ids = [row['user_id'] for row in approved_res.data]
+        # Step 1: Get all approved engineer registrations (has extra fields like experience)
+        approved_res = supabase.table('engineer_registrations').select('*').eq('status', 'approved').execute()
         
-        if not approved_ids:
+        if not approved_res.data:
             return jsonify([]), 200
             
-        # Step 2: Fetch the actual user profiles for those IDs
+        # Step 2: Get approved user IDs
+        approved_ids = [row['user_id'] for row in approved_res.data]
+        
+        # Step 3: Fetch user profiles (has full_name, profile_pic_url, etc.)
         users_res = supabase.table('users').select('*').in_('id', approved_ids).execute()
-        return jsonify(users_res.data), 200
+        
+        # Step 4: Merge registration data into user profile for richer display
+        reg_by_uid = {row['user_id']: row for row in approved_res.data}
+        merged = []
+        for user in users_res.data:
+            reg = reg_by_uid.get(user['id'], {})
+            merged.append({
+                **user,
+                'registration_id': reg.get('id'),
+                'experience_years': reg.get('experience_years'),
+                'specialty': reg.get('specialty'),
+                'phone': reg.get('phone'),
+                'aadhar_image_url': reg.get('aadhar_image_url'),
+                'civil_eng_cert_url': reg.get('civil_eng_cert_url'),
+                'completion_cert_url': reg.get('completion_cert_url'),
+            })
+        
+        return jsonify(merged), 200
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
