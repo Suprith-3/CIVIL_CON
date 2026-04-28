@@ -1,9 +1,5 @@
-const API_BASE_URL = window.location.hostname === '127.0.0.1' || window.location.hostname === 'localhost' 
-    ? 'http://127.0.0.1:10000/api' 
-    : 'https://civilconnect-m3lr.onrender.com/api';
-const IMG_BASE_URL = window.location.hostname === '127.0.0.1' || window.location.hostname === 'localhost'
-    ? 'http://127.0.0.1:10000'
-    : 'https://civilconnect-m3lr.onrender.com';
+const API_BASE_URL = '/api';
+const IMG_BASE_URL = window.location.origin;
 
 export function initLogin(role) {
     const form = document.getElementById('loginForm');
@@ -210,17 +206,14 @@ export async function verifyDocumentAI(file, type) {
                         body: JSON.stringify({ image: compressedBase64, type: type })
                     });
                     
-                    const text = await res.text();
-                    let data;
-                    try {
-                        data = JSON.parse(text);
-                    } catch (e) {
-                        console.error("AI JSON Parse Error:", text);
-                        throw new Error(`AI service returned invalid response format (${res.status})`);
+                    if (res.ok) {
+                        const data = await res.json();
+                        resolve(data);
+                    } else {
+                        const errorText = await res.text();
+                        console.error("AI Server Error:", errorText);
+                        throw new Error(`AI service returned error (${res.status})`);
                     }
-
-                    if (!res.ok) throw new Error(data.message || `AI Service Error (${res.status})`);
-                    resolve(data);
                 } catch (err) {
                     console.error("AI Error:", err);
                     resolve({ valid: false, message: err.message || "AI verification service error." });
