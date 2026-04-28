@@ -121,12 +121,9 @@ def create_app():
 
     @app.route('/')
     def index():
-        return jsonify({
-            'status': 'online',
-            'service': 'CivilConnect API',
-            'version': '1.0.0',
-            'message': 'Construction Marketplace Backend is running successfully.'
-        }), 200
+        frontend_dir = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'frontend')
+        from flask import send_from_directory
+        return send_from_directory(frontend_dir, 'index.html')
 
     @app.route('/google1d267d2c32708f29.html')
     def google_verification():
