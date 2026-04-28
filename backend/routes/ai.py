@@ -103,11 +103,17 @@ def verify_document():
         }
         
         # Correct Groq Vision Models (Updated for 2026)
+        # Using Llama 4 Scout as primary if available, with Llama 3.2 and Pixtral as fallbacks
         models_to_try = [
             "llama-3.2-11b-vision-preview",
-            "pixtral-12b-2409",
-            "llava-v1.5-7b-4096-preview"
+            "meta-llama/llama-4-scout-17b-16e-instruct",
+            "pixtral-12b-2409"
         ]
+        
+        # Allow overriding via environment variable
+        env_model = os.environ.get('GROQ_VISION_MODEL')
+        if env_model:
+            models_to_try.insert(0, env_model)
         
         last_error = "Unknown Error"
         
