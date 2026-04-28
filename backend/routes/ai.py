@@ -149,12 +149,16 @@ def verify_document():
                         'ai_response': ai_text
                     }), 200
                 else:
-                    last_error = res_json.get('error', {}).get('message', 'API Error')
-                    print(f"DEBUG: Model {model} failed: {last_error}")
+                    try:
+                        err_json = response.json()
+                        last_error = err_json.get('error', {}).get('message', f"API Error {response.status_code}")
+                    except:
+                        last_error = f"HTTP Error {response.status_code}"
+                    logger.warning(f"Model {model} failed: {last_error}")
                     continue
             except Exception as e:
                 last_error = str(e)
-                print(f"DEBUG: Request to {model} timed out or failed: {last_error}")
+                logger.error(f"Request to {model} failed: {last_error}")
                 continue
 
         # If all models fail
