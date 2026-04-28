@@ -182,28 +182,31 @@ def view_document():
         
     try:
         # Extract bucket and path from the Supabase URL
-        # URL format: .../storage/v1/object/public/bucket_name/path/to/file
-        # Note: Even if it says 'public' in URL, we'll use SDK to be sure
-        parts = url.split('/storage/v1/object/public/')
-        if len(parts) < 2:
-            # Try 'authenticated' if 'public' is not there
-            parts = url.split('/storage/v1/object/authenticated/')
+        # URL format: .../storage/v1/object/[public|authenticated]/bucket_name/path/to/file
+        storage_path = ""
+        for marker in ['/public/', '/authenticated/', '/object/']:
+            if marker in url:
+                storage_path = url.split(marker)[1]
+                break
             
-        if len(parts) < 2:
-            return f"Invalid Supabase URL format: {url}", 400
+        if not storage_path:
+            return f"Could not parse storage path from URL: {url}", 400
             
-        storage_path = parts[1]
         bucket, path = storage_path.split('/', 1)
+        logger.info(f"Proxying request for Bucket: {bucket}, Path: {path}")
         
-        # Download using Supabase SDK (which uses the SUPABASE_KEY)
+        # Download using Supabase SDK
         file_data = supabase.storage.from_(bucket).download(path)
         
+        # Detect mimetype
+        import mimetypes
+        mimetype, _ = mimetypes.guess_type(path)
+        if not mimetype:
+            mimetype = 'image/jpeg' # Fallback
+            
         from flask import Response
-        # Detect extension for mimetype
-        ext = path.rsplit('.', 1)[1].lower() if '.' in path else 'jpeg'
-        mimetype = f'image/{ext}' if ext in ['jpg', 'jpeg', 'png', 'webp'] else 'application/pdf'
-        
         return Response(file_data, mimetype=mimetype)
     except Exception as e:
-        logger.error(f"Proxy Error: {str(e)}")
-        return str(e), 500
+        logger.error(f"Proxy Error for URL {url}: {str(e)}")
+        # Return a placeholder image on error to prevent broken UI
+        return redirect("https://placehold.co/200x120?text=Error+Loading+Doc")
