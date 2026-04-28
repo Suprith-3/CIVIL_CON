@@ -71,18 +71,110 @@ def get_approved_engineers():
 @admin_bp.route('/approved-workers', methods=['GET'])
 def get_approved_workers():
     try:
-        # Step 1: Get all IDs of approved workers
-        approved_res = supabase.table('worker_registrations').select('user_id').eq('status', 'approved').execute()
-        approved_ids = [row['user_id'] for row in approved_res.data]
+        # Step 1: Get all approved worker registrations (has work_type, wages, pic etc.)
+        approved_res = supabase.table('worker_registrations').select('*').eq('status', 'approved').execute()
         
-        if not approved_ids:
+        if not approved_res.data:
             return jsonify([]), 200
             
-        # Step 2: Fetch the actual user profiles for those IDs
+        # Step 2: Get approved user IDs
+        approved_ids = [row['user_id'] for row in approved_res.data]
+        
+        # Step 3: Fetch user profiles
         users_res = supabase.table('users').select('*').in_('id', approved_ids).execute()
-        return jsonify(users_res.data), 200
+        
+        # Step 4: Merge registration data into user profile for richer display
+        reg_by_uid = {row['user_id']: row for row in approved_res.data}
+        merged = []
+        for user in users_res.data:
+            reg = reg_by_uid.get(user['id'], {})
+            merged.append({
+                **user,
+                'registration_id': reg.get('id'),
+                'worker_code': reg.get('worker_code'),
+                'work_type': reg.get('work_type'),
+                'daily_wages': reg.get('daily_wages'),
+                'experience_years': reg.get('experience_years'),
+                'profile_pic_url': reg.get('profile_pic_url') or user.get('profile_pic_url'),
+                'worker_name': reg.get('name'),
+                'phone': reg.get('phone'),
+                'location': reg.get('location'),
+                'bio': reg.get('bio'),
+                'aadhar_image_url': reg.get('aadhar_image_url'),
+            })
+        
+        return jsonify(merged), 200
     except Exception as e:
         return jsonify({'error': str(e)}), 500
+
+@admin_bp.route('/approved-shopkeepers', methods=['GET'])
+def get_approved_shopkeepers():
+    try:
+        # Step 1: Get all approved shopkeeper registrations
+        approved_res = supabase.table('shopkeeper_registrations').select('*').eq('status', 'approved').execute()
+        
+        if not approved_res.data:
+            return jsonify([]), 200
+            
+        # Step 2: Get approved user IDs
+        approved_ids = [row['user_id'] for row in approved_res.data]
+        
+        # Step 3: Fetch user profiles
+        users_res = supabase.table('users').select('*').in_('id', approved_ids).execute()
+        
+        # Step 4: Merge registration data into user profile
+        reg_by_uid = {row['user_id']: row for row in approved_res.data}
+        merged = []
+        for user in users_res.data:
+            reg = reg_by_uid.get(user['id'], {})
+            merged.append({
+                **user,
+                'registration_id': reg.get('id'),
+                'shop_name': reg.get('shop_name'),
+                'phone': reg.get('phone'),
+                'shop_location': reg.get('shop_location'),
+                'gst_doc': reg.get('gst_doc'),
+                'shop_photo': reg.get('shop_photo'),
+                'shopkeeper_name': reg.get('name'),
+            })
+        
+        return jsonify(merged), 200
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@admin_bp.route('/approved-renters', methods=['GET'])
+def get_approved_renters():
+    try:
+        # Step 1: Get all approved renter registrations
+        approved_res = supabase.table('renter_registrations').select('*').eq('status', 'approved').execute()
+        
+        if not approved_res.data:
+            return jsonify([]), 200
+            
+        # Step 2: Get approved user IDs
+        approved_ids = [row['user_id'] for row in approved_res.data]
+        
+        # Step 3: Fetch user profiles
+        users_res = supabase.table('users').select('*').in_('id', approved_ids).execute()
+        
+        # Step 4: Merge registration data into user profile
+        reg_by_uid = {row['user_id']: row for row in approved_res.data}
+        merged = []
+        for user in users_res.data:
+            reg = reg_by_uid.get(user['id'], {})
+            merged.append({
+                **user,
+                'registration_id': reg.get('id'),
+                'renter_name': reg.get('name'),
+                'phone': reg.get('phone'),
+                'location': reg.get('location'),
+                'verification_doc_url': reg.get('verification_doc_url'),
+            })
+        
+        return jsonify(merged), 200
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
 
 @admin_bp.route('/approve/<role>/<id>', methods=['POST'])
 def approve_registration(role, id):

@@ -770,53 +770,80 @@
 
         async function loadHomeWorkers() {
             try {
-                const res = await fetch(`${API_BASE_URL}/worker/list-approved`);
-                const data = await res.json();
-                if (data.workers) data.workers.forEach(w => w.daily_wages = Math.round(w.daily_wages * 1.15));
-                document.getElementById('homeWork').innerHTML = (data.workers || []).slice(0, 4).map(w => `
+                // Use the approved-workers endpoint which merges registration + user data
+                const res = await fetch(`${API_BASE_URL}/admin/approved-workers`);
+                const workers = await res.json();
+                if (!Array.isArray(workers) || workers.length === 0) {
+                    document.getElementById('homeWork').innerHTML = '<p style="color:#64748b; font-size:0.85rem; padding:10px;">No workers approved yet.</p>';
+                    return;
+                }
+                workers.forEach(w => w.daily_wages = Math.round((w.daily_wages || 0) * 1.15));
+                document.getElementById('homeWork').innerHTML = workers.slice(0, 4).map(w => `
                     <div class="p-card" style="padding:1rem; display:flex; align-items:center; gap:15px;">
-                        <div style="width:60px; height:60px; background-image:url('${IMG_BASE_URL}${w.profile_pic_url || '/uploads/placeholder.jpg'}'); background-size:cover; background-position:center; border-radius:12px; flex-shrink:0;"></div>
+                        <div style="width:60px; height:60px; ${ w.profile_pic_url ? `background-image:url('${IMG_BASE_URL}${w.profile_pic_url}'); background-size:cover; background-position:center;` : `background:#dbeafe; color:#1e40af; display:flex; align-items:center; justify-content:center; font-weight:800; font-size:1.4rem;`} border-radius:12px; flex-shrink:0;">${ w.profile_pic_url ? '' : (w.worker_name || w.full_name || 'W')[0]}</div>
                         <div>
-                            <h4 style="margin:0; font-size:1rem;">${w.name}</h4>
-                            <p style="font-size:0.75rem; color:#2563eb; font-weight:700;">${w.work_type}</p>
-                            <span style="font-size:0.8rem; font-weight:800;">₹${w.daily_wages}/Day</span>
+                            <h4 style="margin:0; font-size:1rem;">${w.worker_name || w.full_name || 'Skilled Worker'}</h4>
+                            <p style="font-size:0.75rem; color:#2563eb; font-weight:700;">${w.work_type || 'General Labour'}</p>
+                            <span style="font-size:0.8rem; font-weight:800;">&#8377;${w.daily_wages}/Day</span>
                         </div>
                     </div>
                 `).join('');
-            } catch (e) { }
+            } catch (e) { 
+                document.getElementById('homeWork').innerHTML = '<p style="color:#64748b; font-size:0.8rem; padding:10px;">Could not load workers right now.</p>';
+            }
         }
 
         async function loadHomeShops() {
             try {
-                const res = await fetch(`${API_BASE_URL}/items/`);
-                const items = await res.json();
-                items.forEach(i => i.price = Math.round(i.price * (i.item_type === 'rent' ? 1.15 : 1.10)));
+                // Show approved shopkeeper profiles on home screen
+                const res = await fetch(`${API_BASE_URL}/admin/approved-shopkeepers`);
+                const shops = await res.json();
                 const container = document.getElementById('homeShops');
-                container.innerHTML = items.filter(i => i.item_type !== 'rent').slice(0, 4).map(i => `
+                if (!Array.isArray(shops) || shops.length === 0) {
+                    // Fallback: show shop items if no approved shopkeepers yet
+                    const itemsRes = await fetch(`${API_BASE_URL}/items/`);
+                    const items = await itemsRes.json();
+                    const saleItems = items.filter(i => i.item_type !== 'rent').slice(0, 4);
+                    container.innerHTML = saleItems.length === 0
+                        ? '<p style="color:#64748b; font-size:0.85rem; padding:10px;">No shops approved yet.</p>'
+                        : saleItems.map(i => `
+                            <div class="p-card" style="padding:1rem;">
+                                <div style="height:120px; background-image:url('${IMG_BASE_URL}${i.image_url || ''}'); background-size:cover; background-position:center; border-radius:12px; margin-bottom:10px; background-color:#f1f5f9;"></div>
+                                <h4 style="margin:0; font-size:0.9rem;">${i.name}</h4>
+                                <span style="font-weight:800; color:#2563eb;">&#8377;${Math.round(i.price * 1.1)}</span>
+                            </div>`).join('');
+                    return;
+                }
+                container.innerHTML = shops.slice(0, 4).map(s => `
                     <div class="p-card" style="padding:1rem;">
-                        <div style="height:120px; background-image:url('${IMG_BASE_URL}${i.image_url || '/uploads/placeholder.jpg'}'); background-size:cover; background-position:center; border-radius:12px; margin-bottom:10px;"></div>
-                        <h4 style="margin:0; font-size:0.9rem;">${i.name}</h4>
-                        <div style="display:flex; justify-content:space-between; align-items:center; margin-top:5px;">
-                            <span style="font-weight:800; color:#2563eb;">₹${i.price}</span>
-                            <button onclick="bookShopItem('${i.id}', '${i.name}', '${i.price}', '${encodeURIComponent(JSON.stringify(i))}')" style="background:#2563eb; color:white; border:none; border-radius:50%; width:28px; height:28px; cursor:pointer;">+</button>
-                        </div>
+                        <div style="height:120px; ${ s.shop_photo ? `background-image:url('${IMG_BASE_URL}${s.shop_photo}'); background-size:cover; background-position:center;` : `background:#fef3c7; color:#92400e; display:flex; align-items:center; justify-content:center; font-size:2rem;`} border-radius:12px; margin-bottom:10px;">&#127978;</div>
+                        <h4 style="margin:0; font-size:0.9rem;">${s.shop_name || s.full_name || 'Shop'}</h4>
+                        <p style="font-size:0.75rem; color:#64748b; margin:4px 0;">&#128205; ${s.shop_location?.address || 'Local Store'}</p>
+                        <button onclick="showSection('equipment')" style="background:#2563eb; color:white; border:none; border-radius:8px; padding:5px 10px; font-size:0.7rem; cursor:pointer; margin-top:5px;">View Products</button>
                     </div>
                 `).join('');
-            } catch (e) { }
+            } catch (e) { 
+                document.getElementById('homeShops').innerHTML = '<p style="color:#64748b; font-size:0.8rem; padding:10px;">Could not load shops right now.</p>';
+            }
         }
 
         async function loadHomeRentals() {
             try {
                 const res = await fetch(`${API_BASE_URL}/items/`);
                 const items = await res.json();
-                items.forEach(i => i.price = Math.round(i.price * (i.item_type === 'rent' ? 1.15 : 1.10)));
+                items.forEach(i => i.price = Math.round(i.price * 1.15));
                 const container = document.getElementById('homeRentals');
-                container.innerHTML = items.filter(i => i.item_type === 'rent').slice(0, 4).map(i => `
+                const rentals = items.filter(i => i.item_type === 'rent').slice(0, 4);
+                if (rentals.length === 0) {
+                    container.innerHTML = '<p style="color:#64748b; font-size:0.85rem; padding:10px;">No rental equipment listed yet.</p>';
+                    return;
+                }
+                container.innerHTML = rentals.map(i => `
                     <div class="p-card" style="padding:1rem;">
-                        <div style="height:120px; background-image:url('${IMG_BASE_URL}${i.image_url || '/uploads/placeholder.jpg'}'); background-size:cover; background-position:center; border-radius:12px; margin-bottom:10px;"></div>
+                        <div style="height:120px; background-image:url('${IMG_BASE_URL}${i.image_url || ''}'); background-size:cover; background-position:center; border-radius:12px; margin-bottom:10px; background-color:#f1f5f9;"></div>
                         <h4 style="margin:0; font-size:0.9rem;">${i.name}</h4>
                         <div style="display:flex; justify-content:space-between; align-items:center; margin-top:5px;">
-                            <span style="font-weight:800; color:#2563eb;">₹${i.price}/${i.price_unit}</span>
+                            <span style="font-weight:800; color:#2563eb;">&#8377;${i.price}/${i.price_unit}</span>
                             <button onclick="showSection('rentals')" style="background:#0f172a; color:white; border:none; border-radius:10px; padding:5px 10px; font-size:0.7rem; cursor:pointer;">Rent</button>
                         </div>
                     </div>
@@ -825,18 +852,39 @@
         }
 
         async function loadHomeSchemes() {
-            document.getElementById('homeSchemes').innerHTML = `
-                <div class="p-card" style="padding:1.5rem; background:#fff; border-left:4px solid #2563eb;">
-                    <h4 style="margin:0;">PMAY Housing Scheme</h4>
-                    <p style="font-size:0.75rem; color:#64748b; margin:10px 0;">Government subsidy for home construction and purchasing.</p>
-                    <button onclick="showSection('schemes')" style="background:none; border:none; color:#2563eb; padding:0; font-size:0.8rem; font-weight:700; cursor:pointer;">Apply with AI →</button>
-                </div>
-                <div class="p-card" style="padding:1.5rem; background:#fff; border-left:4px solid #10b981;">
-                    <h4 style="margin:0;">Solar Subsidy 2024</h4>
-                    <p style="font-size:0.75rem; color:#64748b; margin:10px 0;">Get up to 40% back on rooftop solar panel installation.</p>
-                    <button onclick="showSection('schemes')" style="background:none; border:none; color:#10b981; padding:0; font-size:0.8rem; font-weight:700; cursor:pointer;">Apply with AI →</button>
-                </div>
-            `;
+            const container = document.getElementById('homeSchemes');
+            try {
+                const res = await fetch(`${API_BASE_URL}/admin/schemes`);
+                const data = await res.json();
+                const schemes = data.schemes || [];
+                if (schemes.length === 0) {
+                    container.innerHTML = `
+                        <div class="p-card" style="padding:1.5rem; background:#fff; border-left:4px solid #2563eb;">
+                            <h4 style="margin:0;">PMAY Housing Scheme</h4>
+                            <p style="font-size:0.75rem; color:#64748b; margin:10px 0;">Government subsidy for home construction and purchasing.</p>
+                            <button onclick="showSection('schemes')" style="background:none; border:none; color:#2563eb; padding:0; font-size:0.8rem; font-weight:700; cursor:pointer;">Apply with AI &#8594;</button>
+                        </div>
+                        <div class="p-card" style="padding:1.5rem; background:#fff; border-left:4px solid #10b981;">
+                            <h4 style="margin:0;">Solar Subsidy 2024</h4>
+                            <p style="font-size:0.75rem; color:#64748b; margin:10px 0;">Get up to 40% back on rooftop solar panel installation.</p>
+                            <button onclick="showSection('schemes')" style="background:none; border:none; color:#10b981; padding:0; font-size:0.8rem; font-weight:700; cursor:pointer;">Apply with AI &#8594;</button>
+                        </div>
+                    `;
+                    return;
+                }
+                container.innerHTML = schemes.slice(0, 4).map(s => `
+                    <div class="p-card" style="padding:1.5rem; border-left:4px solid #10b981;">
+                        <div style="display:flex; justify-content:space-between; align-items:start; margin-bottom:8px;">
+                            <h4 style="margin:0; font-size:1rem; color:#0f172a;">${s.title}</h4>
+                            <span style="background:#dcfce7; color:#166534; padding:2px 8px; border-radius:20px; font-size:0.65rem; font-weight:800; white-space:nowrap;">${s.category || 'General'}</span>
+                        </div>
+                        <p style="font-size:0.75rem; color:#64748b; margin:8px 0;">${(s.description || '').substring(0, 80)}${s.description && s.description.length > 80 ? '...' : ''}</p>
+                        <a href="${s.official_link}" target="_blank" style="background:none; border:none; color:#10b981; padding:0; font-size:0.8rem; font-weight:700; cursor:pointer; text-decoration:none;">View Official &#8594;</a>
+                    </div>
+                `).join('');
+            } catch (e) {
+                container.innerHTML = '<p style="color:#64748b; font-size:0.8rem; padding:10px;">Could not load schemes right now.</p>';
+            }
         }
 
         function showSection(section, el) {
@@ -1024,41 +1072,30 @@
             const grid = document.getElementById('mainGrid');
             grid.innerHTML = '<p>Searching for skilled workers...</p>';
             try {
-                // Fetch workers from our new backend endpoint
-                const res = await fetch(`${API_BASE_URL}/worker/list-approved`);
-                let data = await res.json();
-                let workers = data.workers || [];
-                workers.forEach(w => w.daily_wages = Math.round(w.daily_wages * 1.15));
+                // Use merged approved-workers endpoint for richest data
+                const res = await fetch(`${API_BASE_URL}/admin/approved-workers`);
+                const workers = await res.json();
 
-                // FALLBACK FOR TESTING: If no one is approved, show everyone!
-                if (workers.length === 0) {
-                    const res2 = await fetch(`${API_BASE_URL}/auth/all-shops`); // Reusing shop fetch logic as a hint for all users? 
-                    // No, let's just use a more direct check if we want all workers
-                    // For now, if empty, we'll try to fetch all workers regardless of status for visibility
-                    const resAll = await fetch(`${API_BASE_URL}/worker/nearby?lat=0&lng=0&radius=100000`);
-                    const dataAll = await resAll.json();
-                    workers = dataAll.workers || [];
-                    workers.forEach(w => w.daily_wages = Math.round(w.daily_wages * 1.15));
-                }
-
-                if (workers.length === 0) {
-                    grid.innerHTML = '<p>No workers available in your area yet.</p>';
+                if (!Array.isArray(workers) || workers.length === 0) {
+                    grid.innerHTML = '<p style="grid-column:1/-1; text-align:center; padding:3rem; color:#64748b;">No workers have been approved yet. Please check back soon.</p>';
                     return;
                 }
 
+                workers.forEach(w => w.daily_wages = Math.round((w.daily_wages || 0) * 1.15));
+
                 grid.innerHTML = workers.map(w => `
                     <div class="p-card">
-                        <div style="height:200px; background-image: url('${IMG_BASE_URL}${w.profile_pic_url || '/uploads/placeholder.jpg'}'); background-size:cover; background-position:center;"></div>
+                        <div style="height:200px; ${ w.profile_pic_url ? `background-image:url('${IMG_BASE_URL}${w.profile_pic_url}'); background-size:cover; background-position:center;` : `background:#dbeafe; color:#1e40af; display:flex; align-items:center; justify-content:center; font-size:3rem; font-weight:800;`}">${ w.profile_pic_url ? '' : (w.worker_name || w.full_name || 'W')[0]}</div>
                         <div style="padding:1.5rem;">
-                            <h3 style="margin:0;">${w.name}</h3>
-                            <p style="color:#2563eb; font-weight:700; margin:0.5rem 0;">🏗️ ${w.work_type}</p>
-                            <p style="font-size:0.85rem; color:#64748b;">⭐ ${w.experience_years} Years Experience</p>
-                            <p style="font-size:0.9rem; font-weight:800; color:#0f172a; margin:1rem 0;">💰 ₹${w.daily_wages} / Day</p>
-                            <button onclick="viewWorkerPortfolio('${w.user_id}')" class="btn-primary" style="width:100%; background:#0f172a;">View Portfolio & Hire</button>
+                            <h3 style="margin:0;">${w.worker_name || w.full_name || 'Skilled Worker'}</h3>
+                            <p style="color:#2563eb; font-weight:700; margin:0.5rem 0;">&#127959; ${w.work_type || 'General Labour'}</p>
+                            <p style="font-size:0.85rem; color:#64748b;">&#11088; ${w.experience_years || 'N/A'} Years Experience</p>
+                            <p style="font-size:0.9rem; font-weight:800; color:#0f172a; margin:1rem 0;">&#128176; &#8377;${w.daily_wages} / Day</p>
+                            <button onclick="viewWorkerPortfolio('${w.id}')" class="btn-primary" style="width:100%; background:#0f172a;">View Portfolio &amp; Hire</button>
                         </div>
                     </div>
                 `).join('');
-            } catch (e) { grid.innerHTML = '<p>Error loading workers.</p>'; }
+            } catch (e) { grid.innerHTML = '<p>Error loading workers. Please refresh.</p>'; }
         }
 
         async function viewWorkerPortfolio(workerId) {
