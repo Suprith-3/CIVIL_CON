@@ -22,7 +22,7 @@ async function loadProducts() {
 
         const renderItem = (item) => `
             <div class="product-card card">
-                <div class="product-img" style="background-image: url('${item.image_url || '/api/uploads/placeholder.jpg'}'); background-size: cover; background-position: center; height: 180px; border-radius: 12px; margin-bottom: 1rem;"></div>
+                <div class="product-img" style="background-image: url('${window.imgUrl ? window.imgUrl(item.image_url) : (item.image_url || '/img/logo.jpg')}'); background-size: cover; background-position: center; height: 180px; border-radius: 12px; margin-bottom: 1rem;"></div>
                 <div class="product-info">
                     <div style="display: flex; justify-content: space-between; align-items: center;">
                         <h4 style="margin: 0;">${item.name}</h4>

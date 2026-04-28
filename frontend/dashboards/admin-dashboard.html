@@ -106,8 +106,9 @@
             const fallback = window.location.origin + '/img/logo.jpg';
             if (!url || typeof url !== 'string') return fallback;
             let clean = url.trim().replace(/^["'](.+)["']$/, '$1');
-            if (clean === 'not_provided' || clean === 'not_uploaded' || clean === 'null' || clean === 'undefined' || clean === '' || clean === '[]' || clean.includes('[')) return fallback;
-            if (clean.startsWith('/uploads/')) return fallback;
+            if (clean.includes('not_provided') || clean.includes('not_uploaded') || clean === 'null' || clean === 'undefined' || clean === '' || clean === '[]' || clean.includes('[')) return fallback;
+            if (clean.includes('uploads/') || clean.includes('placeholder')) return fallback;
+            if (clean.length < 5 || !clean.includes('.')) return fallback;
             if (clean.startsWith('http://') || clean.startsWith('https://')) return clean;
             return window.location.origin + (clean.startsWith('/') ? '' : '/') + clean;
         }
