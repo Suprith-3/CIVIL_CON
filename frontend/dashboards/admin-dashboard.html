@@ -102,11 +102,14 @@
     </div>
 
     <script>
-        function imgUrl(url, fallback = 'https://placehold.co/400x300?text=No+Image+Provided') {
-            if (!url || url === 'not_provided' || url === 'not_uploaded' || url === 'null' || url === 'undefined') return fallback;
-            let cleanUrl = url.trim().replace(/^["'](.+)["']$/, '$1');
-            if (cleanUrl.startsWith('http://') || cleanUrl.startsWith('https://')) return cleanUrl;
-            return window.location.origin + (cleanUrl.startsWith('/') ? '' : '/') + cleanUrl;
+        function imgUrl(url) {
+            const fallback = window.location.origin + '/img/logo.jpg';
+            if (!url || typeof url !== 'string') return fallback;
+            let clean = url.trim().replace(/^["'](.+)["']$/, '$1');
+            if (clean === 'not_provided' || clean === 'not_uploaded' || clean === 'null' || clean === 'undefined' || clean === '' || clean === '[]' || clean.includes('[')) return fallback;
+            if (clean.startsWith('/uploads/')) return fallback;
+            if (clean.startsWith('http://') || clean.startsWith('https://')) return clean;
+            return window.location.origin + (clean.startsWith('/') ? '' : '/') + clean;
         }
         window.imgUrl = imgUrl;
     </script>
@@ -191,9 +194,12 @@
                 const url = item[f.key];
                 if (url) {
                     hasDocs = true;
-                    // Use the proxy route to view documents securely
-                    const finalUrl = window.imgUrl(url);
-                        
+                    // For admin documents, we MUST route through the secure proxy since they are in a private bucket
+                    let finalUrl = window.imgUrl(url);
+                    if (finalUrl.includes('supabase.co')) {
+                        finalUrl = `/api/admin/view-document?url=${encodeURIComponent(finalUrl)}`;
+                    }
+                    
                     grid.innerHTML += `
                         <div style="background:#0f172a; padding:10px; border-radius:12px;">
                             <p style="font-size:0.75rem; color:#94a3b8; margin-bottom:8px;">${f.label}</p>
