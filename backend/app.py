@@ -1,12 +1,12 @@
-import os
-# Monkey patch gevent for production concurrency
-if os.environ.get('PORT'):
-    try:
-        from gevent import monkey
-        monkey.patch_all()
-    except ImportError:
-        pass
+try:
+    import os
+    if os.environ.get('PORT') or os.environ.get('RENDER'):
+        import gevent.monkey
+        gevent.monkey.patch_all()
+except ImportError:
+    pass
 
+import os
 from flask import Flask, jsonify, request, redirect, current_app
 from flask_jwt_extended import JWTManager
 from extensions import limiter, compress
