@@ -182,8 +182,11 @@
                 const url = item[f.key];
                 if (url) {
                     hasDocs = true;
-                    // Fix: Check if URL is already absolute (Supabase)
-                    const finalUrl = url.startsWith('http') ? url : `${BACKEND_URL}${url}`;
+                    // Use the proxy route to view documents securely
+                    const finalUrl = url.startsWith('http') 
+                        ? `${API_BASE_URL}/admin/view-document?url=${encodeURIComponent(url)}` 
+                        : `${BACKEND_URL}${url}`;
+                        
                     grid.innerHTML += `
                         <div style="background:#0f172a; padding:10px; border-radius:12px;">
                             <p style="font-size:0.75rem; color:#94a3b8; margin-bottom:8px;">${f.label}</p>

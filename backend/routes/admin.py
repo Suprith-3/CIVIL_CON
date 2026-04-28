@@ -172,3 +172,22 @@ def get_schemes():
     except Exception as e:
         logger.error(f"Error fetching schemes: {str(e)}")
         return jsonify({'error': 'Database Error', 'message': str(e)}), 500
+
+@admin_bp.route('/view-document')
+def view_document():
+    # Proxy route to serve private documents from Supabase
+    url = request.args.get('url')
+    if not url:
+        return "Missing URL", 400
+        
+    try:
+        # Extract bucket and path from the URL
+        # Example: https://xxx.supabase.co/storage/v1/object/public/documents/2026/04/xxx.jpg
+        import requests
+        resp = requests.get(url, stream=True)
+        
+        # If the public URL fails (because bucket is private), try a fallback or just return the response
+        from flask import Response
+        return Response(resp.content, mimetype=resp.headers.get('Content-Type'))
+    except Exception as e:
+        return str(e), 500
