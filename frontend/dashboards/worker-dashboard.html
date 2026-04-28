@@ -359,7 +359,15 @@
         </div>
     </div>
 
-    <script src="../js/imgurl.js"></script>
+    <script>
+        function imgUrl(url, fallback = 'https://placehold.co/400x300?text=No+Image+Provided') {
+            if (!url || url === 'not_provided' || url === 'not_uploaded' || url === 'null' || url === 'undefined') return fallback;
+            let cleanUrl = url.trim().replace(/^["'](.+)["']$/, '$1');
+            if (cleanUrl.startsWith('http://') || cleanUrl.startsWith('https://')) return cleanUrl;
+            return window.location.origin + (cleanUrl.startsWith('/') ? '' : '/') + cleanUrl;
+        }
+        window.imgUrl = imgUrl;
+    </script>
     <script>
         const API_BASE_URL = '/api';
         // IMG_BASE_URL is now handled by imgurl.js

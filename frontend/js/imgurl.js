@@ -19,8 +19,8 @@
 /**
  * Safely resolves an image URL from Supabase or local storage.
  */
-function imgUrl(url, fallback = '/uploads/placeholder.jpg') {
-    if (!url || url === 'not_provided' || url === 'not_uploaded') {
+function imgUrl(url, fallback = 'https://placehold.co/400x300?text=No+Image+Provided') {
+    if (!url || url === 'not_provided' || url === 'not_uploaded' || url === 'null' || url === 'undefined') {
         return fallback;
     }
     
