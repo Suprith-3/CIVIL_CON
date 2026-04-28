@@ -539,7 +539,7 @@
             const list = document.getElementById('bookingList');
             const badge = document.getElementById('bookingBadge');
             const API_BASE_URL = '/api';
-            const IMG_BASE_URL = window.location.origin;
+            // IMG_BASE_URL handled by imgurl.js
             list.innerHTML = '<p>Loading active projects...</p>';
             try {
                 const token = localStorage.getItem('access_token');
@@ -577,8 +577,8 @@
                                         <p style="font-size:0.9rem; color:#1e293b; margin:10px 0; font-weight:700;">👤 Customer: ${user.full_name || 'Anonymous'}</p>
                                     </div>
                                     <span style="font-size:0.7rem; font-weight:800; background:#e2e8f0; padding:5px 10px; border-radius:5px; text-transform:uppercase;">${b.status}</span>
-                                    <a href="${IMG_BASE_URL}${b.dl_snapshot}" target="_blank">
-                                        <div style="height:120px; background-image:url('${IMG_BASE_URL}${b.dl_snapshot}'); background-size:cover; background-position:center; border-radius:10px; border:1px solid #cbd5e1;"></div>
+                                    <a href="${window.imgUrl(b.dl_snapshot)}" target="_blank" style="display:block;">
+                                        <div style="height:120px; background-image:url('${window.imgUrl(b.dl_snapshot)}'); background-size:cover; background-position:center; border-radius:10px; border:1px solid #cbd5e1; background-color:#f1f5f9;"></div>
                                     </a>
                                 </div>
 
@@ -690,7 +690,7 @@
             const token = localStorage.getItem('access_token');
             const user_id = localStorage.getItem('user_id');
             const API_BASE_URL = '/api';
-            const IMG_BASE_URL = window.location.origin;
+            // IMG_BASE_URL handled by imgurl.js
             
             if (!token || !user_id) {
                 alert("Please login first!");

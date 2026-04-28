@@ -23,13 +23,18 @@ function imgUrl(url, fallback = '/uploads/placeholder.jpg') {
     if (!url || url === 'not_provided' || url === 'not_uploaded') {
         return fallback;
     }
+    
+    // Clean the URL - remove whitespace and surrounding quotes
+    let cleanUrl = url.trim().replace(/^["'](.+)["']$/, '$1');
+    
     // Already an absolute URL (Supabase public URLs) — use as-is
-    if (url.startsWith('http://') || url.startsWith('https://')) {
-        return url;
+    if (cleanUrl.startsWith('http://') || cleanUrl.startsWith('https://')) {
+        return cleanUrl;
     }
+    
     // Relative path — prepend origin
     const origin = window.location.origin;
-    const finalUrl = origin + (url.startsWith('/') ? '' : '/') + url;
+    const finalUrl = origin + (cleanUrl.startsWith('/') ? '' : '/') + cleanUrl;
     return finalUrl;
 }
 

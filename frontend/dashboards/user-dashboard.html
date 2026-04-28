@@ -511,7 +511,7 @@
                     <div style="display:grid; grid-template-columns:repeat(auto-fill, minmax(240px, 1fr)); gap:1.5rem;">
                         ${projects.map(p => `
                             <div class="p-card" style="cursor:pointer;" onclick="viewProjectDetail('${p.id}')">
-                                <div style="height:140px; background-image:url('${IMG_BASE_URL}${p.images[0]}'); background-size:cover; background-position:center;"></div>
+                                <div style="height:140px; background-image:url('${window.imgUrl(p.images[0])}'); background-size:cover; background-position:center; background-color:#f1f5f9;"></div>
                                 <div style="padding:1rem;">
                                     <h4 style="margin:0; font-size:1rem;">${p.title}</h4>
                                     <p style="font-size:0.8rem; color:#64748b; margin:5px 0;">📍 ${p.location}</p>
@@ -545,13 +545,13 @@
                 content.innerHTML = `
                     <div style="display:grid; grid-template-columns: 1.5fr 1fr; gap:2.5rem;">
                         <div>
-                            <div style="height:400px; background-image:url('${IMG_BASE_URL}${p.images[0]}'); background-size:cover; background-position:center; border-radius:20px; margin-bottom:1.5rem; box-shadow:0 10px 15px -3px rgba(0,0,0,0.1);"></div>
+                            <div style="height:400px; background-image:url('${window.imgUrl(p.images[0])}'); background-size:cover; background-position:center; border-radius:20px; margin-bottom:1.5rem; box-shadow:0 10px 15px -3px rgba(0,0,0,0.1); background-color:#f1f5f9;"></div>
                             <h2 style="margin-bottom:0.5rem; font-size:1.8rem;">${p.title}</h2>
                             <p style="color:#64748b; font-size:1rem; margin-bottom:1.5rem; line-height:1.6;">${p.description || 'No detailed description provided for this build.'}</p>
                             
                             <h3>Project Gallery</h3>
                             <div style="display:flex; gap:10px; overflow-x:auto; padding-bottom:10px;">
-                                ${p.images.map(img => `<img src="${IMG_BASE_URL}${img}" style="height:100px; border-radius:10px; border:1px solid #e2e8f0;">`).join('')}
+                                ${p.images.map(img => `<img src="${window.imgUrl(img)}" style="height:100px; border-radius:10px; border:1px solid #e2e8f0; background-color:#f1f5f9;">`).join('')}
                             </div>
                         </div>
                         
@@ -577,8 +577,8 @@
 
                             <h4 style="text-transform:uppercase; font-size:0.75rem; color:#64748b; margin-bottom:1.5rem;">📐 Structural Details</h4>
                             <div style="background:white; padding:10px; border-radius:15px; border:1px solid #e2e8f0; margin-bottom:2rem;">
-                                <a href="${IMG_BASE_URL}${p.sketch_url}" target="_blank">
-                                    <img src="${IMG_BASE_URL}${p.sketch_url}" style="width:100%; border-radius:10px;" alt="Structural Sketch">
+                                <a href="${window.imgUrl(p.sketch_url)}" target="_blank" style="display:block; background-color:#f1f5f9; border-radius:10px;">
+                                    <img src="${window.imgUrl(p.sketch_url)}" style="width:100%; border-radius:10px;" alt="Structural Sketch">
                                     <p style="text-align:center; font-size:0.75rem; color:#2563eb; margin-top:8px; font-weight:700;">Click to view Full Sketch</p>
                                 </a>
                             </div>
@@ -731,7 +731,7 @@
                 }
                 container.innerHTML = data.projects.slice(0, 3).map(p => `
                     <div class="p-card" style="position:relative; cursor:pointer;" onclick="viewProjectDetail('${p.id}')">
-                        <div style="height:150px; background-image:url('${IMG_BASE_URL}${p.images[0] || '/uploads/placeholder.jpg'}'); background-size:cover; background-position:center;"></div>
+                        <div style="height:150px; background-image:url('${window.imgUrl(p.images[0] || '/uploads/placeholder.jpg')}'); background-size:cover; background-position:center; background-color:#f1f5f9;"></div>
                         <div style="padding:1rem;">
                             <h4 style="margin:0; font-size:0.95rem;">${p.title}</h4>
                             <p style="font-size:0.75rem; color:#64748b; margin:5px 0;">📍 ${p.location}</p>
@@ -841,7 +841,7 @@
                 }
                 container.innerHTML = rentals.map(i => `
                     <div class="p-card" style="padding:1rem;">
-                        <div style="height:120px; background-image:url('${IMG_BASE_URL}${i.image_url || ''}'); background-size:cover; background-position:center; border-radius:12px; margin-bottom:10px; background-color:#f1f5f9;"></div>
+                        <div style="height:120px; background-image:url('${window.imgUrl(i.image_url)}'); background-size:cover; background-position:center; border-radius:12px; margin-bottom:10px; background-color:#f1f5f9;"></div>
                         <h4 style="margin:0; font-size:0.9rem;">${i.name}</h4>
                         <div style="display:flex; justify-content:space-between; align-items:center; margin-top:5px;">
                             <span style="font-weight:800; color:#2563eb;">&#8377;${i.price}/${i.price_unit}</span>
@@ -991,7 +991,7 @@
                 items.forEach(i => i.price = Math.round(i.price * (i.item_type === 'rent' ? 1.15 : 1.10)));
                 grid.innerHTML = items.map(item => `
                     <div class="p-card">
-                        <div style="height:180px; background-image: url('${item.image_url?.startsWith('http') ? item.image_url : (IMG_BASE_URL + '/uploads/' + (item.image_url?.split('/').pop() || 'placeholder.jpg'))}'); background-size:cover; background-position:center;"></div>
+                        <div style="height:180px; background-image: url('${window.imgUrl(item.image_url)}'); background-size:cover; background-position:center; background-color:#f1f5f9;"></div>
                         <div style="padding:1.5rem;">
                             <div style="display:flex; justify-content:space-between;">
                                 <h4 style="margin:0;">${item.name}</h4>
@@ -1233,7 +1233,7 @@
                     document.getElementById('uProj').value = p.completed_projects || '';
 
                     if (p.profile_pic_url) {
-                        const url = p.profile_pic_url.startsWith('http') ? p.profile_pic_url : `${IMG_BASE_URL}${p.profile_pic_url}`;
+                        const url = window.imgUrl(p.profile_pic_url, '/uploads/placeholder.jpg');
                         document.getElementById('userProfilePic').style.backgroundImage = `url(${url})`;
                         document.getElementById('topBarAvatar').style.backgroundImage = `url(${url})`;
                         document.getElementById('topBarAvatar').textContent = '';
@@ -1421,7 +1421,7 @@
                     } else {
                         grid.innerHTML = rentals.map(i => `
                             <div class="p-card">
-                                <div style="height:180px; background-image:url('${IMG_BASE_URL}${i.image_url}'); background-size:cover; background-position:center;"></div>
+                                <div style="height:180px; background-image:url('${window.imgUrl(i.image_url)}'); background-size:cover; background-position:center; background-color:#f1f5f9;"></div>
                                 <div style="padding:1.5rem;">
                                     <h4 style="margin:0;">${i.name}</h4>
                                     <p style="color:#2563eb; font-weight:800; margin:5px 0;">₹${i.price} / ${i.price_unit}</p>
