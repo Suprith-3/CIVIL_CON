@@ -331,12 +331,9 @@
     </div></div>
 
     <script>
-        const API_BASE_URL = window.location.hostname === '127.0.0.1' || window.location.hostname === 'localhost' 
-            ? 'http://127.0.0.1:10000/api' 
-            : 'https://civilconnect-m3lr.onrender.com/api';
-        const IMG_BASE_URL = window.location.hostname === '127.0.0.1' || window.location.hostname === 'localhost' 
-            ? 'http://127.0.0.1:10000' 
-            : 'https://civilconnect-m3lr.onrender.com';
+        const API_BASE_URL = '/api';
+        const IMG_BASE_URL = window.location.origin;
+        const engineer_id = localStorage.getItem('user_id');
 
         function showSection(id, el) {
             document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
@@ -526,10 +523,30 @@
 
         document.getElementById('projectForm').onsubmit = async (e) => {
             e.preventDefault();
+            const btn = e.target.querySelector('button');
+            const originalText = btn.textContent;
+            btn.textContent = 'Publishing...';
+            btn.disabled = true;
+
             const formData = new FormData(e.target);
             formData.append('engineer_id', engineer_id);
-            await fetch(`${API_BASE_URL}/engineer/project`, { method: 'POST', body: formData });
-            closeAllModals(); loadPortfolio();
+            
+            try {
+                const res = await fetch(`${API_BASE_URL}/engineer/project`, { method: 'POST', body: formData });
+                if (res.ok) {
+                    alert("✅ Project Published Successfully!");
+                    closeAllModals(); 
+                    loadPortfolio();
+                } else {
+                    const data = await res.json();
+                    alert("❌ Error: " + (data.message || data.error || "Failed to publish"));
+                }
+            } catch (err) {
+                alert("❌ Network Error. Please check your connection.");
+            } finally {
+                btn.textContent = originalText;
+                btn.disabled = false;
+            }
         }
 
         document.getElementById('workerForm').onsubmit = async (e) => {
