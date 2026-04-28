@@ -102,10 +102,11 @@ def verify_document():
             "Content-Type": "application/json"
         }
         
-        # Correct Groq Vision Models
+        # Correct Groq Vision Models (Updated for 2026)
         models_to_try = [
             "llama-3.2-11b-vision-preview",
-            "llama-3.2-90b-vision-preview"
+            "pixtral-12b-2409",
+            "llava-v1.5-7b-4096-preview"
         ]
         
         last_error = "Unknown Error"
