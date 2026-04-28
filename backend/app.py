@@ -1,4 +1,12 @@
 import os
+# Monkey patch gevent for production concurrency
+if os.environ.get('PORT'):
+    try:
+        from gevent import monkey
+        monkey.patch_all()
+    except ImportError:
+        pass
+
 from flask import Flask, jsonify, request, redirect, current_app
 from flask_jwt_extended import JWTManager
 from extensions import limiter, compress
@@ -12,6 +20,11 @@ def create_app():
     app = Flask(__name__)
     app.config.from_object(Config)
     app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024  # 16 MB limit
+
+    # Request logging middleware
+    @app.before_request
+    def log_request_info():
+        app.logger.info(f"REQUEST: {request.method} {request.path}")
 
     # Initialize extensions
     from flask_cors import CORS
@@ -120,9 +133,23 @@ def create_app():
         from flask import send_from_directory
         return send_from_directory(os.path.dirname(os.path.abspath(__file__)), 'google1d267d2c32708f29.html')
 
+    # Serve Frontend Static Files
+    @app.route('/<path:path>')
+    def serve_static(path):
+        frontend_dir = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'frontend')
+        if os.path.exists(os.path.join(frontend_dir, path)):
+            from flask import send_from_directory
+            return send_from_directory(frontend_dir, path)
+        return jsonify({'error': 'Not Found', 'message': f'Path {path} not found'}), 404
+
     @app.route('/health', methods=['GET'])
     def health_check():
-        return jsonify({'status': 'healthy', 'message': 'API is running smoothly'}), 200
+        from config import supabase
+        return jsonify({
+            'status': 'healthy', 
+            'message': 'API is running smoothly',
+            'database': 'connected' if supabase else 'disconnected'
+        }), 200
 
     return app
 

@@ -100,13 +100,10 @@ def verify_document():
             "Content-Type": "application/json"
         }
         
-        # List of vision models to try
+        # Correct Groq Vision Models
         models_to_try = [
-            "meta-llama/llama-4-scout-17b-16e-instruct",
-            "llama-4-scout-17b-16e-instruct",
-            "llama-4-scout-17b",
-            "meta-llama/llama-3.2-11b-vision-instruct",
-            "llama-3.2-11b-vision-preview"
+            "llama-3.2-11b-vision-preview",
+            "llama-3.2-90b-vision-preview"
         ]
         
         last_error = "Unknown Error"
@@ -114,22 +111,7 @@ def verify_document():
         for model in models_to_try:
             print(f"DEBUG: Trying AI Model: {model}")
             
-            # 1. First, check if the model is even accessible with a simple text message
-            test_payload = {
-                "model": model,
-                "messages": [{"role": "user", "content": "test"}],
-                "max_tokens": 5
-            }
-            test_res = requests.post(GROQ_URL, headers=headers, json=test_payload)
-            if test_res.status_code == 404 or (test_res.status_code == 400 and "model" in test_res.text.lower()):
-                print(f"DEBUG: Model {model} not found or decommissioned.")
-                continue
-            if test_res.status_code == 403 or (test_res.status_code == 400 and "blocked" in test_res.text.lower()):
-                print(f"DEBUG: Model {model} is blocked at org level.")
-                last_error = test_res.json().get('error', {}).get('message', 'Blocked')
-                continue
-
-            # 2. If text test passes, send the image
+            # Send the image to the vision model
             vision_payload = {
                 "model": model,
                 "messages": [
@@ -141,39 +123,40 @@ def verify_document():
                         ]
                     }
                 ],
-                "max_tokens": 300
+                "max_tokens": 150, # Reduced tokens for faster response
+                "temperature": 0.1
             }
             
-            response = requests.post(GROQ_URL, headers=headers, json=vision_payload)
-            
             try:
+                response = requests.post(GROQ_URL, headers=headers, json=vision_payload, timeout=20)
                 res_json = response.json()
-            except:
-                res_json = {"raw": response.text}
-
-            if response.status_code == 200:
-                ai_text = res_json['choices'][0]['message']['content']
-                is_valid = ai_text.upper().startswith('TRUE')
-                reason = ai_text.split(':', 1)[1].strip() if ':' in ai_text else ai_text
                 
-                return jsonify({
-                    'valid': is_valid,
-                    'message': reason,
-                    'ai_response': ai_text
-                }), 200
-            else:
-                last_error = res_json.get('error', {}).get('message', 'Unknown Error')
-                print(f"DEBUG: Model {model} vision request failed: {last_error}")
-                # If vision fails but text worked, it might be the image format
-                if "image" in last_error.lower() or "multimodal" in last_error.lower():
-                    # Stop here, this model doesn't support vision
+                if response.status_code == 200:
+                    ai_text = res_json['choices'][0]['message']['content']
+                    is_valid = ai_text.upper().startswith('TRUE')
+                    reason = ai_text.split(':', 1)[1].strip() if ':' in ai_text else ai_text
+                    
+                    return jsonify({
+                        'valid': is_valid,
+                        'message': reason,
+                        'ai_response': ai_text
+                    }), 200
+                else:
+                    last_error = res_json.get('error', {}).get('message', 'API Error')
+                    print(f"DEBUG: Model {model} failed: {last_error}")
                     continue
+            except Exception as e:
+                last_error = str(e)
+                print(f"DEBUG: Request to {model} timed out or failed: {last_error}")
+                continue
 
+        # If all models fail
         return jsonify({
             'valid': False, 
-            'message': f'AI Verification Service Unavailable: {last_error}. Please ensure "Llama 4 Scout" is enabled in your Groq Project Limits.',
-            'groq_error': last_error
-        }), 400
+            'message': f'AI Verification Service Unavailable. Error: {last_error}',
+            'error': last_error
+        }), 200 # Return 200 so the frontend can read the valid:false status gracefully
+
 
     except Exception as e:
         return jsonify({'error': 'AI Verification Error', 'message': str(e)}), 500

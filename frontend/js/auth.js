@@ -138,23 +138,29 @@ export function initRegister(role) {
         if (btnText) btnText.textContent = 'Submitting for review...';
 
         try {
-            // Note: When sending FormData, we DO NOT set Content-Type header manually.
-            // The browser will set it correctly with the boundary for files.
             const response = await fetch(`${API_BASE_URL}/auth/register`, {
                 method: 'POST',
                 body: formData
             });
 
-            const data = await response.json();
+            const text = await response.text();
+            let data = {};
+            try {
+                data = text ? JSON.parse(text) : {};
+            } catch (e) {
+                console.error("Malformed JSON response:", text);
+                throw new Error(`Server error (${response.status}): Unexpected response format. Please check backend logs.`);
+            }
 
             if (!response.ok) {
-                throw new Error(data.message || 'Registration failed');
+                throw new Error(data.message || data.error || `Registration failed (Status ${response.status})`);
             }
 
             alert('Registration submitted! Our admin will review your documents.');
             window.location.href = 'login.html?role=' + role;
 
         } catch (err) {
+            console.error("Registration Error:", err);
             errorBox.textContent = err.message;
             errorBox.style.display = 'block';
             if (spinner) spinner.style.display = 'none';
@@ -162,6 +168,7 @@ export function initRegister(role) {
         }
     });
 }
+
 export async function verifyDocumentAI(file, type) {
     return new Promise((resolve, reject) => {
         const reader = new FileReader();
@@ -202,11 +209,21 @@ export async function verifyDocumentAI(file, type) {
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({ image: compressedBase64, type: type })
                     });
-                    const data = await res.json();
+                    
+                    const text = await res.text();
+                    let data;
+                    try {
+                        data = JSON.parse(text);
+                    } catch (e) {
+                        console.error("AI JSON Parse Error:", text);
+                        throw new Error(`AI service returned invalid response format (${res.status})`);
+                    }
+
+                    if (!res.ok) throw new Error(data.message || `AI Service Error (${res.status})`);
                     resolve(data);
                 } catch (err) {
                     console.error("AI Error:", err);
-                    resolve({ valid: false, message: "AI verification service error." });
+                    resolve({ valid: false, message: err.message || "AI verification service error." });
                 }
             };
         };

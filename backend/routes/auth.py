@@ -43,6 +43,8 @@ def register():
         salt = bcrypt.gensalt(rounds=10)
         hashed = bcrypt.hashpw(password.encode('utf-8'), salt).decode('utf-8')
         
+        user_id = None
+        
         # 1. Insert into base 'users' table
         new_user = {
             'email': email,
@@ -54,8 +56,8 @@ def register():
         # Add basic profile info for generic 'user' (customer)
         if user_type == 'user':
             new_user.update({
-                'full_name': data.get('name'),
-                'contact_number': data.get('phone'),
+                'full_name': data.get('name') or data.get('full_name'),
+                'contact_number': data.get('phone') or data.get('contact_number'),
                 'location': {
                     'address': data.get('address'),
                     'lat': data.get('lat'),
@@ -63,13 +65,29 @@ def register():
                 }
             })
         
-        if supabase:
+        if not supabase:
+            logger.error("Supabase client is not initialized. Check environment variables.")
+            return jsonify({'error': 'Configuration Error', 'message': 'Database connection is missing. Please contact administrator.'}), 500
+
+        try:
             res = supabase.table('users').insert(new_user).execute()
             if not res.data:
-                raise Exception("Failed to create user account")
+                logger.error(f"Supabase Insert Error: No data returned. Response: {res}")
+                raise Exception("Failed to create user account record in database.")
             user_id = res.data[0]['id']
-            
-            # 2. Insert into specialized registration table based on role
+        except Exception as db_err:
+            logger.error(f"Database insertion failed: {str(db_err)}")
+            return jsonify({'error': 'Database Error', 'message': f'Failed to create user: {str(db_err)}'}), 500
+        # 2. Insert into specialized registration table based on role
+        try:
+            def safe_float(val, default=0.0):
+                try: 
+                    return float(val) if val and str(val).strip() else default
+                except: 
+                    return default
+
+            logger.info(f"Processing specialized registration for: {user_type}")
+
             if user_type == 'engineer':
                 # Save certificates to Supabase Storage (documents bucket)
                 docs = {}
@@ -99,11 +117,11 @@ def register():
                     'name': data.get('name', 'New Worker'),
                     'phone': data.get('phone', ''),
                     'work_type': data.get('work_type', 'General'),
-                    'daily_wages': data.get('daily_wages', 0),
+                    'daily_wages': safe_float(data.get('daily_wages'), 0.0),
                     'location': {
                         'address': data.get('address', 'Not set'),
-                        'lat': data.get('lat', 12.9716),
-                        'lng': data.get('lng', 77.5946)
+                        'lat': safe_float(data.get('lat'), 12.9716),
+                        'lng': safe_float(data.get('lng'), 77.5946)
                     },
                     'status': 'pending',
                     'aadhar_image_url': aadhar_url
@@ -123,8 +141,8 @@ def register():
                     'phone': data.get('phone', ''),
                     'shop_location': {
                         'address': data.get('address', 'Not set'),
-                        'lat': data.get('lat'),
-                        'lng': data.get('lng')
+                        'lat': safe_float(data.get('lat')),
+                        'lng': safe_float(data.get('lng'))
                     },
                     'status': 'pending',
                     'gst_doc': docs['gst_doc'],
@@ -139,18 +157,28 @@ def register():
 
                 reg_data = {
                     'user_id': user_id,
-                    'name': data.get('full_name', 'New Renter'),
+                    'name': data.get('full_name') or data.get('name', 'New Renter'),
                     'phone': data.get('phone', ''),
                     'email': email,
                     'status': 'pending',
                     'verification_doc_url': doc_url,
                     'location': {
-                        'lat': data.get('lat'),
-                        'lng': data.get('lng'),
+                        'lat': safe_float(data.get('lat')),
+                        'lng': safe_float(data.get('lng')),
                         'manual_address': data.get('manual_address')
                     }
                 }
                 supabase.table('renter_registrations').insert(reg_data).execute()
+
+            logger.info(f"Specialized registration completed for: {user_type}")
+        except Exception as e:
+            logger.error(f"Specialized registration failed for {user_type}: {str(e)}")
+            # Even if specialized insert fails, the user was created. 
+            return jsonify({
+                'error': 'Registration Partial Failure', 
+                'message': f'Basic account created but details failed: {str(e)}',
+                'debug_info': f"Role: {user_type}, UserID: {user_id}"
+            }), 500
 
         return jsonify({
             'message': 'Registration submitted for review',
