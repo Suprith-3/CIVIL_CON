@@ -182,11 +182,13 @@
                 const url = item[f.key];
                 if (url) {
                     hasDocs = true;
+                    // Fix: Check if URL is already absolute (Supabase)
+                    const finalUrl = url.startsWith('http') ? url : `${BACKEND_URL}${url}`;
                     grid.innerHTML += `
                         <div style="background:#0f172a; padding:10px; border-radius:12px;">
                             <p style="font-size:0.75rem; color:#94a3b8; margin-bottom:8px;">${f.label}</p>
-                            <img src="${BACKEND_URL}${url}" style="width:100%; height:120px; object-fit:cover; border-radius:8px; cursor:zoom-in;" 
-                                 onclick="window.open('${BACKEND_URL}${url}', '_blank')" onerror="this.src='https://placehold.co/200x120?text=Error+Loading'">
+                            <img src="${finalUrl}" style="width:100%; height:120px; object-fit:cover; border-radius:8px; cursor:zoom-in;" 
+                                 onclick="window.open('${finalUrl}', '_blank')" onerror="this.src='https://placehold.co/200x120?text=Error+Loading'">
                         </div>`;
                 }
             });
