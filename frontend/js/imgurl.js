@@ -16,7 +16,10 @@
  * @param {string} [fallback=''] - Fallback URL if the url is empty/null
  * @returns {string} A usable absolute URL
  */
-function imgUrl(url, fallback = '') {
+/**
+ * Safely resolves an image URL from Supabase or local storage.
+ */
+function imgUrl(url, fallback = '/uploads/placeholder.jpg') {
     if (!url || url === 'not_provided' || url === 'not_uploaded') {
         return fallback;
     }
@@ -24,9 +27,14 @@ function imgUrl(url, fallback = '') {
     if (url.startsWith('http://') || url.startsWith('https://')) {
         return url;
     }
-    // Relative path — prepend origin (for any legacy local-storage URLs)
-    return window.location.origin + (url.startsWith('/') ? '' : '/') + url;
+    // Relative path — prepend origin
+    const origin = window.location.origin;
+    const finalUrl = origin + (url.startsWith('/') ? '' : '/') + url;
+    return finalUrl;
 }
 
-// Legacy compat: IMG_BASE_URL is now empty because imgUrl() handles resolution
-const IMG_BASE_URL = '';
+// Attach to window for global access across modules
+window.imgUrl = imgUrl;
+window.IMG_BASE_URL = '';
+
+console.log("🎨 CivilConnection Image Resolver Loaded.");

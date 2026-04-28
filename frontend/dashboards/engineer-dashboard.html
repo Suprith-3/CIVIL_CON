@@ -354,8 +354,7 @@
             if (data.projects) {
                 document.getElementById('statProjects').textContent = data.projects.length;
                 data.projects.forEach(p => {
-                    let img = p.images && p.images.length > 0 ? p.images[0] : '';
-                    if (img && !img.startsWith('http')) img = IMG_BASE_URL + img;
+                    let img = window.imgUrl(p.images && p.images.length > 0 ? p.images[0] : '');
                     grid.innerHTML += `<div class="card" style="padding:0; overflow:hidden;">
                         <div style="height:180px; background-image:url('${img}'); background-size:cover; background-position:center; background-color:#f1f5f9;"></div>
                         <div style="padding:1.5rem;"><h3>${p.title}</h3><p style="color:#64748b; font-size:0.85rem;">📍 ${p.location} • ₹${p.cost}L</p></div>
@@ -513,9 +512,9 @@
             grid.innerHTML = '';
             if (data.certifications) {
                 data.certifications.forEach(c => {
-                    const img = c.image_url !== 'not_uploaded' ? `${IMG_BASE_URL}${c.image_url}` : '';
+                    const img = window.imgUrl(c.image_url);
                     grid.innerHTML += `<div class="card" style="padding:1rem; text-align:center;">
-                        <div style="height:120px; background-image:url('${img}'); background-size:contain; background-repeat:no-repeat; background-position:center; margin-bottom:10px;"></div>
+                        <div style="height:120px; background-image:url('${img}'); background-size:contain; background-repeat:no-repeat; background-position:center; margin-bottom:10px; background-color:#f1f5f9;"></div>
                         <h4 style="margin:0;">${c.title}</h4><span class="badge" style="background:#e0f2fe; color:#0369a1;">${c.category}</span>
                     </div>`;
                 });
@@ -653,7 +652,8 @@
                     document.getElementById('pExp').value = p.experience_years || '';
                     document.getElementById('pProj').value = p.completed_projects || '';
                     if (p.profile_pic_url) {
-                        document.getElementById('pPicPreview').style.backgroundImage = `url(${IMG_BASE_URL}${p.profile_pic_url})`;
+                        const url = window.imgUrl(p.profile_pic_url, '/uploads/placeholder.jpg');
+                        document.getElementById('pPicPreview').style.backgroundImage = `url(${url})`;
                         document.getElementById('pPicPreview').textContent = '';
                     }
                 }

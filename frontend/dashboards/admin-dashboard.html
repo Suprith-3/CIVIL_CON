@@ -184,9 +184,7 @@
                 if (url) {
                     hasDocs = true;
                     // Use the proxy route to view documents securely
-                    const finalUrl = url.startsWith('http') 
-                        ? `${API_BASE_URL}/admin/view-document?url=${encodeURIComponent(url)}` 
-                        : `${BACKEND_URL}${url}`;
+                    const finalUrl = window.imgUrl(url);
                         
                     grid.innerHTML += `
                         <div style="background:#0f172a; padding:10px; border-radius:12px;">

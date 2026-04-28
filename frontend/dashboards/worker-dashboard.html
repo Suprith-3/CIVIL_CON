@@ -412,7 +412,7 @@
                     data.portfolio.forEach(w => {
                         grid.innerHTML += `
                             <div class="work-card">
-                                <div class="work-img" style="background-image: url('${w.image_url?.startsWith('http') ? w.image_url : (IMG_BASE_URL + w.image_url)}')"></div>
+                                <div class="work-img" style="background-image: url('${window.imgUrl(w.image_url)}'); background-color:#f1f5f9;"></div>
                                 <div style="padding: 1.5rem;">
                                     <h3 style="margin:0;">${w.title}</h3>
                                     <p style="color:#64748b; font-size:0.85rem; margin:10px 0;">${w.description}</p>
@@ -656,10 +656,9 @@
                     document.getElementById('profWages').value = p.daily_wages || '';
                     document.getElementById('profBio').value = p.bio || '';
                     
-                    if (p.profile_pic_url) {
-                        const url = p.profile_pic_url.startsWith('http') ? p.profile_pic_url : `${IMG_BASE_URL}${p.profile_pic_url}`;
-                        document.getElementById('profileImagePreview').style.backgroundImage = `url(${url})`;
-                    }
+                        const url = window.imgUrl(p.profile_pic_url, '/uploads/placeholder.jpg');
+                        document.getElementById('profileImagePreview').style.backgroundImage = `url('${url}')`;
+                        document.getElementById('profileImagePreview').style.backgroundColor = '#f1f5f9';
                     
                     if (p.worker_code) {
                         document.getElementById('workerUniqueId').textContent = `Unique ID: ${p.worker_code}`;

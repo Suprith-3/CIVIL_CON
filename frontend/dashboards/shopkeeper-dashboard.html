@@ -466,9 +466,9 @@
                     if (profile.shop_images && Array.isArray(profile.shop_images)) {
                         profile.shop_images.forEach(url => {
                             const img = document.createElement('img');
-                            // IMG_BASE_URL handled by imgurl.js
-                            img.src = `${IMG_BASE_URL}${url}`;
+                            img.src = window.imgUrl(url);
                             img.style.width = '80px'; img.style.height = '80px'; img.style.objectFit = 'cover'; img.style.borderRadius = '8px';
+                            img.style.backgroundColor = '#f1f5f9';
                             galleryList.appendChild(img);
                         });
                     }

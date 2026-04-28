@@ -756,7 +756,7 @@
 
                 container.innerHTML = engs.slice(0, 4).map(e => `
                     <div class="p-card" style="padding:1.5rem; text-align:center;">
-                        <div style="width:70px; height:70px; ${ e.profile_pic_url ? `background-image:url('${IMG_BASE_URL}${e.profile_pic_url}'); background-size:cover; background-position:center;` : `background:#dcfce7; color:#166534; display:flex; align-items:center; justify-content:center; font-weight:800; font-size:1.5rem;`} border-radius:50%; margin:0 auto 1rem;">${ e.profile_pic_url ? '' : (e.full_name || 'E')[0]}</div>
+                        <div style="width:70px; height:70px; background-image:url('${window.imgUrl(e.profile_pic_url, '/uploads/placeholder.jpg')}'); background-size:cover; background-position:center; border-radius:50%; margin:0 auto 1rem; background-color:#f1f5f9;"></div>
                         <h4 style="margin:0;">${e.full_name || 'Expert Engineer'}</h4>
                         <p style="font-size:0.8rem; color:#2563eb; font-weight:700; margin:5px 0;">${e.specialty || 'Civil & Structural Engineer'}</p>
                         <p style="font-size:0.75rem; color:#64748b; margin:3px 0;">⭐ 4.9 • ${e.experience_years ? e.experience_years + ' yrs exp' : 'Verified Expert'}</p>
@@ -781,7 +781,7 @@
                 workers.forEach(w => w.daily_wages = Math.round((w.daily_wages || 0) * 1.15));
                 document.getElementById('homeWork').innerHTML = workers.slice(0, 4).map(w => `
                     <div class="p-card" style="padding:1rem; display:flex; align-items:center; gap:15px;">
-                        <div style="width:60px; height:60px; ${ w.profile_pic_url ? `background-image:url('${IMG_BASE_URL}${w.profile_pic_url}'); background-size:cover; background-position:center;` : `background:#dbeafe; color:#1e40af; display:flex; align-items:center; justify-content:center; font-weight:800; font-size:1.4rem;`} border-radius:12px; flex-shrink:0;">${ w.profile_pic_url ? '' : (w.worker_name || w.full_name || 'W')[0]}</div>
+                        <div style="width:60px; height:60px; background-image:url('${window.imgUrl(w.profile_pic_url, '/uploads/placeholder.jpg')}'); background-size:cover; background-position:center; border-radius:12px; flex-shrink:0; background-color:#f1f5f9;"></div>
                         <div>
                             <h4 style="margin:0; font-size:1rem;">${w.worker_name || w.full_name || 'Skilled Worker'}</h4>
                             <p style="font-size:0.75rem; color:#2563eb; font-weight:700;">${w.work_type || 'General Labour'}</p>
@@ -809,7 +809,7 @@
                         ? '<p style="color:#64748b; font-size:0.85rem; padding:10px;">No shops approved yet.</p>'
                         : saleItems.map(i => `
                             <div class="p-card" style="padding:1rem;">
-                                <div style="height:120px; background-image:url('${IMG_BASE_URL}${i.image_url || ''}'); background-size:cover; background-position:center; border-radius:12px; margin-bottom:10px; background-color:#f1f5f9;"></div>
+                                <div style="height:120px; background-image:url('${window.imgUrl(i.image_url)}'); background-size:cover; background-position:center; border-radius:12px; margin-bottom:10px; background-color:#f1f5f9;"></div>
                                 <h4 style="margin:0; font-size:0.9rem;">${i.name}</h4>
                                 <span style="font-weight:800; color:#2563eb;">&#8377;${Math.round(i.price * 1.1)}</span>
                             </div>`).join('');
@@ -817,7 +817,7 @@
                 }
                 container.innerHTML = shops.slice(0, 4).map(s => `
                     <div class="p-card" style="padding:1rem;">
-                        <div style="height:120px; ${ s.shop_photo ? `background-image:url('${IMG_BASE_URL}${s.shop_photo}'); background-size:cover; background-position:center;` : `background:#fef3c7; color:#92400e; display:flex; align-items:center; justify-content:center; font-size:2rem;`} border-radius:12px; margin-bottom:10px;">&#127978;</div>
+                        <div style="height:120px; background-image:url('${window.imgUrl(s.shop_photo, '/uploads/placeholder.jpg')}'); background-size:cover; background-position:center; border-radius:12px; margin-bottom:10px; background-color:#f1f5f9;"></div>
                         <h4 style="margin:0; font-size:0.9rem;">${s.shop_name || s.full_name || 'Shop'}</h4>
                         <p style="font-size:0.75rem; color:#64748b; margin:4px 0;">&#128205; ${s.shop_location?.address || 'Local Store'}</p>
                         <button onclick="showSection('equipment')" style="background:#2563eb; color:white; border:none; border-radius:8px; padding:5px 10px; font-size:0.7rem; cursor:pointer; margin-top:5px;">View Products</button>
@@ -1019,7 +1019,7 @@
 
                 grid.innerHTML = engs.map(e => `
                     <div class="p-card">
-                        <div style="height:200px; ${ e.profile_pic_url ? `background-image:url('${IMG_BASE_URL}${e.profile_pic_url}'); background-size:cover; background-position:center;` : `background:#dcfce7; color:#166534; display:flex; align-items:center; justify-content:center; font-size:3rem; font-weight:800;`}">${ e.profile_pic_url ? '' : (e.full_name || 'E')[0]}</div>
+                        <div style="height:200px; background-image:url('${window.imgUrl(e.profile_pic_url, '/uploads/placeholder.jpg')}'); background-size:cover; background-position:center; background-color:#f1f5f9;">${ e.profile_pic_url ? '' : `<div style="width:100%; height:100%; background:#dcfce7; color:#166534; display:flex; align-items:center; justify-content:center; font-size:3rem; font-weight:800;">${(e.full_name || 'E')[0]}</div>`}</div>
                         <div style="padding:1.5rem;">
                             <h3 style="margin:0;">${e.full_name || 'Expert Engineer'}</h3>
                             <p style="color:#2563eb; font-size:0.85rem; font-weight:700; margin:5px 0;">${e.specialty || 'Civil & Structural Engineering'}</p>
@@ -1034,25 +1034,50 @@
 
         async function loadSchemes() {
             const grid = document.getElementById('mainGrid');
-            grid.innerHTML = '<p>Searching government databases...</p>';
+            const header = document.getElementById('sectionHeader');
+            const stats = document.getElementById('homeStats');
+            const mbSec = document.getElementById('myBookingsSection');
+            const pSec = document.getElementById('profileSection');
+
+            header.textContent = "Verified Government Schemes & AI Assistant";
+            stats.style.display = 'none';
+            mbSec.style.display = 'none';
+            pSec.style.display = 'none';
+            grid.style.display = 'grid';
+
+            grid.innerHTML = `
+                <!-- Admin Posted Schemes Section -->
+                <div id="adminSchemesList" style="grid-column: 1 / -1; margin-bottom: 2rem; display: grid; grid-template-columns: repeat(auto-fill, minmax(350px, 1fr)); gap: 1.5rem;">
+                    <p style="grid-column: 1/-1; color: #64748b; font-weight: 600;">📋 Verified Schemes from Admin</p>
+                    <div style="grid-column: 1/-1; text-align:center; padding: 2rem;">Loading verified schemes...</div>
+                </div>
+
+                <!-- AI Search Section -->
+                <div class="p-card" style="grid-column: 1 / -1; padding: 3rem; text-align: center; background: linear-gradient(135deg, #eff6ff 0%, #ffffff 100%); border: 1px solid #dbeafe;">
+                    <div style="font-size: 2.5rem; margin-bottom: 1rem;">🤖</div>
+                    <h3 style="margin-bottom: 1rem; font-size: 1.5rem;">CivilConnect AI Scheme Search</h3>
+                    <p style="color: #64748b; margin-bottom: 2rem; max-width: 600px; margin-left: auto; margin-right: auto;">Need something else? Ask our AI about specific state-wise or category-wise schemes with direct application links.</p>
+                    
+                    <div style="display: flex; gap: 12px; max-width: 700px; margin: 0 auto 2.5rem; background: white; padding: 8px; border-radius: 16px; box-shadow: 0 10px 25px -5px rgba(0,0,0,0.05); border: 1px solid #dbeafe;">
+                        <input type="text" id="schemeQuery" placeholder="Search: 'worker insurance', 'Karnataka housing', 'cement subsidy'..." 
+                            style="flex-grow: 1; padding: 12px 20px; border: none; outline: none; font-family: inherit; font-size: 1rem;">
+                    </div>
+                </div>
+            `;
             try {
                 const res = await fetch(`${API_BASE_URL}/admin/schemes`);
                 const data = await res.json();
                 const schemes = data.schemes || [];
-
-                if (schemes.length === 0) {
-                    grid.innerHTML = '<p style="grid-column:1/-1; text-align:center; padding:3rem; color:#64748b;">No government schemes found at this time.</p>';
-                } else {
-                    grid.innerHTML = schemes.map(s => `
-                        <div class="p-card" style="padding:1.5rem; border-left: 6px solid #2563eb;">
-                            <h3 style="margin:0; color:#1e293b;">${s.title}</h3>
-                            <p style="color:#2563eb; font-weight:700; margin:5px 0;">Target: ${s.category || 'General'}</p>
-                            <p style="font-size:0.85rem; color:#64748b; margin:15px 0 line-height:1.6;">${s.description}</p>
-                            <a href="${s.official_link}" target="_blank" class="btn-primary" style="display:inline-block; text-decoration:none; padding:10px 20px;">🛡️ View Official Details</a>
-                        </div>
-                    `).join('');
-                }
-            } catch (e) { grid.innerHTML = '<p>Error loading schemes.</p>'; }
+                const list = document.getElementById('adminSchemesList');
+                if (schemes.length === 0) list.innerHTML = '<p style="grid-column:1/-1;">No schemes found.</p>';
+                else list.innerHTML = schemes.map(s => `
+                    <div class="p-card" style="padding:1.5rem; border-left: 6px solid #2563eb;">
+                        <h4 style="margin:0;">${s.title}</h4>
+                        <p style="font-size:0.8rem; color:#64748b; margin:10px 0;">${s.description}</p>
+                        <a href="${s.official_link}" target="_blank" style="color:#2563eb; font-weight:700; text-decoration:none;">View Details &#8594;</a>
+                    </div>
+                `).join('');
+            } catch (e) {}
         }
 
         async function loadRecentProjects() {
@@ -1073,7 +1098,6 @@
             const grid = document.getElementById('mainGrid');
             grid.innerHTML = '<p>Searching for skilled workers...</p>';
             try {
-                // Use merged approved-workers endpoint for richest data
                 const res = await fetch(`${API_BASE_URL}/admin/approved-workers`);
                 const workers = await res.json();
 
@@ -1086,7 +1110,7 @@
 
                 grid.innerHTML = workers.map(w => `
                     <div class="p-card">
-                        <div style="height:200px; ${ w.profile_pic_url ? `background-image:url('${IMG_BASE_URL}${w.profile_pic_url}'); background-size:cover; background-position:center;` : `background:#dbeafe; color:#1e40af; display:flex; align-items:center; justify-content:center; font-size:3rem; font-weight:800;`}">${ w.profile_pic_url ? '' : (w.worker_name || w.full_name || 'W')[0]}</div>
+                        <div style="height:200px; background-image:url('${window.imgUrl(w.profile_pic_url, '/uploads/placeholder.jpg')}'); background-size:cover; background-position:center; background-color:#f1f5f9;">${ w.profile_pic_url ? '' : `<div style="width:100%; height:100%; background:#dbeafe; color:#1e40af; display:flex; align-items:center; justify-content:center; font-size:3rem; font-weight:800;">${(w.worker_name || w.full_name || 'W')[0]}</div>`}</div>
                         <div style="padding:1.5rem;">
                             <h3 style="margin:0;">${w.worker_name || w.full_name || 'Skilled Worker'}</h3>
                             <p style="color:#2563eb; font-weight:700; margin:0.5rem 0;">&#127959; ${w.work_type || 'General Labour'}</p>
@@ -1121,7 +1145,7 @@
                     <div style="display:grid; grid-template-columns:1fr 1fr; gap:1.5rem;">
                         ${portfolio.map(p => `
                             <div style="border:1px solid #e2e8f0; border-radius:15px; overflow:hidden;">
-                                <div style="height:150px; background-image:url('${IMG_BASE_URL}${p.image_url}'); background-size:cover; background-position:center;"></div>
+                                <div style="height:150px; background-image:url('${window.imgUrl(p.image_url)}'); background-size:cover; background-position:center; background-color:#f1f5f9;"></div>
                                 <div style="padding:1rem;">
                                     <h4 style="margin:0;">${p.title}</h4>
                                     <p style="font-size:0.8rem; color:#64748b;">${p.description}</p>
