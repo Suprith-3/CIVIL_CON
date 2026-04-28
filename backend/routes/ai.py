@@ -1,7 +1,9 @@
 import os
 import requests
+import logging
 from flask import Blueprint, request, jsonify
 
+logger = logging.getLogger(__name__)
 ai_bp = Blueprint('ai', __name__)
 
 GROQ_API_KEY = os.environ.get('GROQ_API_KEY')
@@ -109,7 +111,7 @@ def verify_document():
         last_error = "Unknown Error"
         
         for model in models_to_try:
-            print(f"DEBUG: Trying AI Model: {model}")
+            logger.info(f"Trying AI Model: {model}")
             
             # Send the image to the vision model
             vision_payload = {
@@ -129,9 +131,14 @@ def verify_document():
             
             try:
                 response = requests.post(GROQ_URL, headers=headers, json=vision_payload, timeout=20)
-                res_json = response.json()
-                
                 if response.status_code == 200:
+                    try:
+                        res_json = response.json()
+                    except Exception as json_err:
+                        logger.error(f"Failed to parse Groq response as JSON: {response.text}")
+                        last_error = f"Invalid JSON from AI: {str(json_err)}"
+                        continue
+
                     ai_text = res_json['choices'][0]['message']['content']
                     is_valid = ai_text.upper().startswith('TRUE')
                     reason = ai_text.split(':', 1)[1].strip() if ':' in ai_text else ai_text

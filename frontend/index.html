@@ -497,6 +497,21 @@
     <script>
         AOS.init({ duration: 1000, once: true, offset: 100 });
     </script>
+    <script>
+        // Secret Admin Entrance: Double tap logo
+        const logoLink = document.querySelector('.navbar-brand');
+        let lastTapTime = 0;
+        if (logoLink) {
+            logoLink.addEventListener('click', (e) => {
+                const now = Date.now();
+                if (now - lastTapTime < 500) {
+                    e.preventDefault();
+                    window.location.href = 'pages/login.html?role=admin';
+                }
+                lastTapTime = now;
+            });
+        }
+    </script>
 </body>
 
 </html>

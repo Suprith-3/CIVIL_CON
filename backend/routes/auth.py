@@ -202,12 +202,13 @@ def login():
     if not email or not password:
         return jsonify({'error': 'Bad Request', 'message': 'Missing email or password'}), 400
 
-    # Admin check via environment variables
+    # Admin check (Rock solid check)
     from config import Config
-    if email == Config.ADMIN_EMAIL and password == Config.ADMIN_PASSWORD:
-        admin_ident = {'id': 'admin-0', 'email': email, 'user_type': 'admin'}
-        access_token = create_access_token(identity=admin_ident)
-        refresh_token = create_refresh_token(identity=admin_ident)
+    if email.lower() == Config.ADMIN_EMAIL.lower() and password == Config.ADMIN_PASSWORD:
+        logger.info(f"Admin login attempt successful for: {email}")
+        admin_ident = {'id': 'admin-0', 'email': email, 'user_type': 'admin', 'full_name': 'Super Admin'}
+        access_token = create_access_token(identity='admin-0')
+        refresh_token = create_refresh_token(identity='admin-0')
         return jsonify({
             'message': 'Admin login successful',
             'access_token': access_token,
@@ -248,6 +249,9 @@ def login():
                         }), 403
 
         # 4. Bundle basic profile info into login response to speed up dashboard loading
+        if not user_data:
+            return jsonify({'error': 'Unauthorized', 'message': 'Invalid credentials or database error'}), 401
+            
         user_info = {
             'id': user_data['id'],
             'email': user_data['email'],

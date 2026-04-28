@@ -14,9 +14,9 @@ class Config:
     RAZORPAY_KEY_ID = os.environ.get('RAZORPAY_KEY_ID')
     RAZORPAY_KEY_SECRET = os.environ.get('RAZORPAY_KEY_SECRET')
     
-    # Admin Credentials
-    ADMIN_EMAIL = os.environ.get('ADMIN_EMAIL')
-    ADMIN_PASSWORD = os.environ.get('ADMIN_PASSWORD')
+    # Admin Credentials (Updated per user request)
+    ADMIN_EMAIL = os.environ.get('ADMIN_EMAIL', 'supreethm763@gmail.com')
+    ADMIN_PASSWORD = os.environ.get('ADMIN_PASSWORD', '9742446286')
     
     # Security Settings
     ALLOWED_ORIGINS = os.environ.get('ALLOWED_ORIGINS', '*').split(',')
