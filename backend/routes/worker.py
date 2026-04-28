@@ -3,6 +3,7 @@ from flask_jwt_extended import jwt_required, get_jwt_identity
 import os
 from werkzeug.utils import secure_filename
 from config import supabase
+from utils.storage import upload_file_to_supabase
 import razorpay
 
 worker_bp = Blueprint('worker', __name__)
@@ -99,18 +100,12 @@ def add_work():
     print(f"DEBUG: Receiving work upload for user: {user_id}")
     data = request.form
     
-    upload_folder = os.path.join(os.getcwd(), 'uploads')
-    if not os.path.exists(upload_folder):
-        os.makedirs(upload_folder)
-
-    # 2. Save Multiple Photos
+    # 2. Save Multiple Photos to Supabase (media bucket)
     image_files = request.files.getlist('work_images')
     image_urls = []
     for img in image_files:
-        if img and img.filename:
-            filename = secure_filename(f"work_{user_id}_{img.filename}")
-            img.save(os.path.join(upload_folder, filename))
-            image_urls.append(f"/uploads/{filename}")
+        url = upload_file_to_supabase(img, 'media')
+        if url: image_urls.append(url)
 
     try:
         work_data = {
@@ -153,10 +148,7 @@ def update_profile():
     user_id = request.form.get('worker_id')
     data = request.form
     
-    upload_folder = os.path.join(os.getcwd(), 'uploads')
-    if not os.path.exists(upload_folder):
-        os.makedirs(upload_folder)
-
+    # Handle Profile Pic upload to Supabase (media bucket)
     update_data = {
         'name': data.get('name'),
         'age': int(data.get('age', 0)) if data.get('age') else None,
@@ -166,12 +158,9 @@ def update_profile():
         'bio': data.get('bio')
     }
 
-    # Handle Profile Pic
     file = request.files.get('profile_pic')
-    if file and file.filename:
-        filename = secure_filename(f"profile_{user_id}_{file.filename}")
-        file.save(os.path.join(upload_folder, filename))
-        update_data['profile_pic_url'] = f"/uploads/{filename}"
+    url = upload_file_to_supabase(file, 'media')
+    if url: update_data['profile_pic_url'] = url
 
     try:
         supabase.table('worker_registrations').update(update_data).eq('user_id', user_id).execute()

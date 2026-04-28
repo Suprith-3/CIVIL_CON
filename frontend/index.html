@@ -3,19 +3,8 @@
 
 <head>
     <meta charset="UTF-8">
-    <!-- Google Tag Manager -->
-    <script>(function (w, d, s, l, i) {
-            w[l] = w[l] || []; w[l].push({
-                'gtm.start':
-                    new Date().getTime(), event: 'gtm.js'
-            }); var f = d.getElementsByTagName(s)[0],
-                j = d.createElement(s), dl = l != 'dataLayer' ? '&l=' + l : ''; j.async = true; j.src =
-                    'https://www.googletagmanager.com/gtm.js?id=' + i + dl; f.parentNode.insertBefore(j, f);
-        })(window, document, 'script', 'dataLayer', 'GTM-T4X4SVS5');</script>
-    <!-- End Google Tag Manager -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="google-site-verification" content="v3G9yJ8xjl3CPnfM7dRhCJ71m5t9lTJlOj14LKINtBw" />
-    <title>CIVIL CONNECTION | The Construction Ecosystem</title>
+    <title>CIVIL CONNECTION | Construction Marketplace</title>
     <!-- Favicon -->
     <link rel="icon" type="image/jpg" href="img/logo.jpg">
     <!-- Font Awesome -->
@@ -23,446 +12,406 @@
     <!-- Redesign Styles -->
     <link rel="stylesheet" href="assets/css/index.css">
     <link rel="stylesheet" href="assets/css/worker-slider.css">
+    <link rel="stylesheet" href="assets/css/hero.css">
+    <link rel="stylesheet" href="assets/css/header.css">
+    <!-- AOS Animation Library -->
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+    <style>
+        /* Global Fixes for Clean Layout */
+        body {
+            background-color: var(--color-white);
+            color: var(--color-gray-900);
+            line-height: 1.6;
+        }
+
+        .section-padding {
+            padding-top: 80px;
+            padding-bottom: 80px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 24px;
+        }
+
+        .title-left {
+            text-align: left;
+            font-size: 32px;
+            font-weight: 800;
+            margin-bottom: 8px;
+            color: var(--color-gray-900);
+        }
+
+        /* How It Works Animations */
+        .step-card {
+            padding: 30px;
+            border-radius: var(--radius-lg);
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            background: transparent;
+        }
+
+        .step-card:hover {
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(10px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.05);
+            transform: translateY(-10px);
+        }
+
+        .step-card i {
+            display: inline-block;
+            transition: transform 0.4s ease;
+            animation: float 3s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+
+        .steps-grid-premium {
+            position: relative;
+        }
+
+        @media (min-width: 992px) {
+            .steps-grid-premium::before {
+                content: '';
+                position: absolute;
+                top: 30%;
+                left: 15%;
+                right: 15%;
+                height: 2px;
+                background: linear-gradient(90deg, transparent, var(--color-primary-light), transparent);
+                z-index: 0;
+            }
+        }
+    </style>
 </head>
 
 <body>
-    <!-- Google Tag Manager (noscript) -->
-    <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-T4X4SVS5" height="0" width="0"
-            style="display:none;visibility:hidden"></iframe></noscript>
-    <!-- End Google Tag Manager (noscript) -->
-
     <!-- STICKY HEADER -->
     <header class="navbar">
         <nav class="navbar-container">
-            <div class="navbar-brand" id="main-logo"
-                style="cursor: pointer; display: flex; align-items: center; gap: 10px; text-transform: uppercase;">
-                <img src="img/logo.jpg" alt="Logo" style="height: 40px; width: auto; border-radius: 4px;">
-                <span><span style="color: var(--color-primary-dark);">CIVIL</span> <span
-                        style="color: #000;">CONNECTION</span></span>
-            </div>
-
-            <div class="navbar-search">
-                <input type="search" placeholder="Search for engineers, workers, or shops..." class="search-input">
-            </div>
+            <a href="index.html" class="navbar-brand">
+                <img src="img/logo.jpg" alt="Logo">
+                <span><span style="color: var(--color-primary-dark);">CIVIL</span> CONNECTION</span>
+            </a>
 
             <div class="navbar-actions">
                 <div class="nav-menu-desktop">
-                    <a href="index.html" class="nav-link active" title="Home"><i
-                            class="fa-solid fa-house fa-lg"></i></a>
-                    <a href="#services" class="nav-link" title="Services"><i
-                            class="fa-solid fa-layer-group fa-lg"></i></a>
-                    <a href="pages/login.html" class="nav-link" title="Sign In"><i
-                            class="fa-solid fa-right-to-bracket fa-lg"></i></a>
+                    <a href="index.html" class="nav-link active">Home</a>
+                    <a href="#services" class="nav-link">Services</a>
+                    <a href="pages/login.html" class="nav-link">Sign In</a>
                 </div>
-
-                <button class="icon-btn" aria-label="Notifications">
-                    <i class="fa-regular fa-bell fa-lg"></i>
-                </button>
-
-                <div class="user-profile-dropdown" id="userProfile">
-                    <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=100&q=80"
-                        alt="User Avatar" class="avatar"
-                        style="width: 32px; height: 32px; border-radius: 50%; border: 2px solid var(--color-primary);">
-                </div>
-
                 <a href="pages/login.html?tab=register" class="btn btn-primary btn-sm btn-desktop">Get Started</a>
-                <button class="mobile-menu-trigger" id="menuTrigger" aria-label="Open menu">
-                    <i class="fa-solid fa-bars-staggered fa-xl"></i>
+                <button class="mobile-menu-trigger" id="menuTrigger" style="background: none; border: none; font-size: 24px; cursor: pointer;">
+                    <i class="fa-solid fa-bars"></i>
                 </button>
             </div>
         </nav>
     </header>
 
-    <!-- MOBILE NAVIGATION -->
-    <nav class="mobile-nav" id="mobileNav">
-        <div class="mobile-nav-header">
-            <a href="index.html" class="navbar-brand" style="text-transform: uppercase;">
-                <img src="img/logo.jpg" alt="Logo" style="height: 40px; width: auto; border-radius: 4px;">
-                <span><span style="color: var(--color-primary-dark);">CIVIL</span> <span
-                        style="color: #000;">CONNECTION</span></span>
-            </a>
-            <button id="menuClose" aria-label="Close menu">
-                <i class="fa-solid fa-xmark fa-2xl"></i>
-            </button>
-        </div>
-        <ul class="mobile-nav-list">
-            <li><a href="index.html" class="mobile-nav-link">Home</a></li>
-            <li><a href="#services" class="mobile-nav-link">Services</a></li>
-            <li><a href="pages/login.html" class="mobile-nav-link">Sign In</a></li>
-            <li><a href="pages/login.html?tab=register" class="btn btn-primary btn-lg mt-8">Join Now</a></li>
-        </ul>
-    </nav>
-
     <main class="main-content">
-        <!-- HERO SECTION REDESIGN (Urban Company Style) -->
-        <section class="hero-uc">
-            <div class="container hero-container">
-                <div class="hero-left">
-                    <h1 class="hero-title-main">BUILD THE <br><span class="text-primary"
-                            id="dynamic-hero-text">FUTURE</span></h1>
-
-                    <div class="search-card">
-                        <h2 class="search-card-title">What are you looking for?</h2>
-                        <div class="service-icon-grid">
-                            <a href="#services" class="service-icon-item">
-                                <div class="icon-circle"><i class="fa-solid fa-helmet-safety"></i></div>
-                                <span>Workers</span>
-                            </a>
-                            <a href="#services" class="service-icon-item">
-                                <div class="icon-circle"><i class="fa-solid fa-compass-drafting"></i></div>
-                                <span>Engineers</span>
-                            </a>
-                            <a href="#services" class="service-icon-item">
-                                <div class="icon-circle"><i class="fa-solid fa-store"></i></div>
-                                <span>Materials</span>
-                            </a>
-                            <a href="#services" class="service-icon-item">
-                                <div class="icon-circle"><i class="fa-solid fa-truck-pickup"></i></div>
-                                <span>Rentals</span>
-                            </a>
-                            <a href="#services" class="service-icon-item">
-                                <div class="icon-circle"><i class="fa-solid fa-scroll"></i></div>
-                                <span>Govt Schemes</span>
-                            </a>
-                            <a href="#services" class="service-icon-item">
-                                <div class="icon-circle"><i class="fa-solid fa-ellipsis"></i></div>
-                                <span>More</span>
-                            </a>
-                        </div>
-                        <div class="search-bar-inline">
-                            <i class="fa-solid fa-magnifying-glass"></i>
-                            <input type="text" placeholder="Search for 'plumber', 'engineer'...">
-                        </div>
+        <!-- SPLIT HERO WITH MULTI-VIDEO GRID -->
+        <section class="hero-split">
+            <div class="container">
+                <div class="search-card-premium" data-aos="fade-right">
+                    <h1>What are you <br> looking for?</h1>
+                    <div class="category-quick-grid">
+                        <a href="#services" class="cat-item-btn">
+                            <div class="cat-icon-circle"><i class="fa-solid fa-helmet-safety"></i></div>
+                            <span>Workers</span>
+                        </a>
+                        <a href="#services" class="cat-item-btn">
+                            <div class="cat-icon-circle"><i class="fa-solid fa-compass-drafting"></i></div>
+                            <span>Engineers</span>
+                        </a>
+                        <a href="#services" class="cat-item-btn">
+                            <div class="cat-icon-circle"><i class="fa-solid fa-store"></i></div>
+                            <span>Materials</span>
+                        </a>
+                        <a href="#services" class="cat-item-btn">
+                            <div class="cat-icon-circle"><i class="fa-solid fa-truck-pickup"></i></div>
+                            <span>Rentals</span>
+                        </a>
+                        <a href="#services" class="cat-item-btn">
+                            <div class="cat-icon-circle"><i class="fa-solid fa-landmark"></i></div>
+                            <span>Govt Schemes</span>
+                        </a>
+                        <a href="#services" class="cat-item-btn">
+                            <div class="cat-icon-circle"><i class="fa-solid fa-ellipsis"></i></div>
+                            <span>More</span>
+                        </a>
+                    </div>
+                    <div class="search-input-wrapper">
+                        <i class="fa-solid fa-magnifying-glass"></i>
+                        <input type="text" placeholder="Search for 'plumber', 'engineer'...">
                     </div>
                 </div>
-
-                <div class="hero-right">
-                    <div class="image-collage">
-                        <div class="collage-item large">
-                            <img src="https://images.unsplash.com/photo-1504307651254-35680f356dfd?auto=format&fit=crop&w=800&q=80"
-                                alt="Construction">
-                        </div>
-                        <div class="collage-item">
-                            <img src="https://images.pexels.com/photos/8668920/pexels-photo-8668920.jpeg?auto=compress&cs=tinysrgb&w=800"
-                                alt="Engineer">
-                        </div>
-                        <div class="collage-item">
-                            <img src="https://images.pexels.com/photos/28231733/pexels-photo-28231733.jpeg?auto=compress&cs=tinysrgb&w=800"
-                                alt="Building Construction">
-                        </div>
+                <div class="hero-video-grid" data-aos="fade-left">
+                    <div class="video-item video-item-tall">
+                        <video autoplay muted loop playsinline><source src="https://www.pexels.com/download/video/14823695/" type="video/mp4"></video>
+                    </div>
+                    <div class="video-item">
+                        <video autoplay muted loop playsinline><source src="https://www.pexels.com/download/video/8482296/" type="video/mp4"></video>
+                    </div>
+                    <div class="video-item">
+                        <video autoplay muted loop playsinline><source src="https://www.pexels.com/download/video/36601739/" type="video/mp4"></video>
                     </div>
                 </div>
             </div>
         </section>
 
-        <!-- WORKER SPECIALTIES SLIDER -->
-        <section class="worker-slider-section">
+        <!-- STATS BAR -->
+        <section class="stats-premium" style="background: white; padding: 40px 0; border-bottom: 1px solid var(--color-gray-100);">
             <div class="container">
-                <div class="slider-header">
-                    <h2 class="slider-title">Professional Workers by Category</h2>
+                <div style="display: flex; justify-content: space-around; text-align: center;">
+                    <div data-aos="fade-up">
+                        <div style="font-size: 32px; font-weight: 800; color: var(--color-primary-dark);">500+</div>
+                        <div style="font-size: 14px; color: var(--color-gray-500); font-weight: 600;">Skilled Workers</div>
+                    </div>
+                    <div data-aos="fade-up" data-aos-delay="100">
+                        <div style="font-size: 32px; font-weight: 800; color: var(--color-primary-dark);">120+</div>
+                        <div style="font-size: 14px; color: var(--color-gray-500); font-weight: 600;">Successful Projects</div>
+                    </div>
+                    <div data-aos="fade-up" data-aos-delay="200">
+                        <div style="font-size: 32px; font-weight: 800; color: var(--color-primary-dark);">4.8/5</div>
+                        <div style="font-size: 14px; color: var(--color-gray-500); font-weight: 600;">User Rating</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- WORKER CATEGORIES REDESIGNED -->
+        <section class="worker-slider-section section-padding">
+            <div class="container">
+                <div class="slider-header-flex" data-aos="fade-up">
+                    <div>
+                        <h2 class="title-left">Professional Workers by Category</h2>
+                        <p style="font-size: 18px; color: #6b7280; margin-top: 8px;">Browse verified professionals for every construction need</p>
+                    </div>
+                    <div class="slider-nav-btns">
+                        <button class="nav-btn" onclick="document.getElementById('workerSlider').scrollBy({left: -350, behavior: 'smooth'})"><i class="fa-solid fa-chevron-left"></i></button>
+                        <button class="nav-btn" onclick="document.getElementById('workerSlider').scrollBy({left: 350, behavior: 'smooth'})"><i class="fa-solid fa-chevron-right"></i></button>
+                    </div>
                 </div>
 
-                <div class="slider-container-wrapper">
-                    <button class="slider-nav-btn prev" id="slidePrev"><i class="fa-solid fa-chevron-left"></i></button>
-                    <div class="slider-container" id="workerSlider">
+                <div class="worker-filters" data-aos="fade-up">
+                    <span class="filter-tab active">All</span>
+                    <span class="filter-tab">Workers</span>
+                    <span class="filter-tab">Engineers</span>
+                    <span class="filter-tab">Helpers</span>
+                </div>
+
+                <div class="slider-outer" data-aos="fade-up">
+                    <div class="slider-inner" id="workerSlider">
                         <!-- Project Manager -->
-                        <div class="worker-card-mini" onclick="window.location.href='pages/login.html'">
-                            <div class="image-box">
-                                <img src="https://images.pexels.com/photos/31674013/pexels-photo-31674013.jpeg?auto=compress&cs=tinysrgb&w=300"
-                                    alt="Project Manager">
+                        <div class="worker-card-premium">
+                            <div class="card-image-box">
+                                <span class="availability-badge">Available Now</span>
+                                <img src="https://images.pexels.com/photos/31674013/pexels-photo-31674013.jpeg?auto=compress&cs=tinysrgb&w=600" alt="Project Manager">
                             </div>
-                            <div class="worker-info">
-                                <div class="worker-type">Project Manager</div>
-                                <div class="worker-meta">Expert Supervision</div>
+                            <div class="card-details">
+                                <div class="card-header-row">
+                                    <h3 class="worker-name-title">Project Manager</h3>
+                                    <div class="rating-tag"><i class="fa-solid fa-star"></i> 4.9</div>
+                                </div>
+                                <p class="worker-desc-text">Expert Supervision & Management</p>
+                                <div class="worker-meta-grid">
+                                    <div class="meta-item"><i class="fa-solid fa-briefcase"></i> 10+ yrs</div>
+                                    <div class="meta-item"><i class="fa-solid fa-location-dot"></i> Bangalore</div>
+                                </div>
+                                <div class="card-actions-flex">
+                                    <button class="btn-hire">Hire Now</button>
+                                    <button class="btn-profile">View Profile</button>
+                                </div>
                             </div>
                         </div>
+
                         <!-- Supervisor Mason -->
-                        <div class="worker-card-mini" onclick="window.location.href='pages/login.html'">
-                            <div class="image-box">
-                                <img src="https://images.pexels.com/photos/10383580/pexels-photo-10383580.jpeg?auto=compress&cs=tinysrgb&w=300"
-                                    alt="Supervisor Mason">
+                        <div class="worker-card-premium">
+                            <div class="card-image-box">
+                                <span class="availability-badge">Available Now</span>
+                                <img src="https://images.pexels.com/photos/10383580/pexels-photo-10383580.jpeg?auto=compress&cs=tinysrgb&w=600" alt="Supervisor Mason">
                             </div>
-                            <div class="worker-info">
-                                <div class="worker-type">Supervisor Mason</div>
-                                <div class="worker-meta">Raj Mistri</div>
+                            <div class="card-details">
+                                <div class="card-header-row">
+                                    <h3 class="worker-name-title">Supervisor Mason</h3>
+                                    <div class="rating-tag"><i class="fa-solid fa-star"></i> 4.8</div>
+                                </div>
+                                <p class="worker-desc-text">Expert Masonry & Raj Mistri</p>
+                                <div class="worker-meta-grid">
+                                    <div class="meta-item"><i class="fa-solid fa-briefcase"></i> 8+ yrs</div>
+                                    <div class="meta-item"><i class="fa-solid fa-location-dot"></i> Mumbai</div>
+                                </div>
+                                <div class="card-actions-flex">
+                                    <button class="btn-hire">Hire Now</button>
+                                    <button class="btn-profile">View Profile</button>
+                                </div>
                             </div>
                         </div>
-                        <!-- Helper / Labour -->
-                        <div class="worker-card-mini" onclick="window.location.href='pages/login.html'">
-                            <div class="image-box">
-                                <img src="https://images.pexels.com/photos/30571028/pexels-photo-30571028.jpeg?auto=compress&cs=tinysrgb&w=300"
-                                    alt="Labour">
-                            </div>
-                            <div class="worker-info">
-                                <div class="worker-type">Helper / Labour</div>
-                                <div class="worker-meta">General Work</div>
-                            </div>
-                        </div>
+
                         <!-- Electrician -->
-                        <div class="worker-card-mini" onclick="window.location.href='pages/login.html'">
-                            <div class="image-box">
-                                <img src="https://images.pexels.com/photos/9679179/pexels-photo-9679179.jpeg?auto=compress&cs=tinysrgb&w=300"
-                                    alt="Electrician">
+                        <div class="worker-card-premium">
+                            <div class="card-image-box">
+                                <span class="availability-badge">Available Now</span>
+                                <img src="https://images.pexels.com/photos/9679179/pexels-photo-9679179.jpeg?auto=compress&cs=tinysrgb&w=600" alt="Electrician">
                             </div>
-                            <div class="worker-info">
-                                <div class="worker-type">Electrician</div>
-                                <div class="worker-meta">Wiring & Repairs</div>
-                            </div>
-                        </div>
-                        <!-- Plumber -->
-                        <div class="worker-card-mini" onclick="window.location.href='pages/login.html'">
-                            <div class="image-box">
-                                <img src="https://images.pexels.com/photos/36571568/pexels-photo-36571568.jpeg?auto=compress&cs=tinysrgb&w=300"
-                                    alt="Plumber">
-                            </div>
-                            <div class="worker-info">
-                                <div class="worker-type">Plumber</div>
-                                <div class="worker-meta">Piping & Fixtures</div>
-                            </div>
-                        </div>
-                        <!-- Painter -->
-                        <div class="worker-card-mini" onclick="window.location.href='pages/login.html'">
-                            <div class="image-box">
-                                <img src="https://images.pexels.com/photos/1669754/pexels-photo-1669754.jpeg?auto=compress&cs=tinysrgb&w=300"
-                                    alt="Painter">
-                            </div>
-                            <div class="worker-info">
-                                <div class="worker-type">Painter</div>
-                                <div class="worker-meta">Interior/Exterior</div>
+                            <div class="card-details">
+                                <div class="card-header-row">
+                                    <h3 class="worker-name-title">Electrician</h3>
+                                    <div class="rating-tag"><i class="fa-solid fa-star"></i> 4.7</div>
+                                </div>
+                                <p class="worker-desc-text">Wiring & Complex Repairs</p>
+                                <div class="worker-meta-grid">
+                                    <div class="meta-item"><i class="fa-solid fa-briefcase"></i> 6+ yrs</div>
+                                    <div class="meta-item"><i class="fa-solid fa-location-dot"></i> Delhi</div>
+                                </div>
+                                <div class="card-actions-flex">
+                                    <button class="btn-hire">Hire Now</button>
+                                    <button class="btn-profile">View Profile</button>
+                                </div>
                             </div>
                         </div>
-                        <!-- Interior Designer -->
-                        <div class="worker-card-mini" onclick="window.location.href='pages/login.html'">
-                            <div class="image-box">
-                                <img src="https://images.pexels.com/photos/1571460/pexels-photo-1571460.jpeg?auto=compress&cs=tinysrgb&w=300"
-                                    alt="Interior Designer">
+
+                        <!-- Helper -->
+                        <div class="worker-card-premium">
+                            <div class="card-image-box">
+                                <span class="availability-badge">Available Now</span>
+                                <img src="https://images.pexels.com/photos/30571028/pexels-photo-30571028.jpeg?auto=compress&cs=tinysrgb&w=600" alt="Labour">
                             </div>
-                            <div class="worker-info">
-                                <div class="worker-type">Interior Designer</div>
-                                <div class="worker-meta">3D Planning</div>
-                            </div>
-                        </div>
-                        <!-- Excavator -->
-                        <div class="worker-card-mini" onclick="window.location.href='pages/login.html'">
-                            <div class="image-box">
-                                <img src="https://images.pexels.com/photos/10421763/pexels-photo-10421763.jpeg?auto=compress&cs=tinysrgb&w=300"
-                                    alt="Excavator">
-                            </div>
-                            <div class="worker-info">
-                                <div class="worker-type">Excavator Operator</div>
-                                <div class="worker-meta">Heavy Machinery</div>
+                            <div class="card-details">
+                                <div class="card-header-row">
+                                    <h3 class="worker-name-title">Helper / Labour</h3>
+                                    <div class="rating-tag"><i class="fa-solid fa-star"></i> 4.6</div>
+                                </div>
+                                <p class="worker-desc-text">General Construction Work</p>
+                                <div class="worker-meta-grid">
+                                    <div class="meta-item"><i class="fa-solid fa-briefcase"></i> 4+ yrs</div>
+                                    <div class="meta-item"><i class="fa-solid fa-location-dot"></i> Pune</div>
+                                </div>
+                                <div class="card-actions-flex">
+                                    <button class="btn-hire">Hire Now</button>
+                                    <button class="btn-profile">View Profile</button>
+                                </div>
                             </div>
                         </div>
                     </div>
-                    <button class="slider-nav-btn next" id="slideNext"><i
-                            class="fa-solid fa-chevron-right"></i></button>
                 </div>
             </div>
         </section>
 
-        <!-- ENGINEER SPECIALTIES SLIDER -->
-        <section class="worker-slider-section" style="background: var(--color-gray-50);">
+        <!-- HOW IT WORKS -->
+        <section class="how-it-works section-padding">
             <div class="container">
-                <div class="slider-header">
-                    <h2 class="slider-title">Professional Engineering Services</h2>
-                </div>
-
-                <div class="slider-container-wrapper">
-                    <button class="slider-nav-btn prev" id="engSlidePrev"><i
-                            class="fa-solid fa-chevron-left"></i></button>
-                    <div class="slider-container" id="engSlider">
-                        <!-- Architect -->
-                        <div class="worker-card-mini" onclick="window.location.href='pages/login.html'">
-                            <div class="image-box">
-                                <img src="https://images.pexels.com/photos/313691/pexels-photo-313691.jpeg?auto=compress&cs=tinysrgb&w=300"
-                                    alt="Architect">
-                            </div>
-                            <div class="worker-info">
-                                <div class="worker-type">Architect</div>
-                                <div class="worker-meta">Design & Planning</div>
-                            </div>
-                        </div>
-                        <!-- Civil Engineer -->
-                        <div class="worker-card-mini" onclick="window.location.href='pages/login.html'">
-                            <div class="image-box">
-                                <img src="https://images.pexels.com/photos/3862627/pexels-photo-3862627.jpeg?auto=compress&cs=tinysrgb&w=300"
-                                    alt="Civil Engineer">
-                            </div>
-                            <div class="worker-info">
-                                <div class="worker-type">Civil Engineer</div>
-                                <div class="worker-meta">Site Management</div>
-                            </div>
-                        </div>
-                        <!-- Structural Engineer -->
-                        <div class="worker-card-mini" onclick="window.location.href='pages/login.html'">
-                            <div class="image-box">
-                                <img src="https://images.pexels.com/photos/534220/pexels-photo-534220.jpeg?auto=compress&cs=tinysrgb&w=300"
-                                    alt="Structural Engineer">
-                            </div>
-                            <div class="worker-info">
-                                <div class="worker-type">Structural Engineer</div>
-                                <div class="worker-meta">Foundation Expert</div>
-                            </div>
-                        </div>
-                        <!-- Interior Designer -->
-                        <div class="worker-card-mini" onclick="window.location.href='pages/login.html'">
-                            <div class="image-box">
-                                <img src="https://images.pexels.com/photos/1571460/pexels-photo-1571460.jpeg?auto=compress&cs=tinysrgb&w=300"
-                                    alt="Interior Designer">
-                            </div>
-                            <div class="worker-info">
-                                <div class="worker-type">Interior Designer</div>
-                                <div class="worker-meta">Space Optimization</div>
-                            </div>
-                        </div>
-                        <!-- Electrical Engineer -->
-                        <div class="worker-card-mini" onclick="window.location.href='pages/login.html'">
-                            <div class="image-box">
-                                <img src="https://images.pexels.com/photos/257736/pexels-photo-257736.jpeg?auto=compress&cs=tinysrgb&w=300"
-                                    alt="Electrical Engineer">
-                            </div>
-                            <div class="worker-info">
-                                <div class="worker-type">Electrical Engineer</div>
-                                <div class="worker-meta">Power Systems</div>
-                            </div>
-                        </div>
-                        <!-- Landscape Designer -->
-                        <div class="worker-card-mini" onclick="window.location.href='pages/login.html'">
-                            <div class="image-box">
-                                <img src="https://images.pexels.com/photos/5292203/pexels-photo-5292203.jpeg?auto=compress&cs=tinysrgb&w=300"
-                                    alt="Landscape Designer">
-                            </div>
-                            <div class="worker-info">
-                                <div class="worker-type">Landscape Designer</div>
-                                <div class="worker-meta">Outdoor Spaces</div>
-                            </div>
-                        </div>
-                        <!-- Quantity Surveyor -->
-                        <div class="worker-card-mini" onclick="window.location.href='pages/login.html'">
-                            <div class="image-box">
-                                <img src="https://images.pexels.com/photos/3760067/pexels-photo-3760067.jpeg?auto=compress&cs=tinysrgb&w=300"
-                                    alt="Quantity Surveyor">
-                            </div>
-                            <div class="worker-info">
-                                <div class="worker-type">Quantity Surveyor</div>
-                                <div class="worker-meta">Cost Estimation</div>
-                            </div>
-                        </div>
-                        <!-- Surveyor -->
-                        <div class="worker-card-mini" onclick="window.location.href='pages/login.html'">
-                            <div class="image-box">
-                                <img src="https://images.pexels.com/photos/439416/pexels-photo-439416.jpeg?auto=compress&cs=tinysrgb&w=300"
-                                    alt="Surveyor">
-                            </div>
-                            <div class="worker-info">
-                                <div class="worker-type">Land Surveyor</div>
-                                <div class="worker-meta">Site Measurement</div>
-                            </div>
-                        </div>
+                <h2 style="font-size: 48px; font-weight: 800; text-align: center; color: var(--color-gray-900); margin-bottom: 12px; letter-spacing: -1.5px;" data-aos="fade-up">How It Works</h2>
+                <div class="steps-grid-premium" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 40px; margin-top: 40px;">
+                    <div class="step-card" style="text-align: center;" data-aos="fade-up" data-aos-delay="100">
+                        <div style="font-size: 48px; color: var(--color-primary); margin-bottom: 20px;"><i class="fa-solid fa-magnifying-glass"></i></div>
+                        <h3 style="font-weight: 700; margin-bottom: 10px;">Search</h3>
+                        <p style="color: var(--color-gray-600);">Browse through verified workers and engineers.</p>
                     </div>
-                    <button class="slider-nav-btn next" id="engSlideNext"><i
-                            class="fa-solid fa-chevron-right"></i></button>
+                    <div class="step-card" style="text-align: center;" data-aos="fade-up" data-aos-delay="200">
+                        <div style="font-size: 48px; color: var(--color-primary); margin-bottom: 20px;"><i class="fa-solid fa-comments"></i></div>
+                        <h3 style="font-weight: 700; margin-bottom: 10px;">Connect</h3>
+                        <p style="color: var(--color-gray-600);">Chat directly and discuss your project.</p>
+                    </div>
+                    <div class="step-card" style="text-align: center;" data-aos="fade-up" data-aos-delay="300">
+                        <div style="font-size: 48px; color: var(--color-primary); margin-bottom: 20px;"><i class="fa-solid fa-check-to-slot"></i></div>
+                        <h3 style="font-weight: 700; margin-bottom: 10px;">Hire</h3>
+                        <p style="color: var(--color-gray-600);">Hire the best talent and start building.</p>
+                    </div>
                 </div>
             </div>
         </section>
 
         <!-- SERVICES SECTION -->
-        <section class="services-section" id="services">
-            <div class="container">
-                <div class="section-header" data-aos="fade-up">
-                    <h2 class="text-center">Our Marketplace Services</h2>
-                    <p class="text-center section-subtitle-premium">
-                        Everything you need for your <span class="highlight">construction project</span> in one place
-                    </p>
+        <!-- MARKETPLACE SERVICES REDESIGNED -->
+        <section class="services-section section-padding" id="services" style="background: var(--color-gray-50);">
+            <div class="container" data-aos="fade-up">
+                <div style="text-align: center; margin-bottom: 50px;">
+                    <h2 style="font-size: 36px; font-weight: 800; color: var(--color-gray-900); margin-bottom: 12px;">Our Marketplace Services</h2>
+                    <p style="font-size: 18px; color: var(--color-gray-600);">Everything you need for your <span style="color: var(--color-primary); font-weight: 700;">construction project</span> in one place</p>
                 </div>
 
-                <div class="services-grid">
-                    <!-- Service 1: Find Workers -->
-                    <article class="card service-card" data-aos="fade-up" onclick="window.location.href='pages/login.html'" style="cursor: pointer;">
-                        <div class="card-image-wrapper">
-                            <img src="https://images.unsplash.com/photo-1504307651254-35680f356dfd?auto=format&fit=crop&w=800&q=80"
-                                alt="Skilled Workers">
-                            <span class="category-badge">Verified Talent</span>
+                <div class="services-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 24px;">
+                    <!-- Find Skilled Workers -->
+                    <article class="service-card-premium" style="background: white; border-radius: 16px; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.05); transition: transform 0.3s ease;">
+                        <div style="height: 180px; position: relative; overflow: hidden;">
+                            <img src="https://images.unsplash.com/photo-1504307651254-35680f356dfd?auto=format&fit=crop&w=600&q=80" alt="Workers" style="width: 100%; height: 100%; object-fit: cover;">
+                            <span style="position: absolute; top: 15px; left: 15px; background: rgba(0,0,0,0.7); color: white; padding: 4px 12px; border-radius: 50px; font-size: 11px; font-weight: 700;">Verified Talent</span>
                         </div>
-                        <div class="card-body">
-                            <h3 class="service-title">Find Skilled Workers</h3>
-                            <p class="service-description">Hire experienced masons, carpenters, and laborers verified
-                                for quality and reliability.</p>
-                            <div class="card-footer">
-                                <span class="price">From ₹400/day</span>
-                                <a href="pages/login.html" class="btn btn-secondary btn-sm">Hire Now</a>
+                        <div style="padding: 24px;">
+                            <h3 style="font-size: 18px; font-weight: 700; margin-bottom: 10px;">Find Skilled Workers</h3>
+                            <p style="font-size: 14px; color: var(--color-gray-500); line-height: 1.5; margin-bottom: 24px; min-height: 45px;">Hire experienced masons, carpenters, and laborers verified for quality and reliability.</p>
+                            <div style="display: flex; justify-content: space-between; align-items: center; padding-top: 15px; border-top: 1px solid var(--color-gray-100);">
+                                <span style="font-weight: 700; color: var(--color-primary); font-size: 14px;">From ₹400/day</span>
+                                <button style="background: transparent; border: 1.5px solid var(--color-primary); color: var(--color-primary); padding: 6px 16px; border-radius: 8px; font-size: 13px; font-weight: 700; cursor: pointer;">Hire Now</button>
                             </div>
                         </div>
                     </article>
 
-                    <!-- Service 2: Find Engineers -->
-                    <article class="card service-card" data-aos="fade-up" onclick="window.location.href='pages/login.html'" style="cursor: pointer;">
-                        <div class="card-image-wrapper">
-                            <img src="https://images.pexels.com/photos/4872040/pexels-photo-4872040.jpeg?auto=compress&cs=tinysrgb&w=800"
-                                alt="Professional Engineers">
-                            <span class="category-badge">Expert Supervision</span>
+                    <!-- Professional Engineers -->
+                    <article class="service-card-premium" style="background: white; border-radius: 16px; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.05); transition: transform 0.3s ease;">
+                        <div style="height: 180px; position: relative; overflow: hidden;">
+                            <img src="https://images.pexels.com/photos/8482551/pexels-photo-8482551.jpeg?auto=compress&cs=tinysrgb&w=600" alt="Engineers" style="width: 100%; height: 100%; object-fit: cover;">
+                            <span style="position: absolute; top: 15px; left: 15px; background: rgba(0,0,0,0.7); color: white; padding: 4px 12px; border-radius: 50px; font-size: 11px; font-weight: 700;">Expert Supervision</span>
                         </div>
-                        <div class="card-body">
-                            <h3 class="service-title">Professional Engineers</h3>
-                            <p class="service-description">Connect with certified civil engineers for structural design,
-                                project planning, and supervision.</p>
-                            <div class="card-footer">
-                                <span class="price">Consultation Start</span>
-                                <a href="pages/login.html" class="btn btn-secondary btn-sm">Connect</a>
+                        <div style="padding: 24px;">
+                            <h3 style="font-size: 18px; font-weight: 700; margin-bottom: 10px;">Professional Engineers</h3>
+                            <p style="font-size: 14px; color: var(--color-gray-500); line-height: 1.5; margin-bottom: 24px; min-height: 45px;">Connect with certified civil engineers for structural design, project planning, and supervision.</p>
+                            <div style="display: flex; justify-content: space-between; align-items: center; padding-top: 15px; border-top: 1px solid var(--color-gray-100);">
+                                <span style="font-weight: 700; color: var(--color-primary); font-size: 14px;">Consultation Start</span>
+                                <button style="background: transparent; border: 1.5px solid var(--color-primary); color: var(--color-primary); padding: 6px 16px; border-radius: 8px; font-size: 13px; font-weight: 700; cursor: pointer;">Connect</button>
                             </div>
                         </div>
                     </article>
 
-                    <!-- Service 3: Shop Connection -->
-                    <article class="card service-card" data-aos="fade-up" onclick="window.location.href='pages/login.html'" style="cursor: pointer;">
-                        <div class="card-image-wrapper">
-                            <img src="https://images.pexels.com/photos/19756447/pexels-photo-19756447.jpeg?auto=compress&cs=tinysrgb&w=800"
-                                alt="Equipment Shop">
-                            <span class="category-badge">Direct Supply</span>
+                    <!-- Equipment & Shop -->
+                    <article class="service-card-premium" style="background: white; border-radius: 16px; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.05); transition: transform 0.3s ease;">
+                        <div style="height: 180px; position: relative; overflow: hidden;">
+                            <img src="https://images.pexels.com/photos/15364240/pexels-photo-15364240.jpeg?auto=compress&cs=tinysrgb&w=600" alt="Shop" style="width: 100%; height: 100%; object-fit: cover;">
+                            <span style="position: absolute; top: 15px; left: 15px; background: rgba(0,0,0,0.7); color: white; padding: 4px 12px; border-radius: 50px; font-size: 11px; font-weight: 700;">Direct Supply</span>
                         </div>
-                        <div class="card-body">
-                            <h3 class="service-title">Equipment & Shop</h3>
-                            <p class="service-description">Directly connect with local shops for cement, steel, and
-                                other construction materials at best prices.</p>
-                            <div class="card-footer">
-                                <span class="price">Best Rates</span>
-                                <a href="pages/login.html" class="btn btn-secondary btn-sm">View Shop</a>
+                        <div style="padding: 24px;">
+                            <h3 style="font-size: 18px; font-weight: 700; margin-bottom: 10px;">Equipment & Shop</h3>
+                            <p style="font-size: 14px; color: var(--color-gray-500); line-height: 1.5; margin-bottom: 24px; min-height: 45px;">Directly connect with local shops for cement, steel, and other construction materials at best prices.</p>
+                            <div style="display: flex; justify-content: space-between; align-items: center; padding-top: 15px; border-top: 1px solid var(--color-gray-100);">
+                                <span style="font-weight: 700; color: var(--color-primary); font-size: 14px;">Best Rates</span>
+                                <button style="background: transparent; border: 1.5px solid var(--color-primary); color: var(--color-primary); padding: 6px 16px; border-radius: 8px; font-size: 13px; font-weight: 700; cursor: pointer;">View Shop</button>
                             </div>
                         </div>
                     </article>
 
-                    <!-- Service 4: Rent Items -->
-                    <article class="card service-card" data-aos="fade-up" onclick="window.location.href='pages/login.html'" style="cursor: pointer;">
-                        <div class="card-image-wrapper">
-                            <img src="https://images.pexels.com/photos/10421763/pexels-photo-10421763.jpeg?auto=compress&cs=tinysrgb&w=800"
-                                alt="Renting Equipment">
-                            <span class="category-badge">Cost Efficient</span>
+                    <!-- Rent Equipment -->
+                    <article class="service-card-premium" style="background: white; border-radius: 16px; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.05); transition: transform 0.3s ease;">
+                        <div style="height: 180px; position: relative; overflow: hidden;">
+                            <img src="https://images.pexels.com/photos/1267338/pexels-photo-1267338.jpeg?auto=compress&cs=tinysrgb&w=600" alt="Rentals" style="width: 100%; height: 100%; object-fit: cover;">
+                            <span style="position: absolute; top: 15px; left: 15px; background: rgba(0,0,0,0.7); color: white; padding: 4px 12px; border-radius: 50px; font-size: 11px; font-weight: 700;">Cost Efficient</span>
                         </div>
-                        <div class="card-body">
-                            <h3 class="service-title">Rent Equipment</h3>
-                            <p class="service-description">Rent heavy machinery, tools, and construction equipment for
-                                any duration without ownership costs.</p>
-                            <div class="card-footer">
-                                <span class="price">Hourly/Daily</span>
-                                <a href="pages/login.html" class="btn btn-secondary btn-sm">Rent Now</a>
+                        <div style="padding: 24px;">
+                            <h3 style="font-size: 18px; font-weight: 700; margin-bottom: 10px;">Rent Equipment</h3>
+                            <p style="font-size: 14px; color: var(--color-gray-500); line-height: 1.5; margin-bottom: 24px; min-height: 45px;">Rent heavy machinery, tools, and construction equipment for any duration without ownership costs.</p>
+                            <div style="display: flex; justify-content: space-between; align-items: center; padding-top: 15px; border-top: 1px solid var(--color-gray-100);">
+                                <span style="font-weight: 700; color: var(--color-primary); font-size: 14px;">Hourly/Daily</span>
+                                <button style="background: transparent; border: 1.5px solid var(--color-primary); color: var(--color-primary); padding: 6px 16px; border-radius: 8px; font-size: 13px; font-weight: 700; cursor: pointer;">Rent Now</button>
                             </div>
                         </div>
                     </article>
 
-                    <!-- Service 5: Govt Schemes -->
-                    <article class="card service-card" data-aos="fade-up">
-                        <div class="card-image-wrapper">
-                            <img src="https://images.pexels.com/photos/20248045/pexels-photo-20248045.jpeg?auto=compress&cs=tinysrgb&w=800"
-                                alt="Government Schemes">
-                            <span class="category-badge">Information Hub</span>
+                    <!-- Govt. Schemes Info -->
+                    <article class="service-card-premium" style="background: white; border-radius: 16px; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.05); transition: transform 0.3s ease;">
+                        <div style="height: 180px; position: relative; overflow: hidden;">
+                            <img src="https://images.pexels.com/photos/20248045/pexels-photo-20248045.jpeg?auto=format&fit=crop&w=600&q=80" alt="Govt Schemes" style="width: 100%; height: 100%; object-fit: cover;">
+                            <span style="position: absolute; top: 15px; left: 15px; background: var(--color-primary-dark); color: white; padding: 4px 12px; border-radius: 50px; font-size: 11px; font-weight: 700;">Information Hub</span>
                         </div>
-                        <div class="card-body">
-                            <h3 class="service-title">Govt. Schemes Info</h3>
-                            <p class="service-description">Stay updated with latest government construction schemes,
-                                subsidies, and housing benefits.</p>
-                            <div class="card-footer">
-                                <span class="price">Free Access</span>
-                                <a href="pages/login.html" class="btn btn-secondary btn-sm">Learn More</a>
+                        <div style="padding: 24px;">
+                            <h3 style="font-size: 18px; font-weight: 700; margin-bottom: 10px;">Govt. Schemes Info</h3>
+                            <p style="font-size: 14px; color: var(--color-gray-500); line-height: 1.5; margin-bottom: 24px; min-height: 45px;">Stay updated with latest government construction schemes, subsidies, and housing benefits.</p>
+                            <div style="display: flex; justify-content: space-between; align-items: center; padding-top: 15px; border-top: 1px solid var(--color-gray-100);">
+                                <span style="font-weight: 700; color: var(--color-primary); font-size: 14px;">Free Access</span>
+                                <button style="background: transparent; border: 1.5px solid var(--color-primary); color: var(--color-primary); padding: 6px 16px; border-radius: 8px; font-size: 13px; font-weight: 700; cursor: pointer;">Learn More</button>
                             </div>
                         </div>
                     </article>
@@ -471,69 +420,82 @@
         </section>
     </main>
 
-    <!-- FOOTER -->
-    <footer class="footer section-padding" style="background: var(--color-gray-900); color: white;">
+    <!-- FOOTER REDESIGNED -->
+    <footer style="background: #0f172a; color: #94a3b8; padding: 80px 0 40px; font-family: 'Inter', sans-serif;">
         <div class="container">
-            <div class="grid" style="grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));">
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 60px; margin-bottom: 60px;">
+                <!-- Brand Section -->
                 <div>
-                    <div class="navbar-brand mb-4" style="color: white; text-transform: uppercase;">
-                        <img src="img/logo.jpg" alt="Logo" style="height: 40px; width: auto; border-radius: 4px;">
-                        <span><span style="color: #a855f7;">CIVIL</span> CONNECTION</span>
+                    <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 24px;">
+                        <img src="img/logo.jpg" alt="Logo" style="width: 40px; height: 40px; border-radius: 8px; object-fit: cover;">
+                        <span style="font-size: 20px; font-weight: 800; color: white; letter-spacing: -0.5px;">CIVIL <span style="color: #818cf8;">CONNECTION</span></span>
                     </div>
-                    <p style="color: var(--color-gray-400); margin-bottom: var(--space-lg);">Building the future of
-                        construction through digital connectivity.</p>
-                    <div class="flex" style="gap: var(--space-md);">
-                        <a href="#"><i class="fa-brands fa-facebook-f"></i></a>
-                        <a href="#"><i class="fa-brands fa-twitter"></i></a>
-                        <a href="#"><i class="fa-brands fa-instagram"></i></a>
-                        <a href="#"><i class="fa-brands fa-linkedin"></i></a>
+                    <p style="font-size: 15px; line-height: 1.6; margin-bottom: 24px; color: #cbd5e1;">Building the future of construction through digital connectivity.</p>
+                    <div style="display: flex; gap: 16px;">
+                        <a href="#" style="color: white; font-size: 18px; transition: color 0.3s ease;"><i class="fa-brands fa-facebook-f"></i></a>
+                        <a href="#" style="color: white; font-size: 18px; transition: color 0.3s ease;"><i class="fa-brands fa-x-twitter"></i></a>
+                        <a href="#" style="color: white; font-size: 18px; transition: color 0.3s ease;"><i class="fa-brands fa-instagram"></i></a>
+                        <a href="#" style="color: white; font-size: 18px; transition: color 0.3s ease;"><i class="fa-brands fa-linkedin-in"></i></a>
                     </div>
                 </div>
+
+                <!-- Quick Links -->
                 <div>
-                    <h4 class="mb-4">Quick Links</h4>
-                    <ul class="grid" style="gap: var(--space-sm); color: var(--color-gray-400);">
-                        <li><a href="#">Hire Workers</a></li>
-                        <li><a href="#">Find Engineers</a></li>
-                        <li><a href="#">Material Shop</a></li>
-                        <li><a href="#">Equipment Rental</a></li>
+                    <h4 style="color: white; font-size: 16px; font-weight: 700; margin-bottom: 24px;">Quick Links</h4>
+                    <ul style="list-style: none; padding: 0;">
+                        <li style="margin-bottom: 12px; display: flex; align-items: center;">
+                            <span style="color: #6366f1; margin-right: 10px;">•</span>
+                            <a href="#" style="color: inherit; text-decoration: none; font-size: 15px; transition: color 0.3s ease;">Hire Workers</a>
+                        </li>
+                        <li style="margin-bottom: 12px; display: flex; align-items: center;">
+                            <span style="color: #6366f1; margin-right: 10px;">•</span>
+                            <a href="#" style="color: inherit; text-decoration: none; font-size: 15px; transition: color 0.3s ease;">Find Engineers</a>
+                        </li>
+                        <li style="margin-bottom: 12px; display: flex; align-items: center;">
+                            <span style="color: #6366f1; margin-right: 10px;">•</span>
+                            <a href="#" style="color: inherit; text-decoration: none; font-size: 15px; transition: color 0.3s ease;">Material Shop</a>
+                        </li>
+                        <li style="margin-bottom: 12px; display: flex; align-items: center;">
+                            <span style="color: #6366f1; margin-right: 10px;">•</span>
+                            <a href="#" style="color: inherit; text-decoration: none; font-size: 15px; transition: color 0.3s ease;">Equipment Rental</a>
+                        </li>
                     </ul>
                 </div>
+
+                <!-- Company -->
                 <div>
-                    <h4 class="mb-4">Company</h4>
-                    <ul class="grid" style="gap: var(--space-sm); color: var(--color-gray-400);">
-                        <li><a href="#">About Us</a></li>
-                        <li><a href="#">Contact</a></li>
-                        <li><a href="#">Privacy Policy</a></li>
+                    <h4 style="color: white; font-size: 16px; font-weight: 700; margin-bottom: 24px;">Company</h4>
+                    <ul style="list-style: none; padding: 0;">
+                        <li style="margin-bottom: 12px; display: flex; align-items: center;">
+                            <span style="color: #6366f1; margin-right: 10px;">•</span>
+                            <a href="#" style="color: inherit; text-decoration: none; font-size: 15px; transition: color 0.3s ease;">About Us</a>
+                        </li>
+                        <li style="margin-bottom: 12px; display: flex; align-items: center;">
+                            <span style="color: #6366f1; margin-right: 10px;">•</span>
+                            <a href="#" style="color: inherit; text-decoration: none; font-size: 15px; transition: color 0.3s ease;">Contact</a>
+                        </li>
+                        <li style="margin-bottom: 12px; display: flex; align-items: center;">
+                            <span style="color: #6366f1; margin-right: 10px;">•</span>
+                            <a href="#" style="color: inherit; text-decoration: none; font-size: 15px; transition: color 0.3s ease;">Privacy Policy</a>
+                        </li>
                     </ul>
                 </div>
             </div>
-            <div class="mt-8 pt-8 text-center"
-                style="border-top: 1px solid var(--color-gray-800); color: var(--color-gray-500);">
-                <p>&copy; 2026 Civil Connection. All rights reserved.</p>
+
+            <!-- Copyright -->
+            <div style="border-top: 1px solid rgba(255,255,255,0.05); padding-top: 40px; text-align: center;">
+                <p style="font-size: 14px; color: #64748b;">&copy; 2026 Civil Connection. All rights reserved.</p>
             </div>
         </div>
     </footer>
 
-    <!-- SCRIPTS -->
-    <script src="assets/js/utils.js"></script>
-    <script src="assets/js/api.js"></script>
-    <script src="assets/js/components.js"></script>
-    <script src="assets/js/app.js"></script>
+    <!-- Scripts -->
     <script src="assets/js/animations.js"></script>
-
-
+    <script src="assets/js/slider.js"></script>
+    <!-- AOS Animation Library -->
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
     <script>
-        // Secret Admin Access Logic - Double Click the Logo
-        let lastClickTime = 0;
-        const logo = document.getElementById('main-logo');
-
-        logo.addEventListener('click', () => {
-            const currentTime = new Date().getTime();
-            if (currentTime - lastClickTime < 500) {
-                window.location.href = 'pages/login.html?role=admin';
-            }
-            lastClickTime = currentTime;
-        });
+        AOS.init({ duration: 1000, once: true, offset: 100 });
     </script>
 </body>
 

@@ -3,6 +3,7 @@ from flask_jwt_extended import create_access_token, create_refresh_token, jwt_re
 import bcrypt
 import logging
 from config import supabase
+from utils.storage import upload_file_to_supabase
 
 auth_bp = Blueprint('auth', __name__)
 logger = logging.getLogger(__name__)
@@ -68,24 +69,12 @@ def register():
             
             # 2. Insert into specialized registration table based on role
             if user_type == 'engineer':
-                # Handle File Saving
-                import os
-                from werkzeug.utils import secure_filename
-                
-                upload_folder = os.path.join(os.getcwd(), 'uploads')
-                if not os.path.exists(upload_folder):
-                    os.makedirs(upload_folder)
-
-                # Save certificates
+                # Save certificates to Supabase Storage (documents bucket)
                 docs = {}
                 for field in ['comp_cert', 'civil_cert', 'aadhar']:
                     file = request.files.get(field)
-                    if file and file.filename:
-                        filename = secure_filename(f"{user_id}_{field}_{file.filename}")
-                        file.save(os.path.join(upload_folder, filename))
-                        docs[field] = f"/uploads/{filename}"
-                    else:
-                        docs[field] = "not_provided"
+                    url = upload_file_to_supabase(file, 'documents')
+                    docs[field] = url if url else "not_provided"
 
                 reg_data = {
                     'user_id': user_id,
@@ -99,21 +88,9 @@ def register():
                 supabase.table('engineer_registrations').insert(reg_data).execute()
                 
             elif user_type == 'worker':
-                # Handle File Saving for Worker
-                import os
-                from werkzeug.utils import secure_filename
-                
-                upload_folder = os.path.join(os.getcwd(), 'uploads')
-                if not os.path.exists(upload_folder):
-                    os.makedirs(upload_folder)
-
-                # Save Aadhar
-                aadhar_url = "not_provided"
+                # Save Aadhar to Supabase Storage (documents bucket)
                 file = request.files.get('aadhar')
-                if file and file.filename:
-                    filename = secure_filename(f"{user_id}_aadhar_{file.filename}")
-                    file.save(os.path.join(upload_folder, filename))
-                    aadhar_url = f"/uploads/{filename}"
+                aadhar_url = upload_file_to_supabase(file, 'documents') or "not_provided"
 
                 reg_data = {
                     'user_id': user_id,
@@ -132,23 +109,10 @@ def register():
                 supabase.table('worker_registrations').insert(reg_data).execute()
                 
             elif user_type == 'shopkeeper':
-                # Handle File Saving for Shopkeeper
-                import os
-                from werkzeug.utils import secure_filename
-                
-                upload_folder = os.path.join(os.getcwd(), 'uploads')
-                if not os.path.exists(upload_folder):
-                    os.makedirs(upload_folder)
-
+                # Save Shopkeeper documents to Supabase Storage (documents bucket for GST, media for photo)
                 docs = {}
-                for field in ['gst_doc', 'shop_photo']:
-                    file = request.files.get(field)
-                    if file and file.filename:
-                        filename = secure_filename(f"{user_id}_{field}_{file.filename}")
-                        file.save(os.path.join(upload_folder, filename))
-                        docs[field] = f"/uploads/{filename}"
-                    else:
-                        docs[field] = "not_provided"
+                docs['gst_doc'] = upload_file_to_supabase(request.files.get('gst_doc'), 'documents') or "not_provided"
+                docs['shop_photo'] = upload_file_to_supabase(request.files.get('shop_photo'), 'media') or "not_provided"
 
                 reg_data = {
                     'user_id': user_id,
@@ -167,20 +131,9 @@ def register():
                 supabase.table('shopkeeper_registrations').insert(reg_data).execute()
 
             elif user_type == 'renter':
-                # Handle File Saving for Renter
-                import os
-                from werkzeug.utils import secure_filename
-                
-                upload_folder = os.path.join(os.getcwd(), 'uploads')
-                if not os.path.exists(upload_folder):
-                    os.makedirs(upload_folder)
-
-                doc_url = "not_provided"
+                # Save Renter verification to Supabase Storage (documents bucket)
                 file = request.files.get('verification_doc')
-                if file and file.filename:
-                    filename = secure_filename(f"{user_id}_renter_doc_{file.filename}")
-                    file.save(os.path.join(upload_folder, filename))
-                    doc_url = f"/uploads/{filename}"
+                doc_url = upload_file_to_supabase(file, 'documents') or "not_provided"
 
                 reg_data = {
                     'user_id': user_id,
@@ -379,16 +332,9 @@ def update_user_profile():
         except: return None
 
     try:
-        # Handle Photo Upload
-        profile_pic_url = None
+        # Handle Photo Upload to Supabase Storage (media bucket)
         file = request.files.get('photo')
-        if file and file.filename:
-            upload_folder = os.path.join(os.getcwd(), 'uploads')
-            if not os.path.exists(upload_folder):
-                os.makedirs(upload_folder)
-            filename = secure_filename(f"user_{user_id}_{file.filename}")
-            file.save(os.path.join(upload_folder, filename))
-            profile_pic_url = f"/uploads/{filename}"
+        profile_pic_url = upload_file_to_supabase(file, 'media')
 
         # Build update object
         update_data = {
@@ -432,15 +378,9 @@ def update_profile():
         files = request.files.getlist('shop_images')
         
         if files:
-            upload_folder = os.path.join(os.getcwd(), 'uploads')
-            if not os.path.exists(upload_folder):
-                os.makedirs(upload_folder)
-            
             for file in files:
-                if file and file.filename:
-                    filename = secure_filename(f"shop_{user_id}_{os.urandom(4).hex()}_{file.filename}")
-                    file.save(os.path.join(upload_folder, filename))
-                    shop_image_urls.append(f"/uploads/{filename}")
+                url = upload_file_to_supabase(file, 'media')
+                if url: shop_image_urls.append(url)
 
         update_fields = {
             'full_name': data.get('name') or data.get('full_name'),
@@ -491,21 +431,15 @@ def verify_customer():
         return jsonify({'error': 'Missing required fields'}), 400
 
     try:
-        import os
-        upload_folder = os.path.join(os.getcwd(), 'uploads', 'verifications')
-        if not os.path.exists(upload_folder): os.makedirs(upload_folder)
-        
-        a_path = os.path.join(upload_folder, f"aadhar_{user_id}_{aadhar.filename}")
-        d_path = os.path.join(upload_folder, f"dl_{user_id}_{dl.filename}")
-        
-        aadhar.save(a_path)
-        dl.save(d_path)
+        # Save verification documents to Supabase Storage (documents bucket)
+        aadhar_url = upload_file_to_supabase(aadhar, 'documents')
+        dl_url = upload_file_to_supabase(dl, 'documents')
 
         # Update user record
         supabase.table('users').update({
             'is_id_verified': False, 
-            'aadhar_url': f"/uploads/verifications/{os.path.basename(a_path)}",
-            'dl_url': f"/uploads/verifications/{os.path.basename(d_path)}",
+            'aadhar_url': aadhar_url,
+            'dl_url': dl_url,
             'verification_status': 'pending'
         }).eq('id', user_id).execute()
 

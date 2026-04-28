@@ -3,6 +3,7 @@ from flask_jwt_extended import jwt_required, get_jwt_identity
 import os
 from werkzeug.utils import secure_filename
 from config import supabase
+from utils.storage import upload_file_to_supabase
 
 engineer_bp = Blueprint('engineer', __name__)
 
@@ -11,26 +12,16 @@ def add_project():
     user_id = request.form.get('engineer_id') or "397b607d-ecab-4803-9c58-523dc22b0144" 
     data = request.form
     
-    upload_folder = os.path.join(os.getcwd(), 'uploads')
-    if not os.path.exists(upload_folder):
-        os.makedirs(upload_folder)
-
-    # 1. Save Sketch
+    # 1. Save Sketch to Supabase (media bucket)
     sketch_file = request.files.get('sketch')
-    sketch_url = "not_provided"
-    if sketch_file and sketch_file.filename:
-        filename = secure_filename(f"sketch_{user_id}_{sketch_file.filename}")
-        sketch_file.save(os.path.join(upload_folder, filename))
-        sketch_url = f"/uploads/{filename}"
+    sketch_url = upload_file_to_supabase(sketch_file, 'media') or "not_provided"
 
-    # 2. Save Multiple Photos
+    # 2. Save Multiple Photos to Supabase (media bucket)
     image_files = request.files.getlist('images')
     image_urls = []
     for img in image_files:
-        if img and img.filename:
-            filename = secure_filename(f"proj_{user_id}_{img.filename}")
-            img.save(os.path.join(upload_folder, filename))
-            image_urls.append(f"/uploads/{filename}")
+        url = upload_file_to_supabase(img, 'media')
+        if url: image_urls.append(url)
 
     try:
         project_data = {
@@ -84,12 +75,9 @@ def get_attendance():
 def add_certification():
     data = request.form
     engineer_id = data.get('engineer_id') or "397b607d-ecab-4803-9c58-523dc22b0144"
+    # Save Certification to Supabase Storage (documents bucket)
     file = request.files.get('cert_file')
-    img_url = "not_uploaded"
-    if file:
-        filename = secure_filename(f"cert_{engineer_id}_{file.filename}")
-        file.save(os.path.join(os.getcwd(), 'uploads', filename))
-        img_url = f"/uploads/{filename}"
+    img_url = upload_file_to_supabase(file, 'documents') or "not_uploaded"
 
     try:
         supabase.table('engineer_certifications').insert({

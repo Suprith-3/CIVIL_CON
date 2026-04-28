@@ -4,6 +4,7 @@ from config import supabase
 import uuid
 import os
 import base64
+from utils.storage import upload_file_to_supabase
 
 items_bp = Blueprint('items', __name__)
 
@@ -47,47 +48,15 @@ def add_item():
         if not os.path.exists(upload_folder):
             os.makedirs(upload_folder)
 
-        def save_file_to_supabase(file, prefix='item'):
-            if not file or not file.filename:
-                return None
-            
-            try:
-                # 1. Ensure bucket exists (Speed: only runs if config is present)
-                try:
-                    bucket = supabase.storage.get_bucket('media')
-                except:
-                    supabase.storage.create_bucket('media', options={'public': True})
 
-                # 2. Upload file
-                ext = file.filename.split('.')[-1]
-                fname = f"{uuid.uuid4()}_{prefix}.{ext}"
-                
-                # Reserving the file read
-                file.seek(0)
-                file_content = file.read()
-                
-                supabase.storage.from_('media').upload(
-                    path=fname,
-                    file=file_content,
-                    file_options={"content-type": file.content_type}
-                )
-                
-                # 3. Return the public URL
-                res = supabase.storage.from_('media').get_public_url(fname)
-                return res
-            except Exception as e:
-                import logging
-                logging.error(f"SUPABASE UPLOAD ERROR: {str(e)}")
-                return None
-
-        image_url = save_file_to_supabase(main_file, 'main')
+        image_url = upload_file_to_supabase(main_file, 'media')
         
         extra_urls = []
         for ef in extra_files:
-            url = save_file_to_supabase(ef, 'extra')
+            url = upload_file_to_supabase(ef, 'media')
             if url: extra_urls.append(url)
         
-        ins_url = save_file_to_supabase(insurance_file, 'ins')
+        ins_url = upload_file_to_supabase(insurance_file, 'documents')
 
         new_item = {
             'owner_id': user_id,
