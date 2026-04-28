@@ -1,5 +1,5 @@
 const API_BASE_URL = '/api';
-const IMG_BASE_URL = window.location.origin;
+const IMG_BASE_URL = '';
 
 export function initLogin(role) {
     const form = document.getElementById('loginForm');

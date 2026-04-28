@@ -1,10 +1,5 @@
-const API_BASE_URL = window.location.hostname === '127.0.0.1' || window.location.hostname === 'localhost' 
-    ? 'http://127.0.0.1:10000/api' 
-    : 'https://civilconnect-m3lr.onrender.com/api';
-
-const IMG_BASE_URL = window.location.hostname === '127.0.0.1' || window.location.hostname === 'localhost'
-    ? 'http://127.0.0.1:10000'
-    : 'https://civilconnect-m3lr.onrender.com';
+const API_BASE_URL = '/api';
+const IMG_BASE_URL = '';
 
 const API = {
     get: async (endpoint) => {
