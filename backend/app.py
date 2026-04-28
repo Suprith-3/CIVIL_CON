@@ -1,7 +1,7 @@
 import os
 from flask import Flask, jsonify, request, redirect, current_app
-from flask_cors import CORS
 from flask_jwt_extended import JWTManager
+from extensions import limiter, compress
 from config import Config
 import logging
 
@@ -14,7 +14,16 @@ def create_app():
     app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024  # 16 MB limit
 
     # Initialize extensions
-    CORS(app, resources={r"/*": {"origins": "*"}})
+    from flask_cors import CORS
+    # 1. CORS with Restricted Origins
+    CORS(app, resources={r"/*": {"origins": Config.ALLOWED_ORIGINS}}, supports_credentials=True)
+
+    # 2. Gzip Compression
+    compress.init_app(app)
+    
+    # 3. Rate Limiting
+    limiter.init_app(app)
+    
     jwt = JWTManager(app)
 
     # JWT Error handlers

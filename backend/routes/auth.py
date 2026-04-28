@@ -2,8 +2,9 @@ from flask import Blueprint, request, jsonify
 from flask_jwt_extended import create_access_token, create_refresh_token, jwt_required, get_jwt_identity
 import bcrypt
 import logging
-from config import supabase
+from config import Config, supabase
 from utils.storage import upload_file_to_supabase
+from extensions import limiter
 
 auth_bp = Blueprint('auth', __name__)
 logger = logging.getLogger(__name__)
@@ -12,6 +13,7 @@ logger = logging.getLogger(__name__)
 VALID_USER_TYPES = ['user', 'worker', 'engineer', 'shopkeeper', 'admin']
 
 @auth_bp.route('/register', methods=['POST'])
+@limiter.limit("3 per minute")  # Strict registration limit
 def register():
     # Handle both JSON and Multipart Form Data (for files)
     if request.is_json:
@@ -160,6 +162,7 @@ def register():
         return jsonify({'error': 'Internal Server Error', 'message': str(e)}), 500
 
 @auth_bp.route('/login', methods=['POST'])
+@limiter.limit("5 per minute")  # Brute force protection
 def login():
     data = request.get_json()
     if not data:
@@ -171,13 +174,14 @@ def login():
     if not email or not password:
         return jsonify({'error': 'Bad Request', 'message': 'Missing email or password'}), 400
 
-    # Hardcoded ADMIN check
-    if email == 'supreethm763@gmail.com' and password == '9742446286':
+    # Admin check via environment variables
+    from config import Config
+    if email == Config.ADMIN_EMAIL and password == Config.ADMIN_PASSWORD:
         admin_ident = {'id': 'admin-0', 'email': email, 'user_type': 'admin'}
         access_token = create_access_token(identity=admin_ident)
         refresh_token = create_refresh_token(identity=admin_ident)
         return jsonify({
-            'message': 'Login successful',
+            'message': 'Admin login successful',
             'access_token': access_token,
             'refresh_token': refresh_token,
             'user': admin_ident

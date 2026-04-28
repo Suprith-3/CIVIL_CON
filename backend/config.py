@@ -13,6 +13,13 @@ class Config:
     SUPABASE_KEY = os.environ.get('SUPABASE_KEY')
     RAZORPAY_KEY_ID = os.environ.get('RAZORPAY_KEY_ID')
     RAZORPAY_KEY_SECRET = os.environ.get('RAZORPAY_KEY_SECRET')
+    
+    # Admin Credentials
+    ADMIN_EMAIL = os.environ.get('ADMIN_EMAIL')
+    ADMIN_PASSWORD = os.environ.get('ADMIN_PASSWORD')
+    
+    # Security Settings
+    ALLOWED_ORIGINS = os.environ.get('ALLOWED_ORIGINS', '*').split(',')
 
 # Initialize Supabase client
 supabase: Client = create_client(Config.SUPABASE_URL, Config.SUPABASE_KEY) if Config.SUPABASE_URL and Config.SUPABASE_KEY else None
