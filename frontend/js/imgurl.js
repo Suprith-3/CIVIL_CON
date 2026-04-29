@@ -43,17 +43,26 @@ function imgUrl(url, fallback = 'https://placehold.co/400x300?text=No+Image+Prov
         cleanUrl = cleanUrl.replace(/^https?:\/\/[^\/]+/, '');
     }
 
-    // 5. Handle JSON array strings (Supabase often returns these for multiple images)
-    if (cleanUrl.startsWith('[') && cleanUrl.endsWith(']')) {
+    // 5. Handle JSON array strings or comma-separated lists
+    if (cleanUrl.startsWith('[') || cleanUrl.includes(',')) {
         try {
-            const arr = JSON.parse(cleanUrl);
-            if (Array.isArray(arr) && arr.length > 0) {
-                cleanUrl = arr[0]; // Take first image
-            } else {
-                return fallback;
+            // Try parsing as JSON array
+            if (cleanUrl.startsWith('[')) {
+                const arr = JSON.parse(url.trim()); // Parse the original with brackets
+                if (Array.isArray(arr) && arr.length > 0) {
+                    cleanUrl = arr[0].trim().replace(/^["']|["']$/g, '');
+                }
+            } else if (cleanUrl.includes(',')) {
+                // Try splitting by comma
+                const parts = cleanUrl.split(',');
+                if (parts.length > 0) {
+                    cleanUrl = parts[0].trim().replace(/^["']|["']$/g, '');
+                }
             }
         } catch (e) {
-            return fallback;
+            // If JSON parse fails, the aggressive regex cleaning at step 2 already stripped brackets
+            // so we just take the first part before any remaining comma
+            cleanUrl = cleanUrl.split(',')[0].trim().replace(/^["']|["']$/g, '');
         }
     }
 
