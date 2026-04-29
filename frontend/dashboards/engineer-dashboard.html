@@ -13,6 +13,8 @@
     <title>Engineer Hub | CIVIL CONNECTION</title>
     <link rel="stylesheet" href="../css/style.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../assets/css/mobile.css">
+    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
     <style>
         body { 
             background: linear-gradient(rgba(249, 250, 251, 0.82), rgba(249, 250, 251, 0.82)), 
@@ -139,7 +141,11 @@
         </div>
         <nav class="nav-menu">
             <div class="nav-link active" onclick="showSection('portfolio', this)">📊 Portfolio</div>
-            <div class="nav-link" onclick="showSection('messages', this)">💬 Client Messages</div>
+            <div class="nav-link" onclick="showSection('messages', this)">
+                💬 Client Messages
+                <span id="msgBadge" style="display:none; background:#ef4444; color:white; font-size:10px; padding:2px 6px; border-radius:10px; margin-left:5px;">0</span>
+            </div>
+            <div class="nav-link" onclick="showSection('job-tracking', this)">🚜 Live Job Tracking</div>
             <div class="nav-link" onclick="showSection('attendance', this)">👥 Laborer Attendance</div>
             <div class="nav-link" onclick="showSection('certs', this)">📄 Certifications</div>
             <div class="nav-link" onclick="showSection('settings', this)">⚙️ Profile Settings</div>
@@ -176,8 +182,31 @@
 
         <!-- MESSAGES -->
         <div id="messages" class="section">
-            <h1>Client <span style="color:#2563eb;">Inquiries</span></h1>
-            <div class="card"><p style="text-align:center; color:#64748b; padding:3rem;">No active project inquiries from clients.</p></div>
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:2rem;">
+                <div>
+                    <h1 style="margin:0;">Inbox & <span style="color:#2563eb;">Notifications</span></h1>
+                    <p style="color:#64748b; margin-top:5px;">Read updates from workers and inquiries from customers.</p>
+                </div>
+                <button class="btn-primary" onclick="loadMessages()">🔄 Refresh Inbox</button>
+            </div>
+            <div id="messageList" class="grid" style="display:grid; grid-template-columns: 1fr; gap:1rem;">
+                <!-- Messages injected here -->
+            </div>
+        </div>
+
+        <!-- LIVE JOB TRACKING -->
+        <div id="job-tracking" class="section">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:2rem;">
+                <div>
+                    <h1 style="margin:0;">Live <span style="color:#2563eb;">Job Tracking</span></h1>
+                    <p style="color:#64748b; margin-top:5px; font-size: 0.9rem;">Monitor worker responses, arrival selfies, and completion photos.</p>
+                </div>
+                <button class="btn-primary" onclick="loadJobTracking()">🔄 Refresh Data</button>
+            </div>
+            
+            <div id="jobTrackingGrid" style="display:grid; grid-template-columns: repeat(auto-fill, minmax(350px, 1fr)); gap: 1.5rem;">
+                <!-- Job cards will be injected here -->
+            </div>
         </div>
 
         <!-- ATTENDANCE (App-Like Tracker) -->
@@ -336,11 +365,41 @@
         // IMG_BASE_URL is now handled by imgurl.js
         const engineer_id = localStorage.getItem('user_id');
 
+        // Auto-refresh notifications every 30 seconds
+        setInterval(() => {
+            const msgSection = document.getElementById('messages');
+            if (msgSection && msgSection.classList.contains('active')) {
+                loadMessages();
+            } else {
+                updateMessageBadge();
+            }
+        }, 30000);
+
+        async function updateMessageBadge() {
+            try {
+                const res = await fetch(`${API_BASE_URL}/auth/messages?user_id=${engineer_id}`);
+                const data = await res.json();
+                const badge = document.getElementById('msgBadge');
+                if (data.messages && badge) {
+                    const unread = data.messages.filter(m => !m.is_read).length;
+                    if (unread > 0) {
+                        badge.style.display = 'inline-block';
+                        badge.textContent = unread;
+                    } else {
+                        badge.style.display = 'none';
+                    }
+                }
+            } catch(e) {}
+        }
+
         function showSection(id, el) {
             document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
             document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
             document.getElementById(id).classList.add('active');
             el.classList.add('active');
+
+            if (id === 'job-tracking') loadJobTracking();
+            if (id === 'messages') loadMessages();
         }
 
         function openModal(id) { document.getElementById(id).style.display = 'flex'; }
@@ -485,7 +544,8 @@
                 worker_code: w.code, 
                 location: w.site, 
                 assigned_work: w.role, 
-                status: fullStatus, 
+                status: 'assigned', // Initial status
+                attendance_status: fullStatus, 
                 engineer_id: engineer_id 
             };
             console.log("DEBUG: Syncing to backend:", data);
@@ -501,6 +561,114 @@
             } catch(e) { 
                 console.error("Backend sync failed:", e);
                 alert("⚠️ Work Assignment Failed to sync! " + e.message);
+            }
+        }
+
+        async function loadJobTracking() {
+            const grid = document.getElementById('jobTrackingGrid');
+            grid.innerHTML = '<p>Fetching live updates...</p>';
+            try {
+                const res = await fetch(`${API_BASE_URL}/engineer/attendance?engineer_id=${engineer_id}`);
+                const data = await res.json();
+                grid.innerHTML = '';
+                
+                if (data.attendance && data.attendance.length > 0) {
+                    data.attendance.forEach(job => {
+                        const statusColor = {
+                            'assigned': '#64748b',
+                            'accepted': '#3b82f6',
+                            'rejected': '#ef4444',
+                            'started': '#10b981',
+                            'completed': '#059669'
+                        }[job.status] || '#64748b';
+
+                        grid.innerHTML += `
+                            <div class="card" style="padding: 1.5rem; border-left: 5px solid ${statusColor};">
+                                <div style="display:flex; justify-content:space-between; align-items:start; margin-bottom: 1rem;">
+                                    <div>
+                                        <h3 style="margin:0;">${job.worker_name}</h3>
+                                        <p style="font-size:0.8rem; color:#64748b; margin:2px 0;">Code: ${job.worker_code || 'N/A'}</p>
+                                    </div>
+                                    <span class="badge" style="background:${statusColor}22; color:${statusColor};">${job.status || 'assigned'}</span>
+                                </div>
+                                
+                                <div style="font-size:0.9rem; margin-bottom: 1rem;">
+                                    <p style="margin:5px 0;">🛠️ <strong>Work:</strong> ${job.assigned_work}</p>
+                                    <p style="margin:5px 0;">📍 <strong>Site:</strong> ${job.location}</p>
+                                </div>
+
+                                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 15px;">
+                                    <div>
+                                        <label style="font-size:0.65rem; font-weight:800; color:#94a3b8; text-transform:uppercase;">Arrival Selfie</label>
+                                        ${job.arrival_selfie_url ? `
+                                            <a href="${window.imgUrl(job.arrival_selfie_url)}" target="_blank">
+                                                <div style="height:100px; background-image:url('${window.imgUrl(job.arrival_selfie_url)}'); background-size:cover; background-position:center; border-radius:10px; border:1px solid #e2e8f0; background-color:#f1f5f9;"></div>
+                                            </a>
+                                            <p style="font-size:0.6rem; color:#10b981; margin:3px 0;">✅ Verified Reach</p>
+                                        ` : `
+                                            <div style="height:100px; background:#f8fafc; border-radius:10px; border:1px dashed #cbd5e1; display:flex; align-items:center; justify-content:center; color:#94a3b8; font-size:0.7rem; text-align:center;">Pending<br>Arrival</div>
+                                        `}
+                                    </div>
+                                    <div>
+                                        <label style="font-size:0.65rem; font-weight:800; color:#94a3b8; text-transform:uppercase;">Work Photo</label>
+                                        ${job.completion_photo_url ? `
+                                            <a href="${window.imgUrl(job.completion_photo_url)}" target="_blank">
+                                                <div style="height:100px; background-image:url('${window.imgUrl(job.completion_photo_url)}'); background-size:cover; background-position:center; border-radius:10px; border:1px solid #e2e8f0; background-color:#f1f5f9;"></div>
+                                            </a>
+                                            <p style="font-size:0.6rem; color:#059669; margin:3px 0;">✅ Work Done</p>
+                                        ` : `
+                                            <div style="height:100px; background:#f8fafc; border-radius:10px; border:1px dashed #cbd5e1; display:flex; align-items:center; justify-content:center; color:#94a3b8; font-size:0.7rem; text-align:center;">Pending<br>Completion</div>
+                                        `}
+                                    </div>
+                                </div>
+                            </div>
+                        `;
+                    });
+                } else {
+                    grid.innerHTML = '<div class="card" style="grid-column: 1/-1; text-align:center; color:#64748b;">No jobs have been assigned through the tracking system yet.</div>';
+                }
+            } catch (err) {
+                grid.innerHTML = '<p>Error loading live updates.</p>';
+            }
+        }
+
+        async function loadMessages() {
+            const list = document.getElementById('messageList');
+            const badge = document.getElementById('msgBadge');
+            list.innerHTML = '<p>Checking for new notifications...</p>';
+            try {
+                // Fetching from a general messages endpoint - assuming it exists or using a filtered one
+                const res = await fetch(`${API_BASE_URL}/auth/messages?user_id=${engineer_id}`);
+                const data = await res.json();
+                list.innerHTML = '';
+                
+                if (data.messages && data.messages.length > 0) {
+                    const unread = data.messages.filter(m => !m.is_read).length;
+                    if (unread > 0) {
+                        badge.style.display = 'inline-block';
+                        badge.textContent = unread;
+                    } else {
+                        badge.style.display = 'none';
+                    }
+
+                    data.messages.forEach(m => {
+                        const date = new Date(m.created_at).toLocaleString();
+                        list.innerHTML += `
+                            <div class="card" style="padding: 1.5rem; margin-bottom: 0.5rem; ${m.is_read ? 'opacity: 0.8;' : 'border-left: 5px solid #2563eb;'}">
+                                <div style="display:flex; justify-content:space-between; margin-bottom: 5px;">
+                                    <span style="font-size: 0.75rem; font-weight: 800; color: #64748b; text-transform: uppercase;">System Notification</span>
+                                    <span style="font-size: 0.7rem; color: #94a3b8;">${date}</span>
+                                </div>
+                                <p style="margin:0; font-weight: 600; color: #1e293b;">${m.message}</p>
+                            </div>
+                        `;
+                    });
+                } else {
+                    list.innerHTML = '<div class="card" style="text-align:center; padding:3rem; color:#64748b;">No new messages or notifications.</div>';
+                    badge.style.display = 'none';
+                }
+            } catch (err) {
+                list.innerHTML = '<p>Error loading inbox.</p>';
             }
         }
 
@@ -593,21 +761,83 @@
             document.getElementById('workerForm').reset();
         }
 
-        document.getElementById('advanceForm').onsubmit = (e) => {
+        document.getElementById('advanceForm').onsubmit = async (e) => {
             e.preventDefault();
             const index = document.getElementById('advWorkerIndex').value;
-            const advParams = {
-                amount: document.getElementById('advAmount').value,
-                date: document.getElementById('advDate').value,
-                note: document.getElementById('advNote').value
-            };
+            const worker = localWorkers[index];
+            const amount = document.getElementById('advAmount').value;
+            const date = document.getElementById('advDate').value;
+            const note = document.getElementById('advNote').value;
             
-            if(!localWorkers[index].advances) localWorkers[index].advances = [];
-            localWorkers[index].advances.push(advParams);
-            
-            saveLocalWorkers();
-            closeAllModals();
-            document.getElementById('advanceForm').reset();
+            const btn = e.target.querySelector('button');
+            const originalText = btn.textContent;
+            btn.disabled = true;
+            btn.textContent = 'Preparing Payment...';
+
+            try {
+                // 1. Create Order on Backend
+                const orderRes = await fetch(`${API_BASE_URL}/engineer/create-advance-order`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ amount: amount })
+                });
+                const order = await orderRes.json();
+
+                if (!orderRes.ok) throw new Error(order.error || "Failed to create order");
+
+                // 2. Open Razorpay Checkout
+                const options = {
+                    key: order.key_id, // Dynamically use key from backend
+                    amount: order.amount,
+                    currency: "INR",
+                    name: "CIVIL CONNECTION",
+                    description: `Advance Payment to ${worker.name}`,
+                    order_id: order.order_id,
+                    handler: async function (response) {
+                        // 3. Verify Payment on Backend
+                        const verifyRes = await fetch(`${API_BASE_URL}/engineer/verify-advance-payment`, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({
+                                ...response,
+                                engineer_id: engineer_id,
+                                worker_code: worker.code,
+                                amount: amount,
+                                note: note,
+                                date: date
+                            })
+                        });
+
+                        if (verifyRes.ok) {
+                            alert(`✅ Payment Successful! ₹${amount} sent to ${worker.name}`);
+                            
+                            // Update Local Storage
+                            if(!worker.advances) worker.advances = [];
+                            worker.advances.push({ amount, date, note, payment_id: response.razorpay_payment_id });
+                            saveLocalWorkers();
+                            
+                            closeAllModals();
+                            document.getElementById('advanceForm').reset();
+                        } else {
+                            const err = await verifyRes.json();
+                            alert("❌ Verification Failed: " + err.error);
+                        }
+                    },
+                    prefill: {
+                        name: localStorage.getItem('user_name') || "Engineer",
+                    },
+                    theme: { color: "#f59e0b" }
+                };
+
+                const rzp = new Razorpay(options);
+                rzp.open();
+
+            } catch (err) {
+                alert("Payment Error: " + err.message);
+            } finally {
+                btn.disabled = false;
+                btn.textContent = originalText;
+            }
         }
 
         document.getElementById('certForm').onsubmit = async (e) => {

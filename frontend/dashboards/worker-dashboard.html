@@ -15,6 +15,7 @@
     <link rel="stylesheet" href="../css/style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../assets/css/mobile.css">
     <style>
         body {
             background: linear-gradient(rgba(249, 250, 251, 0.85), rgba(249, 250, 251, 0.85)), 
@@ -261,8 +262,18 @@
         <!-- Inquiries Section -->
         <div id="inquiriesSection" style="display:none;">
             <div style="margin-bottom: 2rem;">
-                <h1 style="margin:0;">Active <span style="color: #2563eb;">Bookings & Hub</span></h1>
-                <p style="color: #64748b;">Track your 85% milestone payments and mark jobs as complete.</p>
+                <h1 style="margin:0;">Inbox & <span style="color: #2563eb;">Notifications</span></h1>
+                <p style="color: #64748b;">Read updates from engineers and payment confirmations.</p>
+            </div>
+            
+            <!-- Message List -->
+            <div id="messageList" style="margin-bottom: 3rem;">
+                <p>Checking for notifications...</p>
+            </div>
+
+            <div style="margin-bottom: 2rem; border-top: 1px solid #e2e8f0; pt-2rem;">
+                <h2 style="margin:0;">Active <span style="color: #2563eb;">Bookings</span></h2>
+                <p style="color: #64748b;">Track your 85% milestone projects here.</p>
             </div>
             <div id="bookingList" class="grid"></div>
         </div>
@@ -368,6 +379,71 @@
         function openModal() { document.getElementById('workModal').style.display = 'flex'; }
         function closeModal() { document.getElementById('workModal').style.display = 'none'; }
         function logout() { localStorage.clear(); window.location.href = '../pages/login.html'; }
+
+        function showSection(id, el) {
+            document.querySelectorAll('.section').forEach(s => s.style.display = 'none');
+            const target = document.getElementById(id + 'Section');
+            if (target) target.style.display = 'block';
+            
+            // Update sidebar links
+            document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
+            if (el) el.classList.add('active');
+            
+            if (id === 'inquiries') loadMessages();
+        }
+
+        // Auto-refresh notifications every 30 seconds
+        setInterval(() => {
+            const inbox = document.getElementById('inquiriesSection');
+            if (inbox && inbox.style.display === 'block') {
+                loadMessages();
+            }
+        }, 30000);
+
+        async function loadMessages() {
+            const list = document.getElementById('messageList');
+            const badge = document.getElementById('bookingBadge');
+            
+            // Only show "Checking" if the list is currently empty
+            if (list.innerHTML.includes('No new') || list.innerHTML.includes('Checking')) {
+                list.innerHTML = '<p style="color:#64748b; font-style:italic;">Checking for new notifications...</p>';
+            }
+
+            try {
+                const res = await fetch(`${API_BASE_URL}/auth/messages?user_id=${worker_id}`);
+                const data = await res.json();
+                list.innerHTML = '';
+                
+                if (data.messages && data.messages.length > 0) {
+                    const unread = data.messages.filter(m => !m.is_read).length;
+                    if (unread > 0 && badge) {
+                        badge.style.display = 'inline-block';
+                        badge.textContent = unread;
+                    } else if(badge) {
+                        badge.style.display = 'none';
+                    }
+
+                    data.messages.forEach(m => {
+                        const date = new Date(m.created_at).toLocaleString();
+                        const isAdvance = m.message.includes('Advance') || m.message.includes('Payment');
+                        list.innerHTML += `
+                            <div class="card" style="padding: 1.5rem; margin-bottom: 1rem; border-left: 5px solid ${isAdvance ? '#f59e0b' : '#2563eb'};">
+                                <div style="display:flex; justify-content:space-between; margin-bottom: 5px;">
+                                    <span style="font-size: 0.75rem; font-weight: 800; color: #64748b; text-transform: uppercase;">${isAdvance ? '💰 Payment Notification' : '🔔 System Update'}</span>
+                                    <span style="font-size: 0.7rem; color: #94a3b8;">${date}</span>
+                                </div>
+                                <p style="margin:0; font-weight: 600; color: #1e293b;">${m.message}</p>
+                            </div>
+                        `;
+                    });
+                } else {
+                    list.innerHTML = '<div style="text-align:center; padding:3rem; color:#94a3b8;">No new messages.</div>';
+                    if(badge) badge.style.display = 'none';
+                }
+            } catch (err) {
+                list.innerHTML = '<p>Error loading inbox.</p>';
+            }
+        }
 
         async function loadWorkerStats() {
             try {
@@ -502,15 +578,62 @@
                         // Check if this work was assigned today
                         if (displayDate === today) hasWorkToday = true;
 
+                        // Normalize status for checking
+                        const currentStatus = (work.status || 'assigned').toLowerCase();
+
                         list.innerHTML += `
-                            <div class="card" style="border-left: 5px solid ${colorCode}; padding: 1.5rem; position: relative; margin-bottom: 1rem;">
-                                <div style="display:flex; justify-content:space-between;">
-                                    <h3 style="margin:0;">Task: ${work.assigned_work}</h3>
-                                    <span style="background:${colorCode}22; color:${colorCode}; padding:5px 10px; border-radius:12px; font-weight:700; font-size:0.8rem;">${work.attendance_status}</span>
+                            <div class="card" style="border-left: 5px solid ${colorCode}; padding: 1.5rem; position: relative; margin-bottom: 1.5rem; box-shadow: 0 4px 15px rgba(0,0,0,0.05);">
+                                <div style="display:flex; justify-content:space-between; align-items: center; margin-bottom: 1rem;">
+                                    <h3 style="margin:0; font-size: 1.1rem; font-weight: 700;">Task: ${work.assigned_work}</h3>
+                                    <span style="background:${colorCode}22; color:${colorCode}; padding:6px 12px; border-radius:12px; font-weight:800; font-size:0.75rem; text-transform: uppercase;">${currentStatus}</span>
                                 </div>
-                                <div style="margin-top: 1rem; color:#64748b; font-size: 0.9rem;">
-                                    <p style="margin:5px 0;">📍 <strong>Site Location:</strong> ${work.location}</p>
-                                    <p style="margin:5px 0;">📅 <strong>Date Assigned:</strong> ${displayDate}</p>
+                                
+                                <div style="color:#64748b; font-size: 0.9rem; margin-bottom: 1.5rem;">
+                                    <p style="margin:5px 0;">📅 <strong>Assigned On:</strong> ${displayDate}</p>
+                                    
+                                    ${(currentStatus === 'accepted' || currentStatus === 'started' || currentStatus === 'completed') ? `
+                                        <div style="background: #eff6ff; padding: 12px; border-radius: 12px; border: 1px solid #dbeafe; margin-top: 10px;">
+                                            <p style="margin:0; color: #1e40af;">📍 <strong>Work Location:</strong> ${work.location}</p>
+                                            <a href="https://www.google.com/maps/search/${encodeURIComponent(work.location)}" target="_blank" style="font-size: 0.75rem; color: #2563eb; text-decoration: none; font-weight: 700; display: inline-block; mt-5px;">🗺️ Open in Google Maps</a>
+                                        </div>
+                                    ` : `
+                                        <p style="margin:10px 0; font-style: italic; color: #94a3b8; font-size: 0.8rem;">(Location will be visible once you ACCEPT the job)</p>
+                                    `}
+                                </div>
+
+                                <div id="action-area-${work.id}">
+                                    ${currentStatus === 'assigned' ? `
+                                        <div style="display: flex; gap: 10px;">
+                                            <button onclick="respondJob('${work.id}', 'accepted')" class="btn-primary" style="flex: 1; background: #10b981; border:none; padding:12px; border-radius:10px; cursor:pointer; color:white; font-weight:700;">✅ Accept</button>
+                                            <button onclick="respondJob('${work.id}', 'rejected')" class="btn-primary" style="flex: 1; background: #ef4444; border:none; padding:12px; border-radius:10px; cursor:pointer; color:white; font-weight:700;">❌ Reject</button>
+                                        </div>
+                                    ` : ''}
+
+                                    ${currentStatus === 'accepted' ? `
+                                        <div style="background: #fff; padding: 15px; border-radius: 12px; border: 2px dashed #3b82f6;">
+                                            <p style="margin:0 0 10px 0; font-weight: 700; font-size: 0.85rem;">📸 Send Arrival Selfie (Proof of Reach)</p>
+                                            <input type="file" id="selfie-${work.id}" accept="image/*" capture="user" style="margin-bottom: 10px;">
+                                            <button onclick="startJob('${work.id}')" class="btn-primary" style="width: 100%; font-size: 0.85rem; background:#3b82f6; border:none; padding:12px; border-radius:10px; cursor:pointer; color:white; font-weight:700;">📤 Send Selfie & Start Work</button>
+                                        </div>
+                                    ` : ''}
+
+                                    ${currentStatus === 'started' ? `
+                                        <div style="background: #fff; padding: 15px; border-radius: 12px; border: 2px dashed #10b981;">
+                                            <p style="margin:0 0 10px 0; font-weight: 700; font-size: 0.85rem;">👷 Send Completion Photo (For Payment)</p>
+                                            <input type="file" id="photo-${work.id}" accept="image/*" style="margin-bottom: 10px;">
+                                            <button onclick="completeJobPhoto('${work.id}')" class="btn-primary" style="width: 100%; background: #059669; font-size: 0.85rem; border:none; padding:12px; border-radius:10px; cursor:pointer; color:white; font-weight:700;">📤 Send Work Photo & Finish</button>
+                                        </div>
+                                    ` : ''}
+
+                                    ${currentStatus === 'completed' ? `
+                                        <div style="text-align: center; padding: 10px; background: #f0fdf4; border-radius: 12px; color: #166534; font-weight: 700; font-size: 0.9rem;">
+                                            🎉 Work successfully completed and documented!
+                                        </div>
+                                    ` : ''}
+                                    
+                                    ${currentStatus === 'rejected' ? `
+                                        <p style="color: #ef4444; font-size: 0.8rem; font-weight: 600; text-align: center;">You rejected this task.</p>
+                                    ` : ''}
                                 </div>
                             </div>
                         `;
@@ -628,6 +751,93 @@
             } catch(e) { alert("Failed to update status."); }
         }
 
+        // --- NEW JOB MANAGEMENT FUNCTIONS ---
+        async function respondJob(jobId, response) {
+            if (!confirm(`Are you sure you want to ${response} this job?`)) return;
+            try {
+                console.log(`DEBUG: Responding ${response} to job ${jobId} using worker_id ${worker_id}`);
+                const res = await fetch(`${API_BASE_URL}/worker/respond-job`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ 
+                        job_id: jobId, 
+                        response: response,
+                        worker_id: worker_id // Use worker_id, not userId
+                    })
+                });
+                
+                const result = await res.json();
+                if (res.ok) {
+                    alert(`Job ${response}!`);
+                    loadDailyWork();
+                } else {
+                    console.error("Server Error:", result);
+                    alert("Error responding to job: " + (result.error || "Unknown server error"));
+                }
+            } catch (err) {
+                console.error("Fetch Error:", err);
+                alert("Error responding to job: " + err.message);
+            }
+        }
+
+        async function startJob(jobId) {
+            const fileInput = document.getElementById(`selfie-${jobId}`);
+            if (!fileInput.files || !fileInput.files[0]) {
+                alert("Please take a selfie first to mark your arrival!");
+                return;
+            }
+
+            const formData = new FormData();
+            formData.append('job_id', jobId);
+            formData.append('selfie', fileInput.files[0]);
+            formData.append('worker_id', worker_id); // Use worker_id
+
+            try {
+                const res = await fetch(`${API_BASE_URL}/worker/start-job`, {
+                    method: 'POST',
+                    body: formData
+                });
+                const result = await res.json();
+                if (res.ok) {
+                    alert("Arrival proof sent! Work session started. 👷");
+                    loadDailyWork();
+                } else {
+                    alert("Error: " + (result.error || "Upload failed"));
+                }
+            } catch (err) {
+                alert("Error uploading selfie: " + err.message);
+            }
+        }
+
+        async function completeJobPhoto(jobId) {
+            const fileInput = document.getElementById(`photo-${jobId}`);
+            if (!fileInput.files || !fileInput.files[0]) {
+                alert("Please upload a photo of the completed work!");
+                return;
+            }
+
+            const formData = new FormData();
+            formData.append('job_id', jobId);
+            formData.append('work_photo', fileInput.files[0]);
+            formData.append('worker_id', worker_id); // Use worker_id
+
+            try {
+                const res = await fetch(`${API_BASE_URL}/worker/complete-job-photo`, {
+                    method: 'POST',
+                    body: formData
+                });
+                const result = await res.json();
+                if (res.ok) {
+                    alert("Completion photo sent! Job documented for payment. ✅");
+                    loadDailyWork();
+                } else {
+                    alert("Error: " + (result.error || "Upload failed"));
+                }
+            } catch (err) {
+                alert("Error uploading photo: " + err.message);
+            }
+        }
+
         function previewProfile(input) {
             if (input.files && input.files[0]) {
                 const reader = new FileReader();
@@ -703,6 +913,7 @@
             loadBookings();
             loadDailyWork();
             loadProfile(); // Load Unique ID and details
+            loadMessages(); // Load notifications and update bell badge
         };
     </script>
     <script src="../js/theme.js"></script>

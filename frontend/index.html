@@ -14,6 +14,7 @@
     <link rel="stylesheet" href="/assets/css/worker-slider.css">
     <link rel="stylesheet" href="/assets/css/hero.css">
     <link rel="stylesheet" href="/assets/css/header.css">
+    <link rel="stylesheet" href="/assets/css/mobile.css">
     <!-- AOS Animation Library -->
     <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
     <style>
@@ -93,8 +94,10 @@
     <!-- STICKY HEADER -->
     <header class="navbar">
         <nav class="navbar-container">
-            <a href="index.html" class="navbar-brand">
+            <a href="javascript:void(0)" class="navbar-brand" id="logoAdminLink" style="position: relative; display: flex; align-items: center; gap: 10px;">
                 <img src="img/logo.jpg" alt="Logo">
+                <!-- Secret Admin Bubble -->
+                <div id="adminBadge" style="display: none; position: absolute; top: -8px; right: -8px; background: #ef4444; color: white; font-size: 10px; font-weight: 800; padding: 2px 8px; border-radius: 50px; border: 2px solid white; box-shadow: 0 2px 6px rgba(0,0,0,0.3); z-index: 100;">0</div>
                 <span><span style="color: var(--color-primary-dark);">CIVIL</span> CONNECTION</span>
             </a>
 
@@ -498,19 +501,55 @@
         AOS.init({ duration: 1000, once: true, offset: 100 });
     </script>
     <script>
-        // Secret Admin Entrance: Double tap logo
-        const logoLink = document.querySelector('.navbar-brand');
-        let lastTapTime = 0;
+        // Real-time Admin Notification Bubble
+        async function checkPendingRequests() {
+            try {
+                const res = await fetch('/api/admin/pending');
+                if (!res.ok) return;
+                const data = await res.json();
+                
+                const total = (data.engineers?.length || 0) + 
+                              (data.workers?.length || 0) + 
+                              (data.shops?.length || 0) + 
+                              (data.renters?.length || 0);
+                
+                const badge = document.getElementById('adminBadge');
+                if (badge && total > 0) {
+                    badge.textContent = total;
+                    badge.style.display = 'block';
+                } else if (badge) {
+                    badge.style.display = 'none';
+                }
+            } catch (e) {
+                // Silently fail
+            }
+        }
+
+        // Secret Admin Entrance Logic
+        const logoLink = document.getElementById('logoAdminLink');
+        let logoTaps = 0;
+        let tapTimer;
+
         if (logoLink) {
             logoLink.addEventListener('click', (e) => {
-                const now = Date.now();
-                if (now - lastTapTime < 500) {
-                    e.preventDefault();
+                e.preventDefault();
+                logoTaps++;
+                
+                if (logoTaps === 2) {
+                    clearTimeout(tapTimer);
+                    logoTaps = 0;
                     window.location.href = 'pages/login.html?role=admin';
+                } else {
+                    tapTimer = setTimeout(() => {
+                        logoTaps = 0;
+                        window.location.href = 'index.html';
+                    }, 400); // Wait for 400ms for a second tap
                 }
-                lastTapTime = now;
             });
         }
+
+        checkPendingRequests();
+        setInterval(checkPendingRequests, 30000);
     </script>
 </body>
 
