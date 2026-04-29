@@ -17,8 +17,10 @@ function imgUrl(url, fallback = 'https://placehold.co/400x300?text=No+Image+Prov
     const currentOrigin = window.location.origin;
     const isLocalhost = currentOrigin.includes('localhost') || currentOrigin.includes('127.0.0.1');
 
-    // 2. Clean the URL - remove whitespace and surrounding quotes
-    let cleanUrl = url.trim().replace(/^["'](.+)["']$/, '$1');
+    // 2. Clean the URL - remove whitespace and surrounding quotes/brackets
+    let cleanUrl = url.trim().replace(/^["'\[]+|["'\]]+$/g, '');
+    
+    // If it was a JSON string like '["http..."]', it's now just 'http...'
     
     // 3. Check for common "invalid" strings in database
     const invalidStrings = ['not_provided', 'not_uploaded', 'null', 'undefined', '[]', '', 'none'];

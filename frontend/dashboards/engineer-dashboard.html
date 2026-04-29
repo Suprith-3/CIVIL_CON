@@ -355,7 +355,20 @@
             if (data.projects) {
                 document.getElementById('statProjects').textContent = data.projects.length;
                 data.projects.forEach(p => {
-                    let img = window.imgUrl(p.images && p.images.length > 0 ? p.images[0] : '');
+                    let firstImg = '';
+                    if (p.images) {
+                        if (Array.isArray(p.images) && p.images.length > 0) {
+                            firstImg = p.images[0];
+                        } else if (typeof p.images === 'string' && p.images.startsWith('[')) {
+                            try {
+                                const arr = JSON.parse(p.images);
+                                if (arr.length > 0) firstImg = arr[0];
+                            } catch(e) {}
+                        } else if (typeof p.images === 'string' && p.images.length > 5) {
+                            firstImg = p.images;
+                        }
+                    }
+                    let img = window.imgUrl(firstImg);
                     grid.innerHTML += `<div class="card" style="padding:0; overflow:hidden;">
                         <div style="height:180px; background-image:url('${img}'); background-size:cover; background-position:center; background-color:#f1f5f9;"></div>
                         <div style="padding:1.5rem;"><h3>${p.title}</h3><p style="color:#64748b; font-size:0.85rem;">📍 ${p.location} • ₹${p.cost}L</p></div>
