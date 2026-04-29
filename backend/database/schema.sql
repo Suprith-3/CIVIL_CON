@@ -62,14 +62,30 @@ CREATE TABLE shopkeeper_registrations (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     user_id UUID REFERENCES users(id) ON DELETE CASCADE NOT NULL,
     name TEXT NOT NULL,
+    shop_name TEXT,
     phone TEXT NOT NULL,
     shop_photos JSONB DEFAULT '[]',
+    gst_doc TEXT,
+    shop_photo TEXT,
     gst_document_url TEXT,
     gst_number TEXT,
     aadhar_image_url TEXT,
     shop_location JSONB NOT NULL, -- {lat, lng, address}
     status registration_status DEFAULT 'pending',
     admin_notes TEXT,
+    submitted_at TIMESTAMP WITH TIME ZONE DEFAULT now()
+);
+
+-- 5b. RENTER REGISTRATIONS
+CREATE TABLE renter_registrations (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    user_id UUID REFERENCES users(id) ON DELETE CASCADE NOT NULL,
+    name TEXT NOT NULL,
+    phone TEXT NOT NULL,
+    email TEXT,
+    verification_doc_url TEXT,
+    location JSONB, -- {lat, lng, manual_address}
+    status registration_status DEFAULT 'pending',
     submitted_at TIMESTAMP WITH TIME ZONE DEFAULT now()
 );
 

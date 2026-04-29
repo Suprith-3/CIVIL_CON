@@ -23,6 +23,7 @@ def add_project():
 
     # 2. Save Multiple Photos to Supabase (media bucket)
     image_files = request.files.getlist('images')
+    
     image_urls = []
     for img in image_files:
         url = upload_file_to_supabase(img, 'media')
