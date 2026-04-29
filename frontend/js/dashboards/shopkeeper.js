@@ -264,9 +264,7 @@ async function loadInventory() {
         }
 
         list.innerHTML = data.map(item => {
-            const imgPath = item.image_url ? 
-                (item.image_url.startsWith('http') ? item.image_url : `${BACKEND_URL}${item.image_url}`) : 
-                'https://placehold.co/400x300?text=No+Photo';
+            const imgPath = window.imgUrl(item.image_url);
 
             return `
                 <div class="card" style="padding: 1rem; border: 1px solid #e2e8f0; transition: transform 0.2s;">

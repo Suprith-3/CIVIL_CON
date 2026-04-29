@@ -330,19 +330,7 @@
         </form>
     </div></div>
 
-    <script>
-        function imgUrl(url) {
-            const fallback = window.location.origin + '/img/logo.jpg';
-            if (!url || typeof url !== 'string') return fallback;
-            let clean = url.trim().replace(/^["'](.+)["']$/, '$1');
-            if (clean.includes('not_provided') || clean.includes('not_uploaded') || clean === 'null' || clean === 'undefined' || clean === '' || clean === '[]' || clean.includes('[')) return fallback;
-            if (clean.includes('uploads/') || clean.includes('placeholder')) return fallback;
-            if (clean.length < 5 || !clean.includes('.')) return fallback;
-            if (clean.startsWith('http://') || clean.startsWith('https://')) return clean;
-            return window.location.origin + (clean.startsWith('/') ? '' : '/') + clean;
-        }
-        window.imgUrl = imgUrl;
-    </script>
+    <script src="../js/imgurl.js"></script>
     <script>
         const API_BASE_URL = '/api';
         // IMG_BASE_URL is now handled by imgurl.js
