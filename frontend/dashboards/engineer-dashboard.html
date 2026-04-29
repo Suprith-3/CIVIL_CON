@@ -349,6 +349,7 @@
         async function loadPortfolio() {
             const res = await fetch(`${API_BASE_URL}/engineer/portfolio?engineer_id=${engineer_id}`);
             const data = await res.json();
+            console.log("🔍 DATABASE PROJECTS DATA:", data.projects); // DEBUG LOG
             const grid = document.getElementById('portfolioGrid');
             grid.innerHTML = '';
             if (data.projects) {
