@@ -283,6 +283,28 @@ def refresh():
         'access_token': access_token
     }), 200
 
+@auth_bp.route('/messages', methods=['GET'])
+def get_messages():
+    user_id = request.args.get('user_id')
+    if not user_id:
+        return jsonify({'error': 'Missing user_id'}), 400
+    try:
+        res = supabase.table('messages').select('*').eq('recipient_id', user_id).order('created_at', desc=True).execute()
+        return jsonify({'messages': res.data}), 200
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@auth_bp.route('/messages/read', methods=['POST'])
+def mark_messages_read():
+    user_id = request.json.get('user_id')
+    if not user_id:
+        return jsonify({'error': 'Missing user_id'}), 400
+    try:
+        supabase.table('messages').update({'is_read': True}).eq('recipient_id', user_id).execute()
+        return jsonify({'message': 'Messages marked as read'}), 200
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
 @auth_bp.route('/status', methods=['GET'])
 def get_status():
     # Try to get identity from JWT first

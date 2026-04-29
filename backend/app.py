@@ -117,7 +117,7 @@ def create_app():
 
     @app.errorhandler(500)
     def internal_error(error):
-        return jsonify({'error': 'Internal Server Error', 'message': 'An unexpected error has occurred.'}), 500
+        return jsonify({'error': 'Internal Server Error', 'message': str(error)}), 500
 
     @app.route('/')
     def index():

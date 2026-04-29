@@ -212,9 +212,16 @@ CREATE TABLE IF NOT EXISTS worker_management (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     engineer_id UUID REFERENCES users(id),
     worker_name TEXT NOT NULL,
+    worker_code TEXT, -- Unique code assigned to worker
     location TEXT,
     assigned_work TEXT,
     attendance_status TEXT DEFAULT 'present', -- 'present', 'absent', 'on_leave'
+    status TEXT DEFAULT 'assigned', -- 'assigned', 'accepted', 'rejected', 'started', 'completed'
+    arrival_selfie_url TEXT,
+    completion_photo_url TEXT,
+    accepted_at TIMESTAMP WITH TIME ZONE,
+    started_at TIMESTAMP WITH TIME ZONE,
+    completed_at TIMESTAMP WITH TIME ZONE,
     date DATE DEFAULT CURRENT_DATE,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );

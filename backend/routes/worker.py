@@ -1,3 +1,4 @@
+import logging
 from flask import Blueprint, request, jsonify
 from flask_jwt_extended import jwt_required, get_jwt_identity
 import os
@@ -5,8 +6,14 @@ from werkzeug.utils import secure_filename
 from config import supabase
 from utils.storage import upload_file_to_supabase
 import razorpay
+from datetime import datetime
 
 worker_bp = Blueprint('worker', __name__)
+logger = logging.getLogger(__name__)
+
+@worker_bp.route('/ping', methods=['GET'])
+def ping():
+    return jsonify({'status': 'worker bp is alive'}), 200
 
 # Initialize Razorpay Client for Milestone payments
 client = razorpay.Client(auth=(os.environ.get("RAZORPAY_KEY_ID"), os.environ.get("RAZORPAY_KEY_SECRET")))
@@ -300,5 +307,121 @@ def pay_final():
         
         supabase.table('worker_bookings').update(update_data).eq('id', booking_id).execute()
         return jsonify({'message': 'Final 15% received. Booking closed!'}), 200
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+@worker_bp.route('/respond-job', methods=['POST'])
+def respond_job():
+    try:
+        data = request.get_json() or {}
+        job_id = data.get('job_id')
+        response = data.get('response')
+        worker_id = data.get('worker_id')
+        
+        if not job_id or not response:
+            return jsonify({'error': 'Missing job_id or response in request body'}), 400
+
+        # 1. Update the job status
+        try:
+            update_data = {
+                'status': response,
+                'accepted_at': datetime.now().isoformat() if response == 'accepted' else None
+            }
+            supabase.table('worker_management').update(update_data).eq('id', job_id).execute()
+        except Exception as db_err:
+            return jsonify({'error': f'Database Update Error: {str(db_err)}'}), 500
+        
+        # 2. Try to notify engineer
+        try:
+            job_data = supabase.table('worker_management').select('engineer_id, worker_name, assigned_work').eq('id', job_id).execute()
+            if job_data.data and len(job_data.data) > 0:
+                job = job_data.data[0]
+                eng_id = job.get('engineer_id')
+                if eng_id:
+                    msg = f"Worker {job.get('worker_name')} has {response} the task: {job.get('assigned_work')}"
+                    sender = worker_id if (worker_id and len(str(worker_id)) > 30) else eng_id
+                    supabase.table('messages').insert({
+                        'sender_id': sender,
+                        'recipient_id': eng_id,
+                        'message': msg
+                    }).execute()
+        except Exception:
+            pass # Non-critical failure
+
+        return jsonify({'message': 'Job status updated successfully'}), 200
+
+    except Exception as e:
+        return jsonify({'error': f'Server Route Error: {str(e)}'}), 500
+
+@worker_bp.route('/start-job', methods=['POST'])
+def start_job():
+    try:
+        job_id = request.form.get('job_id')
+        worker_id = request.form.get('worker_id')
+        file = request.files.get('selfie')
+        
+        url = upload_file_to_supabase(file, 'media')
+        if not url:
+            return jsonify({'error': 'Selfie upload failed'}), 400
+
+        # Get job details
+        job_res = supabase.table('worker_management').select('engineer_id, worker_name, assigned_work').eq('id', job_id).single().execute()
+        job = job_res.data
+
+        update_data = {
+            'status': 'started',
+            'arrival_selfie_url': url,
+            'started_at': 'now()'
+        }
+        
+        supabase.table('worker_management').update(update_data).eq('id', job_id).execute()
+
+        # Send notification
+        if job and job.get('engineer_id'):
+            msg = f"Worker {job['worker_name']} has reached the site and started work on: {job['assigned_work']}. (Arrival Selfie Uploaded)"
+            sender_id = worker_id or job['engineer_id']
+            supabase.table('messages').insert({
+                'sender_id': sender_id,
+                'recipient_id': job['engineer_id'],
+                'message': msg
+            }).execute()
+
+        return jsonify({'message': 'Arrival selfie sent to engineer! Work started.', 'url': url}), 200
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@worker_bp.route('/complete-job-photo', methods=['POST'])
+def complete_job_photo():
+    try:
+        job_id = request.form.get('job_id')
+        worker_id = request.form.get('worker_id')
+        file = request.files.get('work_photo')
+        
+        url = upload_file_to_supabase(file, 'media')
+        if not url:
+            return jsonify({'error': 'Photo upload failed'}), 400
+
+        # Get job details
+        job_res = supabase.table('worker_management').select('engineer_id, worker_name, assigned_work').eq('id', job_id).single().execute()
+        job = job_res.data
+
+        update_data = {
+            'status': 'completed',
+            'completion_photo_url': url,
+            'completed_at': 'now()'
+        }
+        
+        supabase.table('worker_management').update(update_data).eq('id', job_id).execute()
+
+        # Send notification
+        if job and job.get('engineer_id'):
+            msg = f"Worker {job['worker_name']} has COMPLETED the task: {job['assigned_work']}. (Work Completion Photo Uploaded)"
+            sender_id = worker_id or job['engineer_id']
+            supabase.table('messages').insert({
+                'sender_id': sender_id,
+                'recipient_id': job['engineer_id'],
+                'message': msg
+            }).execute()
+
+        return jsonify({'message': 'Job completion photo sent to engineer! Great work.', 'url': url}), 200
     except Exception as e:
         return jsonify({'error': str(e)}), 500

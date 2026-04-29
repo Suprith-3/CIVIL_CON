@@ -1,11 +1,94 @@
+import razorpay
+import logging
 from flask import Blueprint, request, jsonify
 from flask_jwt_extended import jwt_required, get_jwt_identity
 import os
 from werkzeug.utils import secure_filename
 from config import supabase
 from utils.storage import upload_file_to_supabase
+from datetime import datetime
 
 engineer_bp = Blueprint('engineer', __name__)
+logger = logging.getLogger(__name__)
+
+# Initialize Razorpay Client
+razorpay_client = razorpay.Client(auth=(os.environ.get("RAZORPAY_KEY_ID"), os.environ.get("RAZORPAY_KEY_SECRET")))
+
+@engineer_bp.route('/create-advance-order', methods=['POST'])
+def create_advance_order():
+    try:
+        data = request.json
+        amount = int(float(data.get('amount')) * 100) # Razorpay expects paise
+        
+        order_data = {
+            'amount': amount,
+            'currency': 'INR',
+            'payment_capture': 1 # Auto capture
+        }
+        
+        order = razorpay_client.order.create(data=order_data)
+        return jsonify({
+            'order_id': order['id'], 
+            'amount': amount,
+            'key_id': os.environ.get("RAZORPAY_KEY_ID")
+        }), 200
+    except Exception as e:
+        logger.error(f"Order Creation Error: {str(e)}")
+        return jsonify({'error': str(e)}), 500
+
+@engineer_bp.route('/verify-advance-payment', methods=['POST'])
+def verify_advance_payment():
+    try:
+        data = request.json
+        # Verify signature
+        params_dict = {
+            'razorpay_order_id': data.get('razorpay_order_id'),
+            'razorpay_payment_id': data.get('razorpay_payment_id'),
+            'razorpay_signature': data.get('razorpay_signature')
+        }
+        
+        razorpay_client.utility.verify_payment_signature(params_dict)
+        
+        # Save to database
+        advance_data = {
+            'engineer_id': data.get('engineer_id'),
+            'worker_code': data.get('worker_code'),
+            'amount': float(data.get('amount')),
+            'payment_id': data.get('razorpay_payment_id'),
+            'note': data.get('note'),
+            'date': data.get('date', datetime.now().date().isoformat())
+        }
+        
+        supabase.table('worker_advances').insert(advance_data).execute()
+        
+        # Notify worker
+        try:
+            # Try to find worker_id by code in worker_registrations OR worker_management
+            recipient_id = None
+            
+            # 1. Try worker_registrations (Formal account)
+            worker_reg = supabase.table('worker_registrations').select('user_id').eq('worker_code', data.get('worker_code')).execute()
+            if worker_reg.data:
+                recipient_id = worker_reg.data[0]['user_id']
+            else:
+                # 2. Try worker_management (Tracking table)
+                worker_track = supabase.table('worker_management').select('worker_id').eq('worker_code', data.get('worker_code')).execute()
+                if worker_track.data and worker_track.data[0].get('worker_id'):
+                    recipient_id = worker_track.data[0]['worker_id']
+
+            if recipient_id:
+                msg = f"💰 Advance Received: You have received ₹{data.get('amount')} as advance from Engineer."
+                supabase.table('messages').insert({
+                    'sender_id': data.get('engineer_id'),
+                    'recipient_id': recipient_id,
+                    'message': msg
+                }).execute()
+        except Exception as e:
+            logger.error(f"Notification Error: {str(e)}")
+
+        return jsonify({'message': 'Payment verified and advance recorded!'}), 200
+    except Exception as e:
+        return jsonify({'error': f'Payment verification failed: {str(e)}'}), 500
 
 @engineer_bp.route('/project', methods=['POST'])
 def add_project():
@@ -69,7 +152,8 @@ def add_attendance():
             'worker_code': data.get('worker_code'),
             'location': data.get('location'),
             'assigned_work': data.get('assigned_work'),
-            'attendance_status': data.get('status', 'present')
+            'status': data.get('status', 'assigned'),
+            'attendance_status': data.get('attendance_status', 'present')
         }).execute()
         return jsonify({'message': 'Attendance logged successfully'}), 201
     except Exception as e:
