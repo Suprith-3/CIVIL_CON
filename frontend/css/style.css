@@ -435,8 +435,16 @@ nav {
 .goog-te-banner-frame.skiptranslate,
 .skiptranslate iframe,
 .goog-te-menu-value span:nth-child(5),
-.goog-te-menu-value img {
+.goog-te-menu-value img,
+#goog-gt-tt,
+.goog-te-balloon-frame,
+#google_translate_element {
     display: none !important;
+}
+
+body {
+    top: 0px !important;
+    position: static !important;
 }
 
 .goog-te-gadget {
