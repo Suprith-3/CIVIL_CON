@@ -1,4 +1,6 @@
-from flask import Blueprint, request, jsonify, redirect, Response
+from flask import Blueprint, request, jsonify, redirect, Response, send_file
+import csv
+import io
 from flask_jwt_extended import jwt_required, get_jwt_identity
 from config import supabase
 import logging
@@ -321,3 +323,74 @@ def view_document():
         logger.error(f"Proxy Error for URL {url}: {str(e)}")
         # Return a placeholder image on error to prevent broken UI
         return redirect("https://placehold.co/200x120?text=Error+Loading+Doc")
+
+@admin_bp.route('/export/<table_name>', methods=['GET'])
+def export_table(table_name):
+    allowed_tables = [
+        'users', 'worker_registrations', 'engineer_registrations', 
+        'shopkeeper_registrations', 'renter_registrations', 
+        'items', 'orders', 'messages', 'govt_schemes'
+    ]
+    
+    if table_name not in allowed_tables:
+        return jsonify({'error': 'Table not allowed for export'}), 400
+        
+    try:
+        # Fetch all data from the table
+        res = supabase.table(table_name).select('*').execute()
+        data = res.data
+        
+        if not data:
+            return jsonify({'message': 'No data to export'}), 404
+            
+        # Prepare CSV in memory
+        output = io.StringIO()
+        
+        # Flatten the data structure for CSV (handle nested dicts/lists)
+        flattened_rows = []
+        fieldnames = set()
+        
+        for row in data:
+            flat_row = {}
+            for key, value in row.items():
+                if isinstance(value, dict):
+                    # Flatten dicts (e.g. location -> location_lat, location_lng)
+                    for k, v in value.items():
+                        new_key = f"{key}_{k}"
+                        flat_row[new_key] = v
+                        fieldnames.add(new_key)
+                elif isinstance(value, list):
+                    # Convert lists to comma-separated strings
+                    flat_row[key] = ", ".join([str(i) for i in value])
+                    fieldnames.add(key)
+                else:
+                    flat_row[key] = value
+                    fieldnames.add(key)
+            flattened_rows.append(flat_row)
+            
+        # Sort fieldnames for consistency
+        sorted_fields = sorted(list(fieldnames))
+        
+        writer = csv.DictWriter(output, fieldnames=sorted_fields)
+        writer.writeheader()
+        writer.writerows(flattened_rows)
+        
+        return Response(
+            output.getvalue(),
+            mimetype="text/csv",
+            headers={"Content-disposition": f"attachment; filename={table_name}_export.csv"}
+        )
+    except Exception as e:
+        logger.error(f"Export Error for {table_name}: {str(e)}")
+        return jsonify({'error': 'Export failed', 'message': str(e)}), 500
+
+@admin_bp.route('/export-all', methods=['GET'])
+def export_all():
+    return jsonify({
+        'message': 'Use /api/admin/export/<table_name> to download CSV',
+        'available_tables': [
+            'users', 'worker_registrations', 'engineer_registrations', 
+            'shopkeeper_registrations', 'renter_registrations', 
+            'items', 'orders', 'messages', 'govt_schemes'
+        ]
+    }), 200
