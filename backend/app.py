@@ -148,6 +148,44 @@ def create_app():
             'database': 'connected' if supabase else 'disconnected'
         }), 200
 
+    @app.after_request
+    def add_security_headers(response):
+        """
+        Injects mandatory security headers into every response.
+        Configured for production environments like Render (Gunicorn).
+        """
+        # 1. Strict-Transport-Security (HSTS): Enforce HTTPS for 1 year
+        response.headers['Strict-Transport-Security'] = 'max-age=31536000; includeSubDomains; preload'
+        
+        # 2. Content-Security-Policy (CSP): Secure yet flexible for CDNs and inline assets
+        csp_directives = [
+            "default-src 'self'",
+            "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://www.googletagmanager.com https://cdn.jsdelivr.net https://cdnjs.cloudflare.com https://translate.google.com https://translate.googleapis.com",
+            "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://translate.googleapis.com",
+            "img-src 'self' data: https: *",  # Allows local, Gravatar, Unsplash, Supabase, etc.
+            "font-src 'self' https://fonts.gstatic.com https://cdnjs.cloudflare.com data:",
+            "connect-src 'self' https://*.supabase.co https://*.googleapis.com https://www.google-analytics.com",
+            "frame-src 'self' https://www.googletagmanager.com https://www.google.com",
+            "frame-ancestors 'self'",
+            "object-src 'none'",
+            "base-uri 'self'"
+        ]
+        response.headers['Content-Security-Policy'] = "; ".join(csp_directives)
+        
+        # 3. X-Frame-Options: Prevents clickjacking by allowing only same-origin framing
+        response.headers['X-Frame-Options'] = 'SAMEORIGIN'
+        
+        # 4. X-Content-Type-Options: Prevents browsers from MIME-sniffing away from declared content-type
+        response.headers['X-Content-Type-Options'] = 'nosniff'
+        
+        # 5. Referrer-Policy: Limits information sent in the Referer header
+        response.headers['Referrer-Policy'] = 'strict-origin-when-cross-origin'
+        
+        # 6. Permissions-Policy: Disables access to sensitive browser features by default
+        response.headers['Permissions-Policy'] = 'geolocation=(), microphone=(), camera=(), interest-cohort=()'
+        
+        return response
+
     return app
 
 if __name__ == '__main__':
