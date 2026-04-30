@@ -20,6 +20,11 @@ def create_app():
     app = Flask(__name__)
     app.config.from_object(Config)
     app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024  # 16 MB limit
+    app.config.update(
+        SESSION_COOKIE_SECURE=True,
+        SESSION_COOKIE_HTTPONLY=True,
+        SESSION_COOKIE_SAMESITE='Lax',
+    )
 
     # Request logging middleware
     @app.before_request
@@ -154,35 +159,51 @@ def create_app():
         Injects mandatory security headers into every response.
         Configured for production environments like Render (Gunicorn).
         """
-        # 1. Strict-Transport-Security (HSTS): Enforce HTTPS for 1 year
+        # 1. Strict-Transport-Security (HSTS)
         response.headers['Strict-Transport-Security'] = 'max-age=31536000; includeSubDomains; preload'
         
-        # 2. Content-Security-Policy (CSP): Secure yet flexible for CDNs and inline assets
+        # 2. Hardened Content-Security-Policy (CSP)
         csp_directives = [
             "default-src 'self'",
             "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://www.googletagmanager.com https://cdn.jsdelivr.net https://cdnjs.cloudflare.com https://translate.google.com https://translate.googleapis.com",
             "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://translate.googleapis.com",
-            "img-src 'self' data: https: *",  # Allows local, Gravatar, Unsplash, Supabase, etc.
+            "img-src 'self' data: https: blob:",
             "font-src 'self' https://fonts.gstatic.com https://cdnjs.cloudflare.com data:",
             "connect-src 'self' https://*.supabase.co https://*.googleapis.com https://www.google-analytics.com",
             "frame-src 'self' https://www.googletagmanager.com https://www.google.com",
+            "form-action 'self'",
+            "manifest-src 'self'",
             "frame-ancestors 'self'",
             "object-src 'none'",
             "base-uri 'self'"
         ]
         response.headers['Content-Security-Policy'] = "; ".join(csp_directives)
         
-        # 3. X-Frame-Options: Prevents clickjacking by allowing only same-origin framing
+        # 3. Anti-Clickjacking
         response.headers['X-Frame-Options'] = 'SAMEORIGIN'
         
-        # 4. X-Content-Type-Options: Prevents browsers from MIME-sniffing away from declared content-type
+        # 4. Anti-MIME Sniffing
         response.headers['X-Content-Type-Options'] = 'nosniff'
+
+        # 5. XSS Protection
+        response.headers['X-XSS-Protection'] = '1; mode=block'
         
-        # 5. Referrer-Policy: Limits information sent in the Referer header
+        # 6. Referrer-Policy
         response.headers['Referrer-Policy'] = 'strict-origin-when-cross-origin'
         
-        # 6. Permissions-Policy: Disables access to sensitive browser features by default
+        # 7. Permissions-Policy
         response.headers['Permissions-Policy'] = 'geolocation=(), microphone=(), camera=(), interest-cohort=()'
+        
+        # 8. Cache-Control (API vs Static)
+        if request.path.startswith('/api/'):
+            response.headers['Cache-Control'] = 'no-store, no-cache, must-revalidate, max-age=0'
+            response.headers['Pragma'] = 'no-cache'
+        else:
+            response.headers['Cache-Control'] = 'public, no-cache, must-revalidate'
+
+        # 9. Prevent Information Disclosure
+        response.headers.pop('Server', None)
+        response.headers.pop('X-Powered-By', None)
         
         return response
 
