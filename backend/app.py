@@ -165,9 +165,9 @@ def create_app():
         # 2. Hardened Content-Security-Policy (CSP)
         csp_directives = [
             "default-src 'self'",
-            "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://www.googletagmanager.com https://cdn.jsdelivr.net https://cdnjs.cloudflare.com https://translate.google.com https://translate.googleapis.com",
-            "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://translate.googleapis.com",
-            "img-src 'self' data: https: blob:",
+            "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://www.googletagmanager.com https://cdn.jsdelivr.net https://cdnjs.cloudflare.com https://translate.google.com https://translate.googleapis.com https://unpkg.com",
+            "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://translate.googleapis.com https://unpkg.com",
+            "img-src 'self' data: https: blob: *.openstreetmap.org",
             "font-src 'self' https://fonts.gstatic.com https://cdnjs.cloudflare.com data:",
             "connect-src 'self' https://*.supabase.co https://*.googleapis.com https://www.google-analytics.com",
             "media-src 'self' https://www.pexels.com https://*.pexels.com blob: data:",
