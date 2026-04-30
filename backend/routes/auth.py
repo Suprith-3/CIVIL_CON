@@ -110,7 +110,10 @@ def register():
             elif user_type == 'worker':
                 # Save Aadhar to Supabase Storage (documents bucket)
                 file = request.files.get('aadhar')
+                logger.info(f"Uploading Aadhar for worker. File present: {file is not None}")
+                
                 aadhar_url = upload_file_to_supabase(file, 'documents') or "not_provided"
+                logger.info(f"Aadhar upload result: {aadhar_url}")
 
                 reg_data = {
                     'user_id': user_id,
@@ -126,7 +129,9 @@ def register():
                     'status': 'pending',
                     'aadhar_image_url': aadhar_url
                 }
-                supabase.table('worker_registrations').insert(reg_data).execute()
+                logger.info(f"Inserting worker registration data: {reg_data}")
+                res = supabase.table('worker_registrations').insert(reg_data).execute()
+                logger.info(f"Worker registration insert response: {res.data if res else 'No response'}")
                 
             elif user_type == 'shopkeeper':
                 # Save Shopkeeper documents to Supabase Storage (documents bucket for GST, media for photo)

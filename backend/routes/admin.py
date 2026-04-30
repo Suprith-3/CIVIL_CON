@@ -14,25 +14,45 @@ def is_admin():
 
 @admin_bp.route('/pending', methods=['GET'])
 def get_pending():
-    # TEMPORARY: Removing JWT check to solve the persistent 401 error
-    # if not is_admin():
-    #     return jsonify({'error': 'Forbidden', 'message': 'Admin access required'}), 403
-    
     try:
-        # Fetch ONLY 'pending' from specialized tables
-        workers_res = supabase.table('worker_registrations').select('*').eq('status', 'pending').execute()
-        engineers_res = supabase.table('engineer_registrations').select('*').eq('status', 'pending').execute()
-        shops_res = supabase.table('shopkeeper_registrations').select('*').eq('status', 'pending').execute()
-        renters_res = supabase.table('renter_registrations').select('*').eq('status', 'pending').execute()
+        # Fetch 'pending' from specialized tables with individual error handling
+        workers = []
+        engineers = []
+        shops = []
+        renters = []
+
+        try:
+            res = supabase.table('worker_registrations').select('*').eq('status', 'pending').execute()
+            workers = res.data or []
+        except Exception as e:
+            logger.error(f"Error fetching pending workers: {e}")
+
+        try:
+            res = supabase.table('engineer_registrations').select('*').eq('status', 'pending').execute()
+            engineers = res.data or []
+        except Exception as e:
+            logger.error(f"Error fetching pending engineers: {e}")
+
+        try:
+            res = supabase.table('shopkeeper_registrations').select('*').eq('status', 'pending').execute()
+            shops = res.data or []
+        except Exception as e:
+            logger.error(f"Error fetching pending shops: {e}")
+
+        try:
+            res = supabase.table('renter_registrations').select('*').eq('status', 'pending').execute()
+            renters = res.data or []
+        except Exception as e:
+            logger.error(f"Error fetching pending renters: {e}")
         
-        # Combine them logically
         return jsonify({
-            'workers': workers_res.data,
-            'engineers': engineers_res.data,
-            'shops': shops_res.data,
-            'renters': renters_res.data
+            'workers': workers,
+            'engineers': engineers,
+            'shops': shops,
+            'renters': renters
         }), 200
     except Exception as e:
+        logger.error(f"Global Pending Fetch Error: {e}")
         return jsonify({'error': 'Server Error', 'message': str(e)}), 500
 
 @admin_bp.route('/approved-engineers', methods=['GET'])
