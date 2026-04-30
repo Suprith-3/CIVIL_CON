@@ -170,6 +170,7 @@ def create_app():
             "img-src 'self' data: https: blob:",
             "font-src 'self' https://fonts.gstatic.com https://cdnjs.cloudflare.com data:",
             "connect-src 'self' https://*.supabase.co https://*.googleapis.com https://www.google-analytics.com",
+            "media-src 'self' https://www.pexels.com https://*.pexels.com blob: data:",
             "frame-src 'self' https://www.googletagmanager.com https://www.google.com",
             "form-action 'self'",
             "manifest-src 'self'",
