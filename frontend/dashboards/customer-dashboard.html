@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Customer Dashboard | Civil Connection</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="/assets/css/index.css">
+    <style>
+        .filter-chip {
+            padding: 0.5rem 1rem;
+            border-radius: 100px;
+            background: #F3F4F6;
+            font-size: 0.875rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+        .filter-chip.active {
+            background: var(--primary);
+            color: white;
+        }
+        .worker-card-img {
+            width: 100%;
+            height: 160px;
+            object-fit: cover;
+            border-radius: var(--radius-lg);
+            margin-bottom: 1rem;
+        }
+        .status-badge {
+            padding: 0.25rem 0.75rem;
+            border-radius: 100px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+        .status-confirmed { background: #DCFCE7; color: #166534; }
+        .status-pending { background: #FEF9C3; color: #854D0E; }
+    </style>
+</head>
+<body>
+    <div class="dashboard-wrapper">
+        <aside class="sidebar">
+            <div class="sidebar-logo">
+                <i class="fa-solid fa-helmet-safety" style="color: var(--primary);"></i>
+                <span>Civil Connection</span>
+            </div>
+            <nav class="sidebar-nav">
+                <a href="#" class="sidebar-link active">
+                    <i class="fa-solid fa-house"></i>
+                    <span>Home</span>
+                </a>
+                <a href="#" class="sidebar-link">
+                    <i class="fa-solid fa-magnifying-glass"></i>
+                    <span>Search Services</span>
+                </a>
+                <a href="#" class="sidebar-link">
+                    <i class="fa-solid fa-calendar-check"></i>
+                    <span>Bookings</span>
+                </a>
+                <a href="#" class="sidebar-link">
+                    <i class="fa-solid fa-user"></i>
+                    <span>Profile</span>
+                </a>
+            </nav>
+            <a href="/index.html" class="sidebar-link" style="margin-top: auto; color: #EF4444;">
+                <i class="fa-solid fa-right-from-bracket"></i>
+                <span>Logout</span>
+            </a>
+        </aside>
+
+        <main class="main-dashboard">
+            <header style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 3rem;">
+                <div>
+                    <h2>Welcome back, <span class="text-gradient">Suprith!</span></h2>
+                    <p style="color: var(--text-muted);">Find the perfect professional for your project.</p>
+                </div>
+                <div class="flex-center" style="gap: 1.5rem;">
+                    <div style="text-align: right;">
+                        <p style="font-weight: 600;">Customer Account</p>
+                        <p style="font-size: 0.875rem; color: var(--text-muted);">ID: CC-8821</p>
+                    </div>
+                    <img src="https://ui-avatars.com/api/?name=Suprith&background=4F46E5&color=fff" style="width: 48px; height: 48px; border-radius: 50%;" alt="User">
+                </div>
+            </header>
+
+            <section style="margin-bottom: 3rem;">
+                <div style="display: flex; gap: 1rem; margin-bottom: 2rem; overflow-x: auto; padding-bottom: 0.5rem;">
+                    <span class="filter-chip active">All Services</span>
+                    <span class="filter-chip">Plumbing</span>
+                    <span class="filter-chip">Electrical</span>
+                    <span class="filter-chip">Masonry</span>
+                    <span class="filter-chip">Carpentry</span>
+                    <span class="filter-chip">Engineering</span>
+                </div>
+                
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+                    <h3>Available Professionals</h3>
+                    <div class="flex-center" style="gap: 1rem;">
+                        <input type="text" class="form-input" placeholder="Search by name or skill..." style="width: 300px; padding: 0.5rem 1rem;">
+                        <button class="btn btn-outline" style="padding: 0.5rem 1rem;"><i class="fa-solid fa-sliders"></i> Filter</button>
+                    </div>
+                </div>
+
+                <div class="grid-4">
+                    <div class="card">
+                        <img src="https://images.unsplash.com/photo-1590644365607-1c5a519a7a37?auto=format&fit=crop&w=300&q=80" alt="Worker" class="worker-card-img">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                            <h4 style="font-weight: 700;">Ramesh Kumar</h4>
+                            <span style="color: #F59E0B; font-weight: 600;"><i class="fa-solid fa-star"></i> 4.8</span>
+                        </div>
+                        <p style="font-size: 0.875rem; color: var(--text-muted); margin-bottom: 1rem;">Master Mason | 12 Years Exp.</p>
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <span style="font-weight: 700;">₹500 / day</span>
+                            <button class="btn btn-primary" style="padding: 0.4rem 1rem; font-size: 0.875rem;">Book</button>
+                        </div>
+                    </div>
+                    <!-- Repeat for more cards -->
+                    <div class="card">
+                        <img src="https://images.unsplash.com/photo-1581094794329-c8112a89af12?auto=format&fit=crop&w=300&q=80" alt="Worker" class="worker-card-img">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                            <h4 style="font-weight: 700;">Anita Desai</h4>
+                            <span style="color: #F59E0B; font-weight: 600;"><i class="fa-solid fa-star"></i> 4.9</span>
+                        </div>
+                        <p style="font-size: 0.875rem; color: var(--text-muted); margin-bottom: 1rem;">Structural Engineer</p>
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <span style="font-weight: 700;">₹2500 / project</span>
+                            <button class="btn btn-primary" style="padding: 0.4rem 1rem; font-size: 0.875rem;">Book</button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section>
+                <h3 style="margin-bottom: 1.5rem;">Recent Bookings</h3>
+                <div class="card" style="padding: 0; overflow: hidden;">
+                    <table style="width: 100%; border-collapse: collapse; text-align: left;">
+                        <thead style="background: #F9FAFB; border-bottom: 1px solid #E5E7EB;">
+                            <tr>
+                                <th style="padding: 1rem 1.5rem; font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase;">Professional</th>
+                                <th style="padding: 1rem 1.5rem; font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase;">Service</th>
+                                <th style="padding: 1rem 1.5rem; font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase;">Date</th>
+                                <th style="padding: 1rem 1.5rem; font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase;">Status</th>
+                                <th style="padding: 1rem 1.5rem; font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase;">Amount</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr style="border-bottom: 1px solid #F3F4F6;">
+                                <td style="padding: 1rem 1.5rem; display: flex; align-items: center; gap: 0.75rem;">
+                                    <img src="https://ui-avatars.com/api/?name=RK&background=random" style="width: 32px; height: 32px; border-radius: 50%;" alt="">
+                                    <span style="font-weight: 500;">Ramesh Kumar</span>
+                                </td>
+                                <td style="padding: 1rem 1.5rem;">Wall Masonry</td>
+                                <td style="padding: 1rem 1.5rem;">Oct 24, 2023</td>
+                                <td style="padding: 1rem 1.5rem;"><span class="status-badge status-confirmed">Confirmed</span></td>
+                                <td style="padding: 1rem 1.5rem; font-weight: 600;">₹1,500</td>
+                            </tr>
+                            <tr style="border-bottom: 1px solid #F3F4F6;">
+                                <td style="padding: 1rem 1.5rem; display: flex; align-items: center; gap: 0.75rem;">
+                                    <img src="https://ui-avatars.com/api/?name=AD&background=random" style="width: 32px; height: 32px; border-radius: 50%;" alt="">
+                                    <span style="font-weight: 500;">Anita Desai</span>
+                                </td>
+                                <td style="padding: 1rem 1.5rem;">Design Consultation</td>
+                                <td style="padding: 1rem 1.5rem;">Oct 20, 2023</td>
+                                <td style="padding: 1rem 1.5rem;"><span class="status-badge status-pending">Pending</span></td>
+                                <td style="padding: 1rem 1.5rem; font-weight: 600;">₹2,500</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+        </main>
+    </div>
+</body>
+</html>

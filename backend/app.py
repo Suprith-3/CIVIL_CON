@@ -195,7 +195,7 @@ def create_app():
         response.headers['Referrer-Policy'] = 'strict-origin-when-cross-origin'
         
         # 7. Permissions-Policy
-        response.headers['Permissions-Policy'] = 'geolocation=(self), microphone=(), camera=(), interest-cohort=()'
+        response.headers['Permissions-Policy'] = 'geolocation=(self), microphone=(self), camera=(self), interest-cohort=()'
         
         # 8. Cache-Control (API vs Static)
         if request.path.startswith('/api/'):

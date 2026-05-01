@@ -4,12 +4,14 @@ import logging
 from google.oauth2 import service_account
 from googleapiclient.discovery import build
 from googleapiclient.http import MediaIoBaseUpload
-from flask import current_app
+
+# Use standard logging to avoid "Working outside of application context" error
+logger = logging.getLogger(__name__)
 
 class GoogleDriveService:
     def __init__(self, credentials_path: str):
-        if not os.path.exists(credentials_path):
-            current_app.logger.error(f"Google credentials file not found at {credentials_path}")
+        if not credentials_path or not os.path.exists(credentials_path):
+            logger.warning(f"Google credentials file not found at {credentials_path}. Drive backup will be disabled.")
             self.service = None
             return
 
@@ -19,9 +21,9 @@ class GoogleDriveService:
                 scopes=['https://www.googleapis.com/auth/drive.file']
             )
             self.service = build('drive', 'v3', credentials=self.credentials)
-            current_app.logger.info("Google Drive service initialized successfully.")
+            logger.info("Google Drive service initialized successfully.")
         except Exception as e:
-            current_app.logger.error(f"Failed to initialize Google Drive service: {str(e)}")
+            logger.error(f"Failed to initialize Google Drive service: {str(e)}")
             self.service = None
 
     def get_or_create_folder(self, folder_name: str, parent_id: str = None):
@@ -51,7 +53,7 @@ class GoogleDriveService:
             folder = self.service.files().create(body=file_metadata, fields='id').execute()
             return folder.get('id')
         except Exception as e:
-            current_app.logger.error(f"Google Drive folder error: {str(e)}")
+            logger.error(f"Google Drive folder error: {str(e)}")
             return None
 
     def upload_file(self, file_content: bytes, filename: str, mime_type: str, user_id: str):
@@ -60,17 +62,14 @@ class GoogleDriveService:
             raise Exception("Google Drive service not initialized")
 
         try:
-            # 1. Ensure root 'Documents' folder exists
             root_folder_id = self.get_or_create_folder("Documents")
             if not root_folder_id:
                 raise Exception("Could not create root Documents folder")
 
-            # 2. Ensure user folder exists
             user_folder_id = self.get_or_create_folder(user_id, root_folder_id)
             if not user_folder_id:
                 raise Exception(f"Could not create user folder for {user_id}")
 
-            # 3. Upload file
             file_metadata = {
                 'name': filename,
                 'parents': [user_folder_id]
@@ -85,5 +84,5 @@ class GoogleDriveService:
             
             return file.get('id')
         except Exception as e:
-            current_app.logger.error(f"Google Drive upload failure: {str(e)}")
+            logger.error(f"Google Drive upload failure: {str(e)}")
             raise e

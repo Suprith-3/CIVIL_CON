@@ -4,15 +4,32 @@ import io
 from flask_jwt_extended import jwt_required, get_jwt_identity
 from config import supabase
 import logging
+from functools import wraps
 
 admin_bp = Blueprint('admin', __name__)
 logger = logging.getLogger(__name__)
 
 def is_admin():
+    # 1. IP Restriction: Only allow requests from this laptop (localhost)
+    client_ip = request.remote_addr
+    if client_ip not in ['127.0.0.1', '::1']:
+        return False
+    
+    # 2. Identity Check
     identity = get_jwt_identity()
     return identity.get('user_type') == 'admin'
 
+def local_admin_required(f):
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        client_ip = request.remote_addr
+        if client_ip not in ['127.0.0.1', '::1']:
+            return jsonify({'error': 'Admin actions restricted to local machine only'}), 403
+        return f(*args, **kwargs)
+    return decorated_function
+
 @admin_bp.route('/pending', methods=['GET'])
+@local_admin_required
 def get_pending():
     try:
         # Fetch 'pending' from specialized tables with individual error handling
@@ -199,6 +216,7 @@ def get_approved_renters():
 
 
 @admin_bp.route('/approve/<role>/<id>', methods=['POST'])
+@local_admin_required
 def approve_registration(role, id):
     # TEMPORARY: Removing JWT check
     # if not is_admin():
@@ -234,6 +252,7 @@ def approve_registration(role, id):
         return jsonify({'error': 'Server Error', 'message': str(e)}), 500
 
 @admin_bp.route('/reject/<role>/<id>', methods=['POST'])
+@local_admin_required
 def reject_registration(role, id):
     table_map = {
         'worker': 'worker_registrations',
@@ -253,6 +272,7 @@ def reject_registration(role, id):
         return jsonify({'error': 'Server Error', 'message': str(e)}), 500
 
 @admin_bp.route('/users', methods=['GET'])
+@local_admin_required
 def get_all_users():
     # TEMPORARY: Removing JWT check
     # if not is_admin():
@@ -345,6 +365,7 @@ def view_document():
         return redirect("https://placehold.co/200x120?text=Error+Loading+Doc")
 
 @admin_bp.route('/export/<table_name>', methods=['GET'])
+@local_admin_required
 def export_table(table_name):
     allowed_tables = [
         'users', 'worker_registrations', 'engineer_registrations', 
