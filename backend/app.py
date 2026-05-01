@@ -97,6 +97,7 @@ def create_app():
     from routes.engineer import engineer_bp
     from routes.worker import worker_bp
     from routes.orders import orders_bp
+    from routes.documents import documents_bp
     
     # Register Blueprints
     app.register_blueprint(auth_bp, url_prefix='/api/auth')
@@ -106,6 +107,7 @@ def create_app():
     app.register_blueprint(engineer_bp, url_prefix='/api/engineer')
     app.register_blueprint(worker_bp, url_prefix='/api/worker')
     app.register_blueprint(orders_bp, url_prefix='/api/orders')
+    app.register_blueprint(documents_bp, url_prefix='/api/docs')
 
     # Base error handlers
     @app.errorhandler(400)
