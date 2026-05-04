@@ -9,85 +9,14 @@
     <link rel="icon" type="image/jpg" href="img/logo.jpg">
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- Redesign Styles -->
-    <link rel="stylesheet" href="/assets/css/index.css">
-    <link rel="stylesheet" href="/assets/css/worker-slider.css">
-    <link rel="stylesheet" href="/assets/css/hero.css">
-    <link rel="stylesheet" href="/assets/css/header.css">
-    <link rel="stylesheet" href="/assets/css/mobile.css">
+    <!-- Main Redesign Styles -->
+    <link rel="stylesheet" href="assets/css/index.css">
+    <link rel="stylesheet" href="assets/css/worker-slider.css">
+    <link rel="stylesheet" href="assets/css/hero.css">
+    <link rel="stylesheet" href="assets/css/header.css">
+    <link rel="stylesheet" href="assets/css/mobile.css">
     <!-- AOS Animation Library -->
     <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
-    <style>
-        /* Global Fixes for Clean Layout */
-        body {
-            background-color: var(--color-white);
-            color: var(--color-gray-900);
-            line-height: 1.6;
-        }
-
-        .section-padding {
-            padding-top: 80px;
-            padding-bottom: 80px;
-        }
-
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 0 24px;
-        }
-
-        .title-left {
-            text-align: left;
-            font-size: 32px;
-            font-weight: 800;
-            margin-bottom: 8px;
-            color: var(--color-gray-900);
-        }
-
-        /* How It Works Animations */
-        .step-card {
-            padding: 30px;
-            border-radius: var(--radius-lg);
-            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-            position: relative;
-            background: transparent;
-        }
-
-        .step-card:hover {
-            background: rgba(255, 255, 255, 0.8);
-            backdrop-filter: blur(10px);
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.05);
-            transform: translateY(-10px);
-        }
-
-        .step-card i {
-            display: inline-block;
-            transition: transform 0.4s ease;
-            animation: float 3s ease-in-out infinite;
-        }
-
-        @keyframes float {
-            0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-10px); }
-        }
-
-        .steps-grid-premium {
-            position: relative;
-        }
-
-        @media (min-width: 992px) {
-            .steps-grid-premium::before {
-                content: '';
-                position: absolute;
-                top: 30%;
-                left: 15%;
-                right: 15%;
-                height: 2px;
-                background: linear-gradient(90deg, transparent, var(--color-primary-light), transparent);
-                z-index: 0;
-            }
-        }
-    </style>
 </head>
 
 <body>
@@ -331,90 +260,90 @@
 
         <!-- SERVICES SECTION -->
         <!-- MARKETPLACE SERVICES REDESIGNED -->
-        <section class="services-section section-padding" id="services" style="background: var(--color-gray-50);">
+        <section class="services-section section-padding" id="services">
             <div class="container" data-aos="fade-up">
-                <div style="text-align: center; margin-bottom: 50px;">
-                    <h2 style="font-size: 36px; font-weight: 800; color: var(--color-gray-900); margin-bottom: 12px;">Our Marketplace Services</h2>
-                    <p style="font-size: 18px; color: var(--color-gray-600);">Everything you need for your <span style="color: var(--color-primary); font-weight: 700;">construction project</span> in one place</p>
+                <div class="section-header">
+                    <h2>Our Marketplace Services</h2>
+                    <p class="section-subtitle-premium">Everything you need for your <span class="highlight">construction project</span> in one place</p>
                 </div>
 
-                <div class="services-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 24px;">
+                <div class="services-grid">
                     <!-- Find Skilled Workers -->
-                    <article class="service-card-premium" style="background: white; border-radius: 16px; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.05); transition: transform 0.3s ease;">
-                        <div style="height: 180px; position: relative; overflow: hidden;">
-                            <img src="https://images.unsplash.com/photo-1504307651254-35680f356dfd?auto=format&fit=crop&w=600&q=80" alt="Workers" style="width: 100%; height: 100%; object-fit: cover;" loading="lazy">
-                            <span style="position: absolute; top: 15px; left: 15px; background: rgba(0,0,0,0.7); color: white; padding: 4px 12px; border-radius: 50px; font-size: 11px; font-weight: 700;">Verified Talent</span>
+                    <article class="service-card-premium">
+                        <div class="service-image-box">
+                            <img src="https://images.unsplash.com/photo-1504307651254-35680f356dfd?auto=format&fit=crop&w=600&q=80" alt="Workers" loading="lazy">
+                            <span class="service-badge">Verified Talent</span>
                         </div>
-                        <div style="padding: 24px;">
-                            <h3 style="font-size: 18px; font-weight: 700; margin-bottom: 10px;">Find Skilled Workers</h3>
-                            <p style="font-size: 14px; color: var(--color-gray-500); line-height: 1.5; margin-bottom: 24px; min-height: 45px;">Hire experienced masons, carpenters, and laborers verified for quality and reliability.</p>
-                            <div style="display: flex; justify-content: space-between; align-items: center; padding-top: 15px; border-top: 1px solid var(--color-gray-100);">
-                                <span style="font-weight: 700; color: var(--color-primary); font-size: 14px;">From ₹400/day</span>
-                                <button style="background: transparent; border: 1.5px solid var(--color-primary); color: var(--color-primary); padding: 6px 16px; border-radius: 8px; font-size: 13px; font-weight: 700; cursor: pointer;">Hire Now</button>
+                        <div class="service-content">
+                            <h3>Find Skilled Workers</h3>
+                            <p>Hire experienced masons, carpenters, and laborers verified for quality and reliability.</p>
+                            <div class="service-footer">
+                                <span class="service-price">From ₹400/day</span>
+                                <button class="btn-service-action">Hire Now</button>
                             </div>
                         </div>
                     </article>
 
                     <!-- Professional Engineers -->
-                    <article class="service-card-premium" style="background: white; border-radius: 16px; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.05); transition: transform 0.3s ease;">
-                        <div style="height: 180px; position: relative; overflow: hidden;">
-                            <img src="https://images.pexels.com/photos/8482551/pexels-photo-8482551.jpeg?auto=compress&cs=tinysrgb&w=600" alt="Engineers" style="width: 100%; height: 100%; object-fit: cover;" loading="lazy">
-                            <span style="position: absolute; top: 15px; left: 15px; background: rgba(0,0,0,0.7); color: white; padding: 4px 12px; border-radius: 50px; font-size: 11px; font-weight: 700;">Expert Supervision</span>
+                    <article class="service-card-premium">
+                        <div class="service-image-box">
+                            <img src="https://images.pexels.com/photos/8482551/pexels-photo-8482551.jpeg?auto=compress&cs=tinysrgb&w=600" alt="Engineers" loading="lazy">
+                            <span class="service-badge">Expert Supervision</span>
                         </div>
-                        <div style="padding: 24px;">
-                            <h3 style="font-size: 18px; font-weight: 700; margin-bottom: 10px;">Professional Engineers</h3>
-                            <p style="font-size: 14px; color: var(--color-gray-500); line-height: 1.5; margin-bottom: 24px; min-height: 45px;">Connect with certified civil engineers for structural design, project planning, and supervision.</p>
-                            <div style="display: flex; justify-content: space-between; align-items: center; padding-top: 15px; border-top: 1px solid var(--color-gray-100);">
-                                <span style="font-weight: 700; color: var(--color-primary); font-size: 14px;">Consultation Start</span>
-                                <button style="background: transparent; border: 1.5px solid var(--color-primary); color: var(--color-primary); padding: 6px 16px; border-radius: 8px; font-size: 13px; font-weight: 700; cursor: pointer;">Connect</button>
+                        <div class="service-content">
+                            <h3>Professional Engineers</h3>
+                            <p>Connect with certified civil engineers for structural design, project planning, and supervision.</p>
+                            <div class="service-footer">
+                                <span class="service-price">Consultation Start</span>
+                                <button class="btn-service-action">Connect</button>
                             </div>
                         </div>
                     </article>
 
                     <!-- Equipment & Shop -->
-                    <article class="service-card-premium" style="background: white; border-radius: 16px; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.05); transition: transform 0.3s ease;">
-                        <div style="height: 180px; position: relative; overflow: hidden;">
-                            <img src="https://images.pexels.com/photos/15364240/pexels-photo-15364240.jpeg?auto=compress&cs=tinysrgb&w=600" alt="Shop" style="width: 100%; height: 100%; object-fit: cover;" loading="lazy">
-                            <span style="position: absolute; top: 15px; left: 15px; background: rgba(0,0,0,0.7); color: white; padding: 4px 12px; border-radius: 50px; font-size: 11px; font-weight: 700;">Direct Supply</span>
+                    <article class="service-card-premium">
+                        <div class="service-image-box">
+                            <img src="https://images.pexels.com/photos/15364240/pexels-photo-15364240.jpeg?auto=compress&cs=tinysrgb&w=600" alt="Shop" loading="lazy">
+                            <span class="service-badge">Direct Supply</span>
                         </div>
-                        <div style="padding: 24px;">
-                            <h3 style="font-size: 18px; font-weight: 700; margin-bottom: 10px;">Equipment & Shop</h3>
-                            <p style="font-size: 14px; color: var(--color-gray-500); line-height: 1.5; margin-bottom: 24px; min-height: 45px;">Directly connect with local shops for cement, steel, and other construction materials at best prices.</p>
-                            <div style="display: flex; justify-content: space-between; align-items: center; padding-top: 15px; border-top: 1px solid var(--color-gray-100);">
-                                <span style="font-weight: 700; color: var(--color-primary); font-size: 14px;">Best Rates</span>
-                                <button style="background: transparent; border: 1.5px solid var(--color-primary); color: var(--color-primary); padding: 6px 16px; border-radius: 8px; font-size: 13px; font-weight: 700; cursor: pointer;">View Shop</button>
+                        <div class="service-content">
+                            <h3>Equipment & Shop</h3>
+                            <p>Directly connect with local shops for cement, steel, and other construction materials at best prices.</p>
+                            <div class="service-footer">
+                                <span class="service-price">Best Rates</span>
+                                <button class="btn-service-action">View Shop</button>
                             </div>
                         </div>
                     </article>
 
                     <!-- Rent Equipment -->
-                    <article class="service-card-premium" style="background: white; border-radius: 16px; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.05); transition: transform 0.3s ease;">
-                        <div style="height: 180px; position: relative; overflow: hidden;">
-                            <img src="https://images.pexels.com/photos/1267338/pexels-photo-1267338.jpeg?auto=compress&cs=tinysrgb&w=600" alt="Rentals" style="width: 100%; height: 100%; object-fit: cover;" loading="lazy">
-                            <span style="position: absolute; top: 15px; left: 15px; background: rgba(0,0,0,0.7); color: white; padding: 4px 12px; border-radius: 50px; font-size: 11px; font-weight: 700;">Cost Efficient</span>
+                    <article class="service-card-premium">
+                        <div class="service-image-box">
+                            <img src="https://images.pexels.com/photos/1267338/pexels-photo-1267338.jpeg?auto=compress&cs=tinysrgb&w=600" alt="Rentals" loading="lazy">
+                            <span class="service-badge">Cost Efficient</span>
                         </div>
-                        <div style="padding: 24px;">
-                            <h3 style="font-size: 18px; font-weight: 700; margin-bottom: 10px;">Rent Equipment</h3>
-                            <p style="font-size: 14px; color: var(--color-gray-500); line-height: 1.5; margin-bottom: 24px; min-height: 45px;">Rent heavy machinery, tools, and construction equipment for any duration without ownership costs.</p>
-                            <div style="display: flex; justify-content: space-between; align-items: center; padding-top: 15px; border-top: 1px solid var(--color-gray-100);">
-                                <span style="font-weight: 700; color: var(--color-primary); font-size: 14px;">Hourly/Daily</span>
-                                <button style="background: transparent; border: 1.5px solid var(--color-primary); color: var(--color-primary); padding: 6px 16px; border-radius: 8px; font-size: 13px; font-weight: 700; cursor: pointer;">Rent Now</button>
+                        <div class="service-content">
+                            <h3>Rent Equipment</h3>
+                            <p>Rent heavy machinery, tools, and construction equipment for any duration without ownership costs.</p>
+                            <div class="service-footer">
+                                <span class="service-price">Hourly/Daily</span>
+                                <button class="btn-service-action">Rent Now</button>
                             </div>
                         </div>
                     </article>
 
                     <!-- Govt. Schemes Info -->
-                    <article class="service-card-premium" style="background: white; border-radius: 16px; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.05); transition: transform 0.3s ease;">
-                        <div style="height: 180px; position: relative; overflow: hidden;">
-                            <img src="https://images.pexels.com/photos/20248045/pexels-photo-20248045.jpeg?auto=format&fit=crop&w=600&q=80" alt="Govt Schemes" style="width: 100%; height: 100%; object-fit: cover;" loading="lazy">
-                            <span style="position: absolute; top: 15px; left: 15px; background: var(--color-primary-dark); color: white; padding: 4px 12px; border-radius: 50px; font-size: 11px; font-weight: 700;">Information Hub</span>
+                    <article class="service-card-premium">
+                        <div class="service-image-box">
+                            <img src="https://images.pexels.com/photos/20248045/pexels-photo-20248045.jpeg?auto=format&fit=crop&w=600&q=80" alt="Govt Schemes" loading="lazy">
+                            <span class="service-badge">Information Hub</span>
                         </div>
-                        <div style="padding: 24px;">
-                            <h3 style="font-size: 18px; font-weight: 700; margin-bottom: 10px;">Govt. Schemes Info</h3>
-                            <p style="font-size: 14px; color: var(--color-gray-500); line-height: 1.5; margin-bottom: 24px; min-height: 45px;">Stay updated with latest government construction schemes, subsidies, and housing benefits.</p>
-                            <div style="display: flex; justify-content: space-between; align-items: center; padding-top: 15px; border-top: 1px solid var(--color-gray-100);">
-                                <span style="font-weight: 700; color: var(--color-primary); font-size: 14px;">Free Access</span>
-                                <button style="background: transparent; border: 1.5px solid var(--color-primary); color: var(--color-primary); padding: 6px 16px; border-radius: 8px; font-size: 13px; font-weight: 700; cursor: pointer;">Learn More</button>
+                        <div class="service-content">
+                            <h3>Govt. Schemes Info</h3>
+                            <p>Stay updated with latest government construction schemes, subsidies, and housing benefits.</p>
+                            <div class="service-footer">
+                                <span class="service-price">Free Access</span>
+                                <button class="btn-service-action">Learn More</button>
                             </div>
                         </div>
                     </article>
