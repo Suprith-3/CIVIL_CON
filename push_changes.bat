@@ -1,0 +1,9 @@
+@echo off
+echo [1/3] Staging changes...
+git add .
+echo [2/3] Committing changes...
+git commit -m "UI Polish: Removed Google Translate widget and artifacts from all dashboards"
+echo [3/3] Pushing to GitHub...
+git push
+echo Done! Your changes are being deployed to Render.
+pause

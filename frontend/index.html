@@ -1,0 +1,485 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CIVIL CONNECTION | Construction Marketplace</title>
+    <!-- Favicon -->
+    <link rel="icon" type="image/jpg" href="img/logo.jpg">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Main Redesign Styles -->
+    <link rel="stylesheet" href="assets/css/index.css">
+    <link rel="stylesheet" href="assets/css/worker-slider.css">
+    <link rel="stylesheet" href="assets/css/hero.css">
+    <link rel="stylesheet" href="assets/css/header.css">
+    <link rel="stylesheet" href="assets/css/mobile.css">
+    <!-- AOS Animation Library -->
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+</head>
+
+<body>
+    <!-- STICKY HEADER -->
+    <header class="navbar">
+        <nav class="navbar-container">
+            <a href="javascript:void(0)" class="navbar-brand" id="logoAdminLink" style="position: relative; display: flex; align-items: center; gap: 10px;">
+                <img src="img/logo.jpg" alt="Logo">
+                <!-- Secret Admin Bubble -->
+                <div id="adminBadge" style="display: none; position: absolute; top: -8px; right: -8px; background: #ef4444; color: white; font-size: 10px; font-weight: 800; padding: 2px 8px; border-radius: 50px; border: 2px solid white; box-shadow: 0 2px 6px rgba(0,0,0,0.3); z-index: 100;">0</div>
+                <span><span style="color: var(--color-primary-dark);">CIVIL</span> CONNECTION</span>
+            </a>
+
+            <div class="navbar-actions">
+                <div class="nav-menu-desktop">
+                    <a href="index.html" class="nav-link active">Home</a>
+                    <a href="#services" class="nav-link">Services</a>
+                    <a href="pages/login.html" class="nav-link">Sign In</a>
+                </div>
+                <a href="pages/login.html?tab=register" class="btn btn-primary btn-sm btn-desktop">Get Started</a>
+                <button class="mobile-menu-trigger" id="menuTrigger" style="background: none; border: none; font-size: 24px; cursor: pointer;">
+                    <i class="fa-solid fa-bars"></i>
+                </button>
+            </div>
+        </nav>
+    </header>
+
+    <main class="main-content">
+        <!-- SPLIT HERO WITH MULTI-VIDEO GRID -->
+        <section class="hero-split">
+            <div class="container">
+                <div class="search-card-premium" data-aos="fade-right">
+                    <h1>What are you <br> looking for?</h1>
+                    <div class="category-quick-grid">
+                        <a href="#services" class="cat-item-btn">
+                            <div class="cat-icon-circle"><i class="fa-solid fa-helmet-safety"></i></div>
+                            <span>Workers</span>
+                        </a>
+                        <a href="#services" class="cat-item-btn">
+                            <div class="cat-icon-circle"><i class="fa-solid fa-compass-drafting"></i></div>
+                            <span>Engineers</span>
+                        </a>
+                        <a href="#services" class="cat-item-btn">
+                            <div class="cat-icon-circle"><i class="fa-solid fa-store"></i></div>
+                            <span>Materials</span>
+                        </a>
+                        <a href="#services" class="cat-item-btn">
+                            <div class="cat-icon-circle"><i class="fa-solid fa-truck-pickup"></i></div>
+                            <span>Rentals</span>
+                        </a>
+                        <a href="#services" class="cat-item-btn">
+                            <div class="cat-icon-circle"><i class="fa-solid fa-landmark"></i></div>
+                            <span>Govt Schemes</span>
+                        </a>
+                        <a href="#services" class="cat-item-btn">
+                            <div class="cat-icon-circle"><i class="fa-solid fa-ellipsis"></i></div>
+                            <span>More</span>
+                        </a>
+                    </div>
+                    <div class="search-input-wrapper">
+                        <i class="fa-solid fa-magnifying-glass"></i>
+                        <input type="text" placeholder="Search for 'plumber', 'engineer'...">
+                    </div>
+                </div>
+                <div class="hero-video-grid" data-aos="fade-left">
+                    <div class="video-item video-item-tall">
+                        <video autoplay muted loop playsinline><source src="https://www.pexels.com/download/video/14823695/" type="video/mp4"></video>
+                    </div>
+                    <div class="video-item">
+                        <video autoplay muted loop playsinline><source src="https://www.pexels.com/download/video/8482296/" type="video/mp4"></video>
+                    </div>
+                    <div class="video-item">
+                        <video autoplay muted loop playsinline><source src="https://www.pexels.com/download/video/36601739/" type="video/mp4"></video>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- STATS BAR -->
+        <section class="stats-premium" style="background: white; padding: 40px 0; border-bottom: 1px solid var(--color-gray-100);">
+            <div class="container">
+                <div style="display: flex; justify-content: space-around; text-align: center;">
+                    <div data-aos="fade-up">
+                        <div style="font-size: 32px; font-weight: 800; color: var(--color-primary-dark);">500+</div>
+                        <div style="font-size: 14px; color: var(--color-gray-500); font-weight: 600;">Skilled Workers</div>
+                    </div>
+                    <div data-aos="fade-up" data-aos-delay="100">
+                        <div style="font-size: 32px; font-weight: 800; color: var(--color-primary-dark);">120+</div>
+                        <div style="font-size: 14px; color: var(--color-gray-500); font-weight: 600;">Successful Projects</div>
+                    </div>
+                    <div data-aos="fade-up" data-aos-delay="200">
+                        <div style="font-size: 32px; font-weight: 800; color: var(--color-primary-dark);">4.8/5</div>
+                        <div style="font-size: 14px; color: var(--color-gray-500); font-weight: 600;">User Rating</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- WORKER CATEGORIES REDESIGNED -->
+        <section class="worker-slider-section section-padding">
+            <div class="container">
+                <div class="slider-header-flex" data-aos="fade-up">
+                    <div>
+                        <h2 class="title-left">Professional Workers by Category</h2>
+                        <p style="font-size: 18px; color: #6b7280; margin-top: 8px;">Browse verified professionals for every construction need</p>
+                    </div>
+                    <div class="slider-nav-btns">
+                        <button class="nav-btn" onclick="document.getElementById('workerSlider').scrollBy({left: -350, behavior: 'smooth'})"><i class="fa-solid fa-chevron-left"></i></button>
+                        <button class="nav-btn" onclick="document.getElementById('workerSlider').scrollBy({left: 350, behavior: 'smooth'})"><i class="fa-solid fa-chevron-right"></i></button>
+                    </div>
+                </div>
+
+                <div class="worker-filters" data-aos="fade-up">
+                    <span class="filter-tab active">All</span>
+                    <span class="filter-tab">Workers</span>
+                    <span class="filter-tab">Engineers</span>
+                    <span class="filter-tab">Helpers</span>
+                </div>
+
+                <div class="slider-outer" data-aos="fade-up">
+                    <div class="slider-inner" id="workerSlider">
+                        <!-- Project Manager -->
+                        <div class="worker-card-premium">
+                            <div class="card-image-box">
+                                <span class="availability-badge">Available Now</span>
+                                <img src="https://images.pexels.com/photos/31674013/pexels-photo-31674013.jpeg?auto=compress&cs=tinysrgb&w=600" alt="Project Manager" loading="lazy">
+                            </div>
+                            <div class="card-details">
+                                <div class="card-header-row">
+                                    <h3 class="worker-name-title">Project Manager</h3>
+                                    <div class="rating-tag"><i class="fa-solid fa-star"></i> 4.9</div>
+                                </div>
+                                <p class="worker-desc-text">Expert Supervision & Management</p>
+                                <div class="worker-meta-grid">
+                                    <div class="meta-item"><i class="fa-solid fa-briefcase"></i> 10+ yrs</div>
+                                    <div class="meta-item"><i class="fa-solid fa-location-dot"></i> Bangalore</div>
+                                </div>
+                                <div class="card-actions-flex">
+                                    <button class="btn-hire">Hire Now</button>
+                                    <button class="btn-profile">View Profile</button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Supervisor Mason -->
+                        <div class="worker-card-premium">
+                            <div class="card-image-box">
+                                <span class="availability-badge">Available Now</span>
+                                <img src="https://images.pexels.com/photos/10383580/pexels-photo-10383580.jpeg?auto=compress&cs=tinysrgb&w=600" alt="Supervisor Mason" loading="lazy">
+                            </div>
+                            <div class="card-details">
+                                <div class="card-header-row">
+                                    <h3 class="worker-name-title">Supervisor Mason</h3>
+                                    <div class="rating-tag"><i class="fa-solid fa-star"></i> 4.8</div>
+                                </div>
+                                <p class="worker-desc-text">Expert Masonry & Raj Mistri</p>
+                                <div class="worker-meta-grid">
+                                    <div class="meta-item"><i class="fa-solid fa-briefcase"></i> 8+ yrs</div>
+                                    <div class="meta-item"><i class="fa-solid fa-location-dot"></i> Mumbai</div>
+                                </div>
+                                <div class="card-actions-flex">
+                                    <button class="btn-hire">Hire Now</button>
+                                    <button class="btn-profile">View Profile</button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Electrician -->
+                        <div class="worker-card-premium">
+                            <div class="card-image-box">
+                                <span class="availability-badge">Available Now</span>
+                                <img src="https://images.pexels.com/photos/9679179/pexels-photo-9679179.jpeg?auto=compress&cs=tinysrgb&w=600" alt="Electrician" loading="lazy">
+                            </div>
+                            <div class="card-details">
+                                <div class="card-header-row">
+                                    <h3 class="worker-name-title">Electrician</h3>
+                                    <div class="rating-tag"><i class="fa-solid fa-star"></i> 4.7</div>
+                                </div>
+                                <p class="worker-desc-text">Wiring & Complex Repairs</p>
+                                <div class="worker-meta-grid">
+                                    <div class="meta-item"><i class="fa-solid fa-briefcase"></i> 6+ yrs</div>
+                                    <div class="meta-item"><i class="fa-solid fa-location-dot"></i> Delhi</div>
+                                </div>
+                                <div class="card-actions-flex">
+                                    <button class="btn-hire">Hire Now</button>
+                                    <button class="btn-profile">View Profile</button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Helper -->
+                        <div class="worker-card-premium">
+                            <div class="card-image-box">
+                                <span class="availability-badge">Available Now</span>
+                                <img src="https://images.pexels.com/photos/30571028/pexels-photo-30571028.jpeg?auto=compress&cs=tinysrgb&w=600" alt="Labour" loading="lazy">
+                            </div>
+                            <div class="card-details">
+                                <div class="card-header-row">
+                                    <h3 class="worker-name-title">Helper / Labour</h3>
+                                    <div class="rating-tag"><i class="fa-solid fa-star"></i> 4.6</div>
+                                </div>
+                                <p class="worker-desc-text">General Construction Work</p>
+                                <div class="worker-meta-grid">
+                                    <div class="meta-item"><i class="fa-solid fa-briefcase"></i> 4+ yrs</div>
+                                    <div class="meta-item"><i class="fa-solid fa-location-dot"></i> Pune</div>
+                                </div>
+                                <div class="card-actions-flex">
+                                    <button class="btn-hire">Hire Now</button>
+                                    <button class="btn-profile">View Profile</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- HOW IT WORKS -->
+        <section class="how-it-works section-padding">
+            <div class="container">
+                <h2 style="font-size: 48px; font-weight: 800; text-align: center; color: var(--color-gray-900); margin-bottom: 12px; letter-spacing: -1.5px;" data-aos="fade-up">How It Works</h2>
+                <div class="steps-grid-premium" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 40px; margin-top: 40px;">
+                    <div class="step-card" style="text-align: center;" data-aos="fade-up" data-aos-delay="100">
+                        <div style="font-size: 48px; color: var(--color-primary); margin-bottom: 20px;"><i class="fa-solid fa-magnifying-glass"></i></div>
+                        <h3 style="font-weight: 700; margin-bottom: 10px;">Search</h3>
+                        <p style="color: var(--color-gray-600);">Browse through verified workers and engineers.</p>
+                    </div>
+                    <div class="step-card" style="text-align: center;" data-aos="fade-up" data-aos-delay="200">
+                        <div style="font-size: 48px; color: var(--color-primary); margin-bottom: 20px;"><i class="fa-solid fa-comments"></i></div>
+                        <h3 style="font-weight: 700; margin-bottom: 10px;">Connect</h3>
+                        <p style="color: var(--color-gray-600);">Chat directly and discuss your project.</p>
+                    </div>
+                    <div class="step-card" style="text-align: center;" data-aos="fade-up" data-aos-delay="300">
+                        <div style="font-size: 48px; color: var(--color-primary); margin-bottom: 20px;"><i class="fa-solid fa-check-to-slot"></i></div>
+                        <h3 style="font-weight: 700; margin-bottom: 10px;">Hire</h3>
+                        <p style="color: var(--color-gray-600);">Hire the best talent and start building.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- SERVICES SECTION -->
+        <!-- MARKETPLACE SERVICES REDESIGNED -->
+        <section class="services-section section-padding" id="services">
+            <div class="container" data-aos="fade-up">
+                <div class="section-header">
+                    <h2>Our Marketplace Services</h2>
+                    <p class="section-subtitle-premium">Everything you need for your <span class="highlight">construction project</span> in one place</p>
+                </div>
+
+                <div class="services-grid">
+                    <!-- Find Skilled Workers -->
+                    <article class="service-card-premium">
+                        <div class="service-image-box">
+                            <img src="https://images.unsplash.com/photo-1504307651254-35680f356dfd?auto=format&fit=crop&w=600&q=80" alt="Workers" loading="lazy">
+                            <span class="service-badge">Verified Talent</span>
+                        </div>
+                        <div class="service-content">
+                            <h3>Find Skilled Workers</h3>
+                            <p>Hire experienced masons, carpenters, and laborers verified for quality and reliability.</p>
+                            <div class="service-footer">
+                                <span class="service-price">From ₹400/day</span>
+                                <button class="btn-service-action">Hire Now</button>
+                            </div>
+                        </div>
+                    </article>
+
+                    <!-- Professional Engineers -->
+                    <article class="service-card-premium">
+                        <div class="service-image-box">
+                            <img src="https://images.pexels.com/photos/8482551/pexels-photo-8482551.jpeg?auto=compress&cs=tinysrgb&w=600" alt="Engineers" loading="lazy">
+                            <span class="service-badge">Expert Supervision</span>
+                        </div>
+                        <div class="service-content">
+                            <h3>Professional Engineers</h3>
+                            <p>Connect with certified civil engineers for structural design, project planning, and supervision.</p>
+                            <div class="service-footer">
+                                <span class="service-price">Consultation Start</span>
+                                <button class="btn-service-action">Connect</button>
+                            </div>
+                        </div>
+                    </article>
+
+                    <!-- Equipment & Shop -->
+                    <article class="service-card-premium">
+                        <div class="service-image-box">
+                            <img src="https://images.pexels.com/photos/15364240/pexels-photo-15364240.jpeg?auto=compress&cs=tinysrgb&w=600" alt="Shop" loading="lazy">
+                            <span class="service-badge">Direct Supply</span>
+                        </div>
+                        <div class="service-content">
+                            <h3>Equipment & Shop</h3>
+                            <p>Directly connect with local shops for cement, steel, and other construction materials at best prices.</p>
+                            <div class="service-footer">
+                                <span class="service-price">Best Rates</span>
+                                <button class="btn-service-action">View Shop</button>
+                            </div>
+                        </div>
+                    </article>
+
+                    <!-- Rent Equipment -->
+                    <article class="service-card-premium">
+                        <div class="service-image-box">
+                            <img src="https://images.pexels.com/photos/1267338/pexels-photo-1267338.jpeg?auto=compress&cs=tinysrgb&w=600" alt="Rentals" loading="lazy">
+                            <span class="service-badge">Cost Efficient</span>
+                        </div>
+                        <div class="service-content">
+                            <h3>Rent Equipment</h3>
+                            <p>Rent heavy machinery, tools, and construction equipment for any duration without ownership costs.</p>
+                            <div class="service-footer">
+                                <span class="service-price">Hourly/Daily</span>
+                                <button class="btn-service-action">Rent Now</button>
+                            </div>
+                        </div>
+                    </article>
+
+                    <!-- Govt. Schemes Info -->
+                    <article class="service-card-premium">
+                        <div class="service-image-box">
+                            <img src="https://images.pexels.com/photos/20248045/pexels-photo-20248045.jpeg?auto=format&fit=crop&w=600&q=80" alt="Govt Schemes" loading="lazy">
+                            <span class="service-badge">Information Hub</span>
+                        </div>
+                        <div class="service-content">
+                            <h3>Govt. Schemes Info</h3>
+                            <p>Stay updated with latest government construction schemes, subsidies, and housing benefits.</p>
+                            <div class="service-footer">
+                                <span class="service-price">Free Access</span>
+                                <button class="btn-service-action">Learn More</button>
+                            </div>
+                        </div>
+                    </article>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- FOOTER REDESIGNED -->
+    <footer style="background: #0f172a; color: #94a3b8; padding: 80px 0 40px; font-family: 'Inter', sans-serif;">
+        <div class="container">
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 60px; margin-bottom: 60px;">
+                <!-- Brand Section -->
+                <div>
+                    <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 24px;">
+                        <img src="img/logo.jpg" alt="Logo" style="width: 40px; height: 40px; border-radius: 8px; object-fit: cover;">
+                        <span style="font-size: 20px; font-weight: 800; color: white; letter-spacing: -0.5px;">CIVIL <span style="color: #818cf8;">CONNECTION</span></span>
+                    </div>
+                    <p style="font-size: 15px; line-height: 1.6; margin-bottom: 24px; color: #cbd5e1;">Building the future of construction through digital connectivity.</p>
+                    <div style="display: flex; gap: 16px;">
+                        <a href="#" style="color: white; font-size: 18px; transition: color 0.3s ease;"><i class="fa-brands fa-facebook-f"></i></a>
+                        <a href="#" style="color: white; font-size: 18px; transition: color 0.3s ease;"><i class="fa-brands fa-x-twitter"></i></a>
+                        <a href="#" style="color: white; font-size: 18px; transition: color 0.3s ease;"><i class="fa-brands fa-instagram"></i></a>
+                        <a href="#" style="color: white; font-size: 18px; transition: color 0.3s ease;"><i class="fa-brands fa-linkedin-in"></i></a>
+                    </div>
+                </div>
+
+                <!-- Quick Links -->
+                <div>
+                    <h4 style="color: white; font-size: 16px; font-weight: 700; margin-bottom: 24px;">Quick Links</h4>
+                    <ul style="list-style: none; padding: 0;">
+                        <li style="margin-bottom: 12px; display: flex; align-items: center;">
+                            <span style="color: #6366f1; margin-right: 10px;">•</span>
+                            <a href="#" style="color: inherit; text-decoration: none; font-size: 15px; transition: color 0.3s ease;">Hire Workers</a>
+                        </li>
+                        <li style="margin-bottom: 12px; display: flex; align-items: center;">
+                            <span style="color: #6366f1; margin-right: 10px;">•</span>
+                            <a href="#" style="color: inherit; text-decoration: none; font-size: 15px; transition: color 0.3s ease;">Find Engineers</a>
+                        </li>
+                        <li style="margin-bottom: 12px; display: flex; align-items: center;">
+                            <span style="color: #6366f1; margin-right: 10px;">•</span>
+                            <a href="#" style="color: inherit; text-decoration: none; font-size: 15px; transition: color 0.3s ease;">Material Shop</a>
+                        </li>
+                        <li style="margin-bottom: 12px; display: flex; align-items: center;">
+                            <span style="color: #6366f1; margin-right: 10px;">•</span>
+                            <a href="#" style="color: inherit; text-decoration: none; font-size: 15px; transition: color 0.3s ease;">Equipment Rental</a>
+                        </li>
+                    </ul>
+                </div>
+
+                <!-- Company -->
+                <div>
+                    <h4 style="color: white; font-size: 16px; font-weight: 700; margin-bottom: 24px;">Company</h4>
+                    <ul style="list-style: none; padding: 0;">
+                        <li style="margin-bottom: 12px; display: flex; align-items: center;">
+                            <span style="color: #6366f1; margin-right: 10px;">•</span>
+                            <a href="#" style="color: inherit; text-decoration: none; font-size: 15px; transition: color 0.3s ease;">About Us</a>
+                        </li>
+                        <li style="margin-bottom: 12px; display: flex; align-items: center;">
+                            <span style="color: #6366f1; margin-right: 10px;">•</span>
+                            <a href="#" style="color: inherit; text-decoration: none; font-size: 15px; transition: color 0.3s ease;">Contact</a>
+                        </li>
+                        <li style="margin-bottom: 12px; display: flex; align-items: center;">
+                            <span style="color: #6366f1; margin-right: 10px;">•</span>
+                            <a href="#" style="color: inherit; text-decoration: none; font-size: 15px; transition: color 0.3s ease;">Privacy Policy</a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Copyright -->
+            <div style="border-top: 1px solid rgba(255,255,255,0.05); padding-top: 40px; text-align: center;">
+                <p style="font-size: 14px; color: #64748b;">&copy; 2026 Civil Connection. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script src="/assets/js/animations.js"></script>
+    <script src="/assets/js/slider.js"></script>
+    <!-- AOS Animation Library -->
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    <script>
+        AOS.init({ duration: 1000, once: true, offset: 100 });
+    </script>
+    <script>
+        // Real-time Admin Notification Bubble
+        async function checkPendingRequests() {
+            try {
+                const res = await fetch('/api/admin/pending');
+                if (!res.ok) return;
+                const data = await res.json();
+                
+                const total = (data.engineers?.length || 0) + 
+                              (data.workers?.length || 0) + 
+                              (data.shops?.length || 0) + 
+                              (data.renters?.length || 0);
+                
+                const badge = document.getElementById('adminBadge');
+                if (badge && total > 0) {
+                    badge.textContent = total;
+                    badge.style.display = 'block';
+                } else if (badge) {
+                    badge.style.display = 'none';
+                }
+            } catch (e) {
+                // Silently fail
+            }
+        }
+
+        // Secret Admin Entrance Logic
+        const logoLink = document.getElementById('logoAdminLink');
+        let logoTaps = 0;
+        let tapTimer;
+
+        if (logoLink) {
+            logoLink.addEventListener('click', (e) => {
+                e.preventDefault();
+                logoTaps++;
+                
+                if (logoTaps === 2) {
+                    clearTimeout(tapTimer);
+                    logoTaps = 0;
+                    window.location.href = 'pages/login.html?role=admin';
+                } else {
+                    tapTimer = setTimeout(() => {
+                        logoTaps = 0;
+                        window.location.href = 'index.html';
+                    }, 400); // Wait for 400ms for a second tap
+                }
+            });
+        }
+
+        checkPendingRequests();
+        setInterval(checkPendingRequests, 30000);
+    </script>
+</body>
+
+</html>

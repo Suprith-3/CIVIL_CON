@@ -1,0 +1,6 @@
+**/uploads/**
+uploads/
+backend/uploads/
+.git/
+.vscode/
+node_modules/

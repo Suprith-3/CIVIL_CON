@@ -1,0 +1,944 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <!-- Google Tag Manager -->
+    <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+    new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+    j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+    'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+    })(window,document,'script','dataLayer','GTM-T4X4SVS5');</script>
+    <!-- End Google Tag Manager -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Engineer Hub | CIVIL CONNECTION</title>
+    <link rel="stylesheet" href="../css/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../assets/css/mobile.css">
+    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+    <style>
+        body { 
+            background: linear-gradient(rgba(249, 250, 251, 0.82), rgba(249, 250, 251, 0.82)), 
+                        url('https://images.pexels.com/photos/7937323/pexels-photo-7937323.jpeg');
+            background-size: cover;
+            background-attachment: fixed;
+            background-position: center;
+            display: flex; 
+            min-height: 100vh; 
+            color: var(--text-main); 
+            font-family: 'Inter', sans-serif; 
+            margin:0; 
+            transition: 0.3s; 
+        }
+        
+        /* Sidebar Fix */
+        .sidebar { 
+            width: 280px; 
+            background: rgba(255, 255, 255, 0.7); 
+            backdrop-filter: blur(15px);
+            padding: 2.5rem 1.2rem; 
+            position: fixed; 
+            height: 100vh; 
+            display: flex; 
+            flex-direction: column !important; 
+            border-right: 1px solid var(--border); 
+            box-shadow: 4px 0 15px -10px rgba(0,0,0,0.1); 
+            z-index: 1000; 
+            box-sizing: border-box;
+            transition: background 0.3s;
+        }
+        [data-theme='dark'] .sidebar { background: #0f172a; border-right-color: rgba(255,255,255,0.05); }
+        [data-theme='dark'] .sidebar .nav-link { color: #94a3b8; }
+        [data-theme='dark'] .sidebar .nav-link:hover { background: rgba(0, 242, 254, 0.05); color: #00f2fe; }
+
+        .nav-menu {
+            display: flex !important;
+            flex-direction: column !important;
+            gap: 10px;
+            width: 100%;
+        }
+
+        .nav-link { 
+            display: flex; 
+            align-items: center; 
+            gap: 15px; 
+            padding: 14px 18px; 
+            text-decoration: none; 
+            color: #475569; 
+            border-radius: 14px; 
+            font-weight: 600; 
+            transition: all 0.3s; 
+            cursor: pointer; 
+            width: 100%;
+            box-sizing: border-box;
+            white-space: nowrap;
+        }
+        .nav-link:hover { background: rgba(37, 99, 235, 0.05); transform: translateX(5px); color: #2563eb; }
+        .nav-link.active { background: #2563eb; color: white; box-shadow: 0 10px 15px -3px rgba(37, 99, 235, 0.3); }
+        .main-content { 
+            margin-left: 280px; 
+            flex-grow: 1; 
+            padding: 2.5rem 4rem; 
+            width: calc(100% - 280px); 
+            box-sizing: border-box;
+            position: relative;
+        }
+
+        .sidebar .logo { 
+            font-size: 1.4rem; 
+            margin-bottom: 3rem; 
+            font-weight: 800; 
+            color: #0f172a; 
+            display: flex; 
+            align-items: center; 
+            gap: 10px; 
+            padding-left: 10px;
+        }
+
+        .section { display: none; }
+        .section.active { display: block; animation: fadeIn 0.4s ease-out; }
+        @keyframes fadeIn { 
+            from { opacity: 0; transform: translateY(10px); } 
+            to { opacity: 1; transform: translateY(0); } 
+        }
+
+        .card { background: rgba(255, 255, 255, 0.85); backdrop-filter: blur(10px); border-radius: 24px; padding: 2rem; border: 1px solid rgba(255, 255, 255, 0.4); box-shadow: var(--card-shadow); margin-bottom: 2rem; color: var(--text-main); }
+        .stats-strip { display: flex; gap: 2rem; margin-bottom: 2.5rem; }
+        .mini-stat { background: rgba(255, 255, 255, 0.85); backdrop-filter: blur(8px); padding: 1.5rem; border-radius: 20px; border: 1px solid rgba(255, 255, 255, 0.4); flex: 1; color: var(--text-main); }
+        .mini-stat label { color: var(--text-muted); font-size: 0.75rem; font-weight: 800; text-transform: uppercase; margin-bottom: 5px; display: block; }
+        .mini-stat .value { font-size: 1.8rem; font-weight: 800; color: var(--text-main); }
+        .btn-primary { background: #2563eb; color: white; border: none; padding: 12px 24px; border-radius: 12px; font-weight: 700; cursor: pointer; transition: 0.2s; }
+        .btn-primary:hover { background: #1d4ed8; transform: translateY(-2px); }
+        input, select, textarea { width: 100%; padding: 12px; border: 1px solid #e2e8f0; border-radius: 12px; font-family: inherit; margin-bottom: 1rem; box-sizing: border-box; }
+        table { width: 100%; border-collapse: collapse; }
+        th { text-align: left; padding: 1rem; border-bottom: 2px solid #f1f5f9; color: #64748b; font-size: 0.75rem; text-transform: uppercase; }
+        td { padding: 1rem; border-bottom: 1px solid #f1f5f9; font-size: 0.9rem; }
+        .badge { padding: 4px 10px; border-radius: 999px; font-size: 0.7rem; font-weight: 800; text-transform: uppercase; }
+        .present { background: #dcfce7; color: #166534; }
+        .modal { display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.7); z-index:2000; align-items:center; justify-content:center; backdrop-filter: blur(4px); }
+    </style>
+</head>
+<body>
+    <!-- Google Tag Manager (noscript) -->
+    <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-T4X4SVS5"
+    height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+    <!-- End Google Tag Manager (noscript) -->
+    <a href="../index.html" class="home-btn" title="Go to Home">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" d="m2.25 12 8.954-8.955c.44-.439 1.152-.439 1.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75M8.25 21h8.25" />
+        </svg>
+    </a>
+    <div class="sidebar">
+        <div class="logo" style="display: flex; align-items: center; gap: 10px; margin-bottom: 2.5rem; padding: 0 10px;">
+            <img src="../img/logo.jpg" alt="CIVIL CONNECTION" style="height: 45px; border-radius: 6px;">
+            <div style="display: flex; flex-direction: column; line-height: 1;">
+                <span style="font-size: 1.1rem; font-weight: 800; color: #0f172a;">CIVIL</span>
+                <span style="font-size: 0.8rem; font-weight: 800; color: #2563eb;">CONNECTION</span>
+            </div>
+        </div>
+        <div class="theme-toggle" title="Toggle Dark/Light Mode" style="margin-bottom: 1.5rem; width: 40px; height: 40px; border: 1px solid var(--border);">
+            <i class="fa-solid fa-moon"></i>
+            <i class="fa-solid fa-sun"></i>
+        </div>
+        <nav class="nav-menu">
+            <div class="nav-link active" onclick="showSection('portfolio', this)">📊 Portfolio</div>
+            <div class="nav-link" onclick="showSection('messages', this)">
+                💬 Client Messages
+                <span id="msgBadge" style="display:none; background:#ef4444; color:white; font-size:10px; padding:2px 6px; border-radius:10px; margin-left:5px;">0</span>
+            </div>
+            <div class="nav-link" onclick="showSection('job-tracking', this)">🚜 Live Job Tracking</div>
+            <div class="nav-link" onclick="showSection('attendance', this)">👥 Laborer Attendance</div>
+            <div class="nav-link" onclick="showSection('certs', this)">📄 Certifications</div>
+            <div class="nav-link" onclick="showSection('settings', this)">⚙️ Profile Settings</div>
+        </nav>
+        <div class="nav-link" style="margin-top:auto; color:#ef4444;" onclick="logout()">🚪 Logout</div>
+    </div>
+
+    <div class="main-content">
+
+
+        <!-- PORTFOLIO -->
+        <div id="portfolio" class="section active">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:2.5rem;">
+                <div><h1 style="font-size: 2.2rem; margin:0;">Project <span style="color:#2563eb;">Portfolio</span></h1><p style="color:#64748b; margin-top:5px;">Manage your construction builds and sketches.</p></div>
+                <button class="btn-primary" onclick="openModal('projectModal')">+ Add New Project</button>
+            </div>
+            <div class="stats-strip">
+                <div class="mini-stat"><label>Live Sites</label><div class="value" id="statProjects">0</div></div>
+                <div class="mini-stat"><label>Total Valuation</label><div class="value">₹ 84.5L</div></div>
+                <div class="mini-stat"><label>Active Workers</label><div class="value" id="statWorkers">0</div></div>
+            </div>
+            <div id="portfolioGrid" style="display:grid; grid-template-columns:repeat(auto-fill, minmax(300px,1fr)); gap:2rem;"></div>
+        </div>
+
+        <!-- MESSAGES -->
+        <div id="messages" class="section">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:2rem;">
+                <div>
+                    <h1 style="margin:0;">Inbox & <span style="color:#2563eb;">Notifications</span></h1>
+                    <p style="color:#64748b; margin-top:5px;">Read updates from workers and inquiries from customers.</p>
+                </div>
+                <button class="btn-primary" onclick="loadMessages()">🔄 Refresh Inbox</button>
+            </div>
+            <div id="messageList" class="grid" style="display:grid; grid-template-columns: 1fr; gap:1rem;">
+                <!-- Messages injected here -->
+            </div>
+        </div>
+
+        <!-- LIVE JOB TRACKING -->
+        <div id="job-tracking" class="section">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:2rem;">
+                <div>
+                    <h1 style="margin:0;">Live <span style="color:#2563eb;">Job Tracking</span></h1>
+                    <p style="color:#64748b; margin-top:5px; font-size: 0.9rem;">Monitor worker responses, arrival selfies, and completion photos.</p>
+                </div>
+                <button class="btn-primary" onclick="loadJobTracking()">🔄 Refresh Data</button>
+            </div>
+            
+            <div id="jobTrackingGrid" style="display:grid; grid-template-columns: repeat(auto-fill, minmax(350px, 1fr)); gap: 1.5rem;">
+                <!-- Job cards will be injected here -->
+            </div>
+        </div>
+
+        <!-- ATTENDANCE (App-Like Tracker) -->
+        <div id="attendance" class="section">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:2rem;">
+                <div>
+                    <h1 style="margin:0;">Laborer <span style="color:#2563eb;">Attendance & Wages</span></h1>
+                    <p style="color:#64748b; margin-top:5px; font-size: 0.9rem;">Track daily attendance, calculate wages, and manage advances offline.</p>
+                </div>
+                <button class="btn-primary" onclick="openModal('workerModal')">+ Add Worker profile</button>
+            </div>
+            
+            <!-- Summary Bar -->
+            <div style="display:grid; grid-template-columns: repeat(3, 1fr); gap:1rem; margin-bottom: 2rem;">
+                <div class="card" style="padding:1.5rem; text-align:center; background: #eff6ff; border-color: #bfdbfe;">
+                    <h4 style="margin:0; color:#1e40af; font-size:0.85rem; text-transform:uppercase;">Total Workers</h4>
+                    <span id="appTotalWorkers" style="font-size: 2rem; font-weight:800; color:#1d4ed8;">0</span>
+                </div>
+                <div class="card" style="padding:1.5rem; text-align:center; background: #ecfdf5; border-color: #a7f3d0;">
+                    <h4 style="margin:0; color:#065f46; font-size:0.85rem; text-transform:uppercase;">Present Today</h4>
+                    <span id="appPresentToday" style="font-size: 2rem; font-weight:800; color:#047857;">0</span>
+                </div>
+                <div class="card" style="padding:1.5rem; text-align:center; background: #fff7ed; border-color: #fed7aa;">
+                    <h4 style="margin:0; color:#9a3412; font-size:0.85rem; text-transform:uppercase;">Advance Paid</h4>
+                    <span id="appTotalAdvance" style="font-size: 2rem; font-weight:800; color:#c2410c;">₹0</span>
+                </div>
+            </div>
+
+            <!-- Worker Grid -->
+            <div id="attendanceWorkerGrid" style="display:grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 1.5rem;">
+                <!-- Worker Cards injected here -->
+            </div>
+        </div>
+
+        <!-- CERTIFICATIONS -->
+        <div id="certs" class="section">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:2rem;">
+                <h1>Quality <span style="color:#2563eb;">Certificates</span></h1>
+                <button class="btn-primary" onclick="openModal('certModal')">+ Upload Cert</button>
+            </div>
+            <div style="display:grid; grid-template-columns:repeat(auto-fill, minmax(200px,1fr)); gap:1.5rem;" id="certGrid"></div>
+        </div>
+
+        <!-- SETTINGS -->
+        <div id="settings" class="section">
+            <h1 style="margin-bottom:2rem;">Profile <span style="color:#2563eb;">Settings</span></h1>
+            <div class="card" style="max-width:800px;">
+                <form id="profileForm">
+                    <div style="display:grid; grid-template-columns:1fr 2fr; gap:2.5rem;">
+                        <!-- Left: Photo -->
+                        <div style="text-align:center;">
+                            <div id="pPicPreview" style="width:150px; height:150px; background:#f1f5f9; border-radius:30px; margin:0 auto 1.5rem; display:flex; align-items:center; justify-content:center; font-size:3rem; color:#94a3b8; border:2px dashed #cbd5e1; background-size:cover; background-position:center;">👤</div>
+                            <label class="btn-primary" style="display:inline-block; font-size:0.8rem; padding:8px 15px; cursor:pointer;">
+                                Upload Headshot
+                                <input type="file" id="pPhoto" accept="image/*" style="display:none;" onchange="previewProfilePic(this)">
+                            </label>
+                        </div>
+
+                        <!-- Right: Info -->
+                        <div>
+                            <div style="margin-bottom:1.5rem;">
+                                <label style="display:block; font-size:0.75rem; font-weight:800; color:#64748b; text-transform:uppercase; margin-bottom:8px;">Full Name</label>
+                                <input type="text" id="pName" placeholder="e.g. Er. Suprith" required>
+                            </div>
+
+                            <div style="display:grid; grid-template-columns:1fr 1fr; gap:1.5rem; margin-bottom:1.5rem;">
+                                <div>
+                                    <label style="display:block; font-size:0.75rem; font-weight:800; color:#64748b; text-transform:uppercase; margin-bottom:8px;">Experience (Years)</label>
+                                    <input type="number" id="pExp" placeholder="Years">
+                                </div>
+                                <div>
+                                    <label style="display:block; font-size:0.75rem; font-weight:800; color:#64748b; text-transform:uppercase; margin-bottom:8px;">Projects Completed</label>
+                                    <input type="number" id="pProj" placeholder="Total count">
+                                </div>
+                            </div>
+
+                            <div style="margin-bottom:1.5rem;">
+                                <label style="display:block; font-size:0.75rem; font-weight:800; color:#64748b; text-transform:uppercase; margin-bottom:8px;">Office / Site Address</label>
+                                <textarea id="pAddress" placeholder="Enter full written address..." style="height:80px;"></textarea>
+                            </div>
+
+                            <div style="margin-bottom:1.5rem; background:#f8fafc; padding:15px; border-radius:15px;">
+                                <label style="display:block; font-size:0.75rem; font-weight:800; color:#64748b; text-transform:uppercase; margin-bottom:10px;">🔴 Live Site Location</label>
+                                <div style="display:flex; gap:10px;">
+                                    <div id="pLocStatus" style="font-size:0.8rem; color:#64748b; flex-grow:1;">Location not captured.</div>
+                                    <button type="button" class="btn-primary" style="background:#0f172a; padding:8px 15px; font-size:0.75rem;" onclick="captureLocation()">📍 Get Current</button>
+                                </div>
+                                <input type="hidden" id="pLat">
+                                <input type="hidden" id="pLng">
+                            </div>
+
+                            <div style="margin-bottom:1.5rem;">
+                                <label style="display:block; font-size:0.75rem; font-weight:800; color:#64748b; text-transform:uppercase; margin-bottom:8px;">Professional Bio</label>
+                                <textarea id="pBio" placeholder="Describe your structural expertise..." style="height:120px;"></textarea>
+                            </div>
+
+                            <button type="submit" class="btn-primary" style="width:100%; padding:15px; font-size:1rem;">💾 Save Profile & Stats</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODALS -->
+    <div id="projectModal" class="modal"><div class="card" style="width:500px; max-height:85vh; overflow-y:auto;">
+        <div style="display:flex; justify-content:space-between; margin-bottom:1.5rem;"><h2>New Project</h2><span onclick="closeAllModals()" style="cursor:pointer; font-size:1.5rem;">&times;</span></div>
+        <form id="projectForm">
+            <input type="text" name="title" placeholder="Project Title" required>
+            <input type="number" name="cost" placeholder="Total Cost (₹)" required>
+            <input type="text" name="location" placeholder="Place / Location" required>
+            <input type="number" name="duration" placeholder="Duration (Days)" required>
+            <textarea name="description" placeholder="Project Brief..."></textarea>
+            <label>Sketch Drawing:</label><input type="file" name="sketch" required>
+            <label>Site Photos (Multiple):</label><input type="file" name="images" multiple required>
+            <button class="btn-primary" style="width:100%; padding:15px;">Publish Project</button>
+        </form>
+    </div></div>
+
+    <div id="workerModal" class="modal"><div class="card" style="width:400px;">
+        <div style="display:flex; justify-content:space-between; margin-bottom:1.5rem;"><h2>Add Worker Profile</h2><span onclick="closeAllModals()" style="cursor:pointer; font-size:1.5rem;">&times;</span></div>
+        <form id="workerForm">
+            <input type="text" id="wName" placeholder="Laborer Name" required>
+            <input type="text" id="wCode" placeholder="Worker Unique ID (e.g. WRK-1234)">
+            <input type="text" id="wTask" placeholder="Role / Assignment" required>
+            <input type="number" id="wWage" placeholder="Daily Wage (₹)" required>
+            <input type="text" id="wLoc" placeholder="Site Location" required>
+            <button class="btn-primary" style="width:100%;">Create Profile</button>
+        </form>
+    </div></div>
+
+    <div id="advanceModal" class="modal"><div class="card" style="width:400px;">
+        <div style="display:flex; justify-content:space-between; margin-bottom:1.5rem;"><h2 id="advWorkerName">Give Advance</h2><span onclick="closeAllModals()" style="cursor:pointer; font-size:1.5rem;">&times;</span></div>
+        <form id="advanceForm">
+            <input type="hidden" id="advWorkerIndex">
+            <input type="number" id="advAmount" placeholder="Amount (₹)" required>
+            <input type="date" id="advDate" required>
+            <input type="text" id="advNote" placeholder="Note (Optional)">
+            <button class="btn-primary" style="width:100%; background:#f59e0b;">Pay Advance</button>
+        </form>
+    </div></div>
+
+    <div id="certModal" class="modal"><div class="card" style="width:400px;">
+        <div style="display:flex; justify-content:space-between; margin-bottom:1.5rem;"><h2>Upload Cert</h2><span onclick="closeAllModals()" style="cursor:pointer; font-size:1.5rem;">&times;</span></div>
+        <form id="certForm">
+            <input type="text" name="title" placeholder="Certificate Title" required>
+            <select name="category"><option value="Material">Material Quality</option><option value="License">Skill License</option></select>
+            <input type="file" name="cert_file" required>
+            <button class="btn-primary" style="width:100%;">Upload Proof</button>
+        </form>
+    </div></div>
+
+    <script src="../js/imgurl.js?v=2.0"></script>
+    <script>
+        const API_BASE_URL = '/api';
+        // IMG_BASE_URL is now handled by imgurl.js
+        const engineer_id = localStorage.getItem('user_id');
+
+        // Auto-refresh notifications every 30 seconds
+        setInterval(() => {
+            const msgSection = document.getElementById('messages');
+            if (msgSection && msgSection.classList.contains('active')) {
+                loadMessages();
+            } else {
+                updateMessageBadge();
+            }
+        }, 30000);
+
+        async function updateMessageBadge() {
+            try {
+                const res = await fetch(`${API_BASE_URL}/auth/messages?user_id=${engineer_id}`);
+                const data = await res.json();
+                const badge = document.getElementById('msgBadge');
+                if (data.messages && badge) {
+                    const unread = data.messages.filter(m => !m.is_read).length;
+                    if (unread > 0) {
+                        badge.style.display = 'inline-block';
+                        badge.textContent = unread;
+                    } else {
+                        badge.style.display = 'none';
+                    }
+                }
+            } catch(e) {}
+        }
+
+        function showSection(id, el) {
+            document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+            document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
+            document.getElementById(id).classList.add('active');
+            el.classList.add('active');
+
+            if (id === 'job-tracking') loadJobTracking();
+            if (id === 'messages') loadMessages();
+        }
+
+        function openModal(id) { document.getElementById(id).style.display = 'flex'; }
+        function closeAllModals() { document.querySelectorAll('.modal').forEach(m => m.style.display = 'none'); }
+
+        async function loadPortfolio() {
+            const res = await fetch(`${API_BASE_URL}/engineer/portfolio?engineer_id=${engineer_id}`);
+            const data = await res.json();
+            console.log("🔍 DATABASE PROJECTS DATA:", data.projects); // DEBUG LOG
+            const grid = document.getElementById('portfolioGrid');
+            grid.innerHTML = '';
+            if (data.projects) {
+                document.getElementById('statProjects').textContent = data.projects.length;
+                data.projects.forEach(p => {
+                    let firstImg = '';
+                    if (p.images) {
+                        if (Array.isArray(p.images) && p.images.length > 0) {
+                            firstImg = p.images[0];
+                        } else if (typeof p.images === 'string' && p.images.startsWith('[')) {
+                            try {
+                                const arr = JSON.parse(p.images);
+                                if (arr.length > 0) firstImg = arr[0];
+                            } catch(e) {}
+                        } else if (typeof p.images === 'string' && p.images.length > 5) {
+                            firstImg = p.images;
+                        }
+                    }
+                    let img = window.imgUrl(firstImg);
+                    grid.innerHTML += `<div class="card" style="padding:0; overflow:hidden;">
+                        <div style="height:180px; background-image:url('${img}'); background-size:cover; background-position:center; background-color:#f1f5f9;"></div>
+                        <div style="padding:1.5rem;"><h3>${p.title}</h3><p style="color:#64748b; font-size:0.85rem;">📍 ${p.location} • ₹${p.cost}L</p></div>
+                    </div>`;
+                });
+            }
+        }
+
+        // Offline App Logic Array
+        let localWorkers = JSON.parse(localStorage.getItem('off_workers')) || [];
+
+        function saveLocalWorkers() {
+            localStorage.setItem('off_workers', JSON.stringify(localWorkers));
+            renderWorkerGrid();
+        }
+
+        async function loadAttendance() {
+            // Replaced old table fetch with the new app-level grid rendering
+            renderWorkerGrid();
+        }
+
+        function renderWorkerGrid() {
+            const grid = document.getElementById('attendanceWorkerGrid');
+            grid.innerHTML = '';
+            
+            let presentCount = 0;
+            let totalAdv = 0;
+            const today = new Date().toISOString().split('T')[0];
+
+            document.getElementById('statWorkers').textContent = localWorkers.length;
+            document.getElementById('appTotalWorkers').textContent = localWorkers.length;
+
+            localWorkers.forEach((w, index) => {
+                // Calculate stuff
+                let daysP = 0; let daysH = 0; let daysA = 0;
+                let advSum = 0;
+                
+                (w.attendance || []).forEach(a => {
+                    if(a.status==='P') daysP++;
+                    if(a.status==='H') daysH++;
+                    if(a.status==='A') daysA++;
+                    if(a.date.startsWith(today) && (a.status==='P' || a.status==='H')) presentCount++;
+                });
+
+                (w.advances || []).forEach(adv => advSum += Number(adv.amount));
+                totalAdv += advSum;
+
+                const earned = (daysP * w.wage) + (daysH * (w.wage/2));
+                const balance = earned - advSum;
+
+                // Today's status (if any)
+                const todayLog = (w.attendance || []).find(a => a.date.startsWith(today));
+                const statusToday = todayLog ? todayLog.status : null;
+
+                grid.innerHTML += `
+                    <div class="card" style="padding:1.5rem; position:relative; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);">
+                        <div style="display:flex; justify-content:space-between; align-items:flex-start;">
+                            <div>
+                                <h3 style="margin:0; font-size:1.2rem; color:#0f172a;">${w.name}</h3>
+                                <p style="margin:2px 0; color:#64748b; font-size:0.8rem;">${w.role} | ₹${w.wage}/day</p>
+                            </div>
+                            <span style="font-size:1.5rem; cursor:pointer; color:#ef4444;" onclick="deleteWorker(${index})" title="Delete Worker">&times;</span>
+                        </div>
+                        
+                        <div style="display:flex; gap:10px; margin: 15px 0;">
+                            <button onclick="markAtt(${index}, 'P')" style="flex:1; padding:10px; border-radius:8px; border:2px solid #10b981; background:${statusToday==='P'?'#10b981':'white'}; color:${statusToday==='P'?'white':'#10b981'}; font-weight:700; cursor:pointer; transition:0.2s;">P</button>
+                            <button onclick="markAtt(${index}, 'H')" style="flex:1; padding:10px; border-radius:8px; border:2px solid #f59e0b; background:${statusToday==='H'?'#f59e0b':'white'}; color:${statusToday==='H'?'white':'#f59e0b'}; font-weight:700; cursor:pointer; transition:0.2s;">H</button>
+                            <button onclick="markAtt(${index}, 'A')" style="flex:1; padding:10px; border-radius:8px; border:2px solid #ef4444; background:${statusToday==='A'?'#ef4444':'white'}; color:${statusToday==='A'?'white':'#ef4444'}; font-weight:700; cursor:pointer; transition:0.2s;">A</button>
+                        </div>
+
+                        <div style="background:#f8fafc; padding:10px; border-radius:10px; font-size:0.85rem;">
+                            <div style="display:flex; justify-content:space-between; margin-bottom:5px;"><span>Present:</span> <strong>${daysP}</strong></div>
+                            <div style="display:flex; justify-content:space-between; margin-bottom:5px;"><span>Earned:</span> <strong>₹${earned}</strong></div>
+                            <div style="display:flex; justify-content:space-between; margin-bottom:5px;"><span>Advance:</span> <strong style="color:#ef4444;">₹${advSum}</strong></div>
+                            <hr style="border:0; border-top:1px solid #e2e8f0; margin:8px 0;">
+                            <div style="display:flex; justify-content:space-between;"><span>Balance:</span> <strong style="color:#10b981; font-size:1rem;">₹${balance}</strong></div>
+                        </div>
+
+                        <button style="width:100%; margin-top:15px; padding:10px; background:#fef3c7; color:#b45309; border:none; border-radius:10px; font-weight:700; cursor:pointer;" onclick="openAdvanceModal(${index})">
+                            <i class="fa-solid fa-money-bill"></i> Give Advance
+                        </button>
+                    </div>
+                `;
+            });
+
+            document.getElementById('appPresentToday').textContent = presentCount;
+            document.getElementById('appTotalAdvance').textContent = `₹${totalAdv}`;
+        }
+
+        window.markAtt = (index, status) => {
+            const today = new Date().toISOString().split('T')[0];
+            const worker = localWorkers[index];
+            if(!worker.attendance) worker.attendance = [];
+            
+            // Remove existing log for today if any
+            worker.attendance = worker.attendance.filter(a => !a.date.startsWith(today));
+            
+            // Push new log
+            worker.attendance.push({ date: today, status: status });
+            saveLocalWorkers();
+
+            // Sync to backend (optional, but requested to behave like the app)
+            syncAttendanceToBackend(worker, status);
+        }
+
+        async function syncAttendanceToBackend(w, status) {
+            let fullStatus = status;
+            if (status === 'P') fullStatus = 'Present';
+            if (status === 'H') fullStatus = 'Half Day';
+            if (status === 'A') fullStatus = 'Absent';
+
+            const data = { 
+                worker_name: w.name, 
+                worker_code: w.code, 
+                location: w.site, 
+                assigned_work: w.role, 
+                status: 'assigned', // Initial status
+                attendance_status: fullStatus, 
+                engineer_id: engineer_id 
+            };
+            console.log("DEBUG: Syncing to backend:", data);
+            try {
+                const response = await fetch(`${API_BASE_URL}/engineer/attendance`, { 
+                    method: 'POST', 
+                    headers: {'Content-Type':'application/json'}, 
+                    body: JSON.stringify(data)
+                });
+                const result = await response.json();
+                if(!response.ok) throw new Error(result.error || "Server error");
+                console.log("DEBUG: Sync response:", result);
+            } catch(e) { 
+                console.error("Backend sync failed:", e);
+                alert("⚠️ Work Assignment Failed to sync! " + e.message);
+            }
+        }
+
+        async function loadJobTracking() {
+            const grid = document.getElementById('jobTrackingGrid');
+            grid.innerHTML = '<p>Fetching live updates...</p>';
+            try {
+                const res = await fetch(`${API_BASE_URL}/engineer/attendance?engineer_id=${engineer_id}`);
+                const data = await res.json();
+                grid.innerHTML = '';
+                
+                if (data.attendance && data.attendance.length > 0) {
+                    data.attendance.forEach(job => {
+                        const statusColor = {
+                            'assigned': '#64748b',
+                            'accepted': '#3b82f6',
+                            'rejected': '#ef4444',
+                            'started': '#10b981',
+                            'completed': '#059669'
+                        }[job.status] || '#64748b';
+
+                        grid.innerHTML += `
+                            <div class="card" style="padding: 1.5rem; border-left: 5px solid ${statusColor};">
+                                <div style="display:flex; justify-content:space-between; align-items:start; margin-bottom: 1rem;">
+                                    <div>
+                                        <h3 style="margin:0;">${job.worker_name}</h3>
+                                        <p style="font-size:0.8rem; color:#64748b; margin:2px 0;">Code: ${job.worker_code || 'N/A'}</p>
+                                    </div>
+                                    <span class="badge" style="background:${statusColor}22; color:${statusColor};">${job.status || 'assigned'}</span>
+                                </div>
+                                
+                                <div style="font-size:0.9rem; margin-bottom: 1rem;">
+                                    <p style="margin:5px 0;">🛠️ <strong>Work:</strong> ${job.assigned_work}</p>
+                                    <p style="margin:5px 0;">📍 <strong>Site:</strong> ${job.location}</p>
+                                </div>
+
+                                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 15px;">
+                                    <div>
+                                        <label style="font-size:0.65rem; font-weight:800; color:#94a3b8; text-transform:uppercase;">Arrival Selfie</label>
+                                        ${job.arrival_selfie_url ? `
+                                            <a href="${window.imgUrl(job.arrival_selfie_url)}" target="_blank">
+                                                <div style="height:100px; background-image:url('${window.imgUrl(job.arrival_selfie_url)}'); background-size:cover; background-position:center; border-radius:10px; border:1px solid #e2e8f0; background-color:#f1f5f9;"></div>
+                                            </a>
+                                            <p style="font-size:0.6rem; color:#10b981; margin:3px 0;">✅ Verified Reach</p>
+                                        ` : `
+                                            <div style="height:100px; background:#f8fafc; border-radius:10px; border:1px dashed #cbd5e1; display:flex; align-items:center; justify-content:center; color:#94a3b8; font-size:0.7rem; text-align:center;">Pending<br>Arrival</div>
+                                        `}
+                                    </div>
+                                    <div>
+                                        <label style="font-size:0.65rem; font-weight:800; color:#94a3b8; text-transform:uppercase;">Work Photo</label>
+                                        ${job.completion_photo_url ? `
+                                            <a href="${window.imgUrl(job.completion_photo_url)}" target="_blank">
+                                                <div style="height:100px; background-image:url('${window.imgUrl(job.completion_photo_url)}'); background-size:cover; background-position:center; border-radius:10px; border:1px solid #e2e8f0; background-color:#f1f5f9;"></div>
+                                            </a>
+                                            <p style="font-size:0.6rem; color:#059669; margin:3px 0;">✅ Work Done</p>
+                                        ` : `
+                                            <div style="height:100px; background:#f8fafc; border-radius:10px; border:1px dashed #cbd5e1; display:flex; align-items:center; justify-content:center; color:#94a3b8; font-size:0.7rem; text-align:center;">Pending<br>Completion</div>
+                                        `}
+                                    </div>
+                                </div>
+                            </div>
+                        `;
+                    });
+                } else {
+                    grid.innerHTML = '<div class="card" style="grid-column: 1/-1; text-align:center; color:#64748b;">No jobs have been assigned through the tracking system yet.</div>';
+                }
+            } catch (err) {
+                grid.innerHTML = '<p>Error loading live updates.</p>';
+            }
+        }
+
+        async function loadMessages() {
+            const list = document.getElementById('messageList');
+            const badge = document.getElementById('msgBadge');
+            list.innerHTML = '<p>Checking for new notifications...</p>';
+            try {
+                // Fetching from a general messages endpoint - assuming it exists or using a filtered one
+                const res = await fetch(`${API_BASE_URL}/auth/messages?user_id=${engineer_id}`);
+                const data = await res.json();
+                list.innerHTML = '';
+                
+                if (data.messages && data.messages.length > 0) {
+                    const unread = data.messages.filter(m => !m.is_read).length;
+                    if (unread > 0) {
+                        badge.style.display = 'inline-block';
+                        badge.textContent = unread;
+                    } else {
+                        badge.style.display = 'none';
+                    }
+
+                    data.messages.forEach(m => {
+                        const date = new Date(m.created_at).toLocaleString();
+                        list.innerHTML += `
+                            <div class="card" style="padding: 1.5rem; margin-bottom: 0.5rem; ${m.is_read ? 'opacity: 0.8;' : 'border-left: 5px solid #2563eb;'}">
+                                <div style="display:flex; justify-content:space-between; margin-bottom: 5px;">
+                                    <span style="font-size: 0.75rem; font-weight: 800; color: #64748b; text-transform: uppercase;">System Notification</span>
+                                    <span style="font-size: 0.7rem; color: #94a3b8;">${date}</span>
+                                </div>
+                                <p style="margin:0; font-weight: 600; color: #1e293b;">${m.message}</p>
+                            </div>
+                        `;
+                    });
+                } else {
+                    list.innerHTML = '<div class="card" style="text-align:center; padding:3rem; color:#64748b;">No new messages or notifications.</div>';
+                    badge.style.display = 'none';
+                }
+            } catch (err) {
+                list.innerHTML = '<p>Error loading inbox.</p>';
+            }
+        }
+
+        window.openAdvanceModal = (index) => {
+            const w = localWorkers[index];
+            document.getElementById('advWorkerName').innerText = `Advance to ${w.name}`;
+            document.getElementById('advWorkerIndex').value = index;
+            document.getElementById('advDate').value = new Date().toISOString().split('T')[0];
+            openModal('advanceModal');
+        }
+
+        window.deleteWorker = (index) => {
+            if(confirm("Are you sure you want to remove this worker profile?")) {
+                localWorkers.splice(index, 1);
+                saveLocalWorkers();
+            }
+        }
+
+        async function loadCerts() {
+            const res = await fetch(`${API_BASE_URL}/engineer/certification?engineer_id=${engineer_id}`);
+            const data = await res.json();
+            const grid = document.getElementById('certGrid');
+            grid.innerHTML = '';
+            if (data.certifications) {
+                data.certifications.forEach(c => {
+                    const img = window.imgUrl(c.image_url);
+                    grid.innerHTML += `<div class="card" style="padding:1rem; text-align:center;">
+                        <div style="height:120px; background-image:url('${img}'); background-size:contain; background-repeat:no-repeat; background-position:center; margin-bottom:10px; background-color:#f1f5f9;"></div>
+                        <h4 style="margin:0;">${c.title}</h4><span class="badge" style="background:#e0f2fe; color:#0369a1;">${c.category}</span>
+                    </div>`;
+                });
+            }
+        }
+
+        document.getElementById('projectForm').onsubmit = async (e) => {
+            e.preventDefault();
+            const btn = e.target.querySelector('button');
+            const originalText = btn.textContent;
+            
+            // CRITICAL CHECK: Ensure engineer_id is available before submitting
+            const current_engineer_id = localStorage.getItem('user_id');
+            if (!current_engineer_id) {
+                alert('❌ Session Error: Your user ID is missing. Please LOG OUT and LOG IN again before publishing a project.');
+                return;
+            }
+            
+            btn.textContent = 'Publishing...';
+            btn.disabled = true;
+
+            const formData = new FormData(e.target);
+            formData.append('engineer_id', current_engineer_id);
+            console.log('Publishing project for engineer_id:', current_engineer_id);
+            
+            try {
+                const res = await fetch(`${API_BASE_URL}/engineer/project`, { method: 'POST', body: formData });
+                if (res.ok) {
+                    alert('✅ Project Published Successfully! It will now appear in the customer marketplace.');
+                    closeAllModals(); 
+                    loadPortfolio();
+                } else {
+                    const data = await res.json();
+                    alert('❌ Error: ' + (data.error || data.message || 'Failed to publish'));
+                }
+            } catch (err) {
+                alert('❌ Network Error. Please check your connection.');
+            } finally {
+                btn.textContent = originalText;
+                btn.disabled = false;
+            }
+        }
+
+        document.getElementById('workerForm').onsubmit = async (e) => {
+            e.preventDefault();
+            const newWorker = {
+                name: document.getElementById('wName').value,
+                code: document.getElementById('wCode').value,
+                role: document.getElementById('wTask').value,
+                wage: Number(document.getElementById('wWage').value),
+                site: document.getElementById('wLoc').value,
+                attendance: [],
+                advances: []
+            };
+            localWorkers.push(newWorker);
+            saveLocalWorkers();
+
+            // Notify worker immediately on profile creation
+            syncAttendanceToBackend(newWorker, 'Assigned');
+
+            closeAllModals();
+            document.getElementById('workerForm').reset();
+        }
+
+        document.getElementById('advanceForm').onsubmit = async (e) => {
+            e.preventDefault();
+            const index = document.getElementById('advWorkerIndex').value;
+            const worker = localWorkers[index];
+            const amount = document.getElementById('advAmount').value;
+            const date = document.getElementById('advDate').value;
+            const note = document.getElementById('advNote').value;
+            
+            const btn = e.target.querySelector('button');
+            const originalText = btn.textContent;
+            btn.disabled = true;
+            btn.textContent = 'Preparing Payment...';
+
+            try {
+                // 1. Create Order on Backend
+                const orderRes = await fetch(`${API_BASE_URL}/engineer/create-advance-order`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ amount: amount })
+                });
+                const order = await orderRes.json();
+
+                if (!orderRes.ok) throw new Error(order.error || "Failed to create order");
+
+                // 2. Open Razorpay Checkout
+                const options = {
+                    key: order.key_id, // Dynamically use key from backend
+                    amount: order.amount,
+                    currency: "INR",
+                    name: "CIVIL CONNECTION",
+                    description: `Advance Payment to ${worker.name}`,
+                    order_id: order.order_id,
+                    handler: async function (response) {
+                        // 3. Verify Payment on Backend
+                        const verifyRes = await fetch(`${API_BASE_URL}/engineer/verify-advance-payment`, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({
+                                ...response,
+                                engineer_id: engineer_id,
+                                worker_code: worker.code,
+                                amount: amount,
+                                note: note,
+                                date: date
+                            })
+                        });
+
+                        if (verifyRes.ok) {
+                            alert(`✅ Payment Successful! ₹${amount} sent to ${worker.name}`);
+                            
+                            // Update Local Storage
+                            if(!worker.advances) worker.advances = [];
+                            worker.advances.push({ amount, date, note, payment_id: response.razorpay_payment_id });
+                            saveLocalWorkers();
+                            
+                            closeAllModals();
+                            document.getElementById('advanceForm').reset();
+                        } else {
+                            const err = await verifyRes.json();
+                            alert("❌ Verification Failed: " + err.error);
+                        }
+                    },
+                    prefill: {
+                        name: localStorage.getItem('user_name') || "Engineer",
+                    },
+                    theme: { color: "#f59e0b" }
+                };
+
+                const rzp = new Razorpay(options);
+                rzp.open();
+
+            } catch (err) {
+                alert("Payment Error: " + err.message);
+            } finally {
+                btn.disabled = false;
+                btn.textContent = originalText;
+            }
+        }
+
+        document.getElementById('certForm').onsubmit = async (e) => {
+            e.preventDefault();
+            const formData = new FormData(e.target);
+            formData.append('engineer_id', engineer_id);
+            await fetch(`${API_BASE_URL}/engineer/certification`, { method: 'POST', body: formData });
+            closeAllModals(); loadCerts();
+        }
+
+        function logout() { localStorage.clear(); window.location.href = '../index.html'; }
+
+        // --- NEW PROFILE LOGIC ---
+        function previewProfilePic(input) {
+            if (input.files && input.files[0]) {
+                const reader = new FileReader();
+                reader.onload = e => {
+                    document.getElementById('pPicPreview').style.backgroundImage = `url(${e.target.result})`;
+                    document.getElementById('pPicPreview').textContent = '';
+                };
+                reader.readAsDataURL(input.files[0]);
+            }
+        }
+
+        async function captureLocation() {
+            const status = document.getElementById('pLocStatus');
+            status.textContent = "🛰️ Fetching satellites...";
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(async (pos) => {
+                    const { latitude, longitude } = pos.coords;
+                    document.getElementById('pLat').value = latitude;
+                    document.getElementById('pLng').value = longitude;
+                    status.textContent = `📍 Captured: ${latitude.toFixed(4)}, ${longitude.toFixed(4)}`;
+                    
+                    // Reverse geocode
+                    try {
+                        const res = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}`);
+                        const data = await res.json();
+                        if(data.display_name) {
+                            document.getElementById('pAddress').value = data.display_name;
+                            status.textContent = `✅ Site Location: ${data.display_name.substring(0, 40)}...`;
+                        }
+                    } catch(e) {}
+                }, () => { status.textContent = "❌ Permission Denied."; });
+            }
+        }
+
+        async function loadProfile() {
+            try {
+                const res = await fetch(`${API_BASE_URL}/auth/profile?user_id=${engineer_id}`);
+                const { profile: p } = await res.json();
+                if (p) {
+                    document.getElementById('pName').value = p.full_name || '';
+                    document.getElementById('pBio').value = p.bio || '';
+                    document.getElementById('pAddress').value = p.address || '';
+                    document.getElementById('pExp').value = p.experience_years || '';
+                    document.getElementById('pProj').value = p.completed_projects || '';
+                    if (p.profile_pic_url) {
+                        const url = window.imgUrl(p.profile_pic_url, '/uploads/placeholder.jpg');
+                        document.getElementById('pPicPreview').style.backgroundImage = `url(${url})`;
+                        document.getElementById('pPicPreview').textContent = '';
+                    }
+                }
+            } catch(e) {}
+        }
+
+        document.getElementById('profileForm').onsubmit = async (e) => {
+            e.preventDefault();
+            const btn = e.target.querySelector('button[type="submit"]');
+            btn.textContent = 'Saving...';
+            btn.disabled = true;
+
+            const formData = new FormData();
+            formData.append('user_id', engineer_id);
+            formData.append('name', document.getElementById('pName').value);
+            formData.append('bio', document.getElementById('pBio').value);
+            formData.append('address', document.getElementById('pAddress').value);
+            formData.append('experience_years', document.getElementById('pExp').value);
+            formData.append('completed_projects', document.getElementById('pProj').value);
+            formData.append('lat', document.getElementById('pLat').value);
+            formData.append('lng', document.getElementById('pLng').value);
+            
+            const file = document.getElementById('pPhoto').files[0];
+            if (file) formData.append('photo', file);
+
+            try {
+                const res = await fetch(`${API_BASE_URL}/auth/profile`, { method: 'POST', body: formData });
+                if (res.ok) alert("✅ Profile and Stats Updated Successfully!");
+                else alert("❌ Error saving profile.");
+            } catch(e) { alert("Network error."); }
+            
+            btn.textContent = '💾 Save Profile & Stats';
+            btn.disabled = false;
+        };
+
+        window.onload = () => { 
+            // Session guard: ensure engineer is logged in
+            const _token = localStorage.getItem('access_token');
+            const _eid = localStorage.getItem('user_id');
+            if (!_token || !_eid) {
+                alert('Session expired. Please log in again.');
+                window.location.href = '../pages/login.html';
+                return;
+            }
+            console.log('Engineer session active, user_id:', _eid);
+            loadPortfolio(); 
+            loadAttendance(); 
+            loadCerts(); 
+            loadProfile(); 
+        };
+    </script>
+    <script src="../js/theme.js"></script>
+</body>
+</html>

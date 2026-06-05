@@ -1,0 +1,922 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <!-- Google Tag Manager -->
+    <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+    new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+    j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+    'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+    })(window,document,'script','dataLayer','GTM-T4X4SVS5');</script>
+    <!-- End Google Tag Manager -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Worker Dashboard | CIVIL CONNECTION</title>
+    <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../assets/css/mobile.css">
+    <style>
+        body {
+            background: linear-gradient(rgba(249, 250, 251, 0.85), rgba(249, 250, 251, 0.85)), 
+                        url('https://images.pexels.com/photos/19165543/pexels-photo-19165543.jpeg');
+            background-size: cover;
+            background-attachment: fixed;
+            background-position: center;
+            display: flex;
+            min-height: 100vh;
+            color: var(--text-main);
+            font-family: 'Inter', sans-serif;
+            margin: 0;
+            transition: 0.3s;
+        }
+
+        .sidebar {
+            width: 280px;
+            background: rgba(15, 23, 42, 0.8);
+            backdrop-filter: blur(15px);
+            padding: 2.5rem 1.2rem;
+            position: fixed;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            color: white;
+            z-index: 1000;
+            border-right: 1px solid var(--border);
+        }
+
+        .main-content {
+            margin-left: 280px;
+            flex-grow: 1;
+            padding: 2.5rem 4rem;
+            width: calc(100% - 280px);
+            box-sizing: border-box;
+        }
+
+        .status-banner {
+            padding: 1.5rem 2rem;
+            border-radius: 20px;
+            color: white;
+            margin-bottom: 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .pending {
+            background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+        }
+
+        .approved {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+        }
+
+        .card {
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(10px);
+            border-radius: 24px;
+            padding: 2rem;
+            border: 1px solid rgba(255, 255, 255, 0.4);
+            box-shadow: var(--card-shadow);
+            color: var(--text-main);
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+
+        .work-card {
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(8px);
+            border-radius: 20px;
+            overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            transition: 0.3s;
+        }
+
+        .work-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+        }
+
+        .work-img {
+            height: 180px;
+            background-size: cover;
+            background-position: center;
+            background-color: #f1f5f9;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            z-index: 2000;
+            align-items: center;
+            justify-content: center;
+            backdrop-filter: blur(4px);
+        }
+
+        .btn-primary {
+            background: #2563eb;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 12px;
+            font-weight: 700;
+            cursor: pointer;
+        }
+
+        input,
+        select,
+        textarea {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            margin-bottom: 1rem;
+            box-sizing: border-box;
+        }
+
+        .nav-link {
+            padding: 12px 15px;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: 0.2s;
+            color: #94a3b8;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .nav-link:hover,
+        .nav-link.active {
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Google Tag Manager (noscript) -->
+    <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-T4X4SVS5"
+    height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+    <!-- End Google Tag Manager (noscript) -->
+    <a href="../index.html" class="home-btn" title="Go to Home">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+            stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round"
+                d="m2.25 12 8.954-8.955c.44-.439 1.152-.439 1.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75M8.25 21h8.25" />
+        </svg>
+    </a>
+
+    <!-- 📱 Floating Mobile Worker Bar 📱 -->
+    <div class="mobile-nav">
+        <a href="#" class="mobile-nav-item active" onclick="showSection('overview', this)">
+            <i class="fa-solid fa-house"></i>
+            <span>Overview</span>
+        </a>
+        <a href="#" class="mobile-nav-item" onclick="showSection('my-work', this)">
+            <i class="fa-solid fa-images"></i>
+            <span>Portfolio</span>
+        </a>
+        <a href="#" class="mobile-nav-item" id="mobile-bell-nav" onclick="showSection('inquiries', this)">
+            <i class="fa-solid fa-bell"></i>
+            <span>Jobs</span>
+        </a>
+        <a href="#" class="mobile-nav-item" onclick="showSection('profile', this)">
+            <i class="fa-solid fa-circle-user"></i>
+            <span>Profile</span>
+        </a>
+    </div>
+
+    <div class="sidebar">
+        <div class="logo" style="display: flex; align-items: center; gap: 10px; margin-bottom: 3rem; padding: 0 10px;">
+            <img src="../img/logo.jpg" alt="CIVIL CONNECTION" style="height: 45px; border-radius: 6px;">
+            <div style="display: flex; flex-direction: column; line-height: 1;">
+                <span style="font-size: 1.1rem; font-weight: 800; color: #fff;">CIVIL</span>
+                <span style="font-size: 0.8rem; font-weight: 800; color: #3b82f6;">CONNECTION</span>
+            </div>
+        </div>
+        <div class="theme-toggle" title="Toggle Dark/Light Mode" style="margin-bottom: 1rem; width: 40px; height: 40px; box-shadow: none; border: 1px solid rgba(255,255,255,0.1); background: rgba(255,255,255,0.05); color: white;">
+            <i class="fa-solid fa-moon"></i>
+            <i class="fa-solid fa-sun"></i>
+        </div>
+        <div class="nav-link active" onclick="showSection('overview', this)">🏠 Overview</div>
+        <div class="nav-link" onclick="showSection('inquiries', this)">💬 Inquiries</div>
+        <div class="nav-link" id="nav-labor" onclick="showSection('labor-work', this)">
+            👷 Labour Day Work 
+            <span id="laborBadge" style="display:none; background:#ef4444; color:white; font-size:10px; padding:2px 6px; border-radius:10px; margin-left:5px;">NEW</span>
+        </div>
+        <div class="nav-link" onclick="showSection('profile', this)">⚙️ Profile</div>
+        <div class="nav-link" style="margin-top: auto; color: #ef4444;" onclick="logout()">🚪 Logout</div>
+    </div>
+
+    <div class="main-content">
+        <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 2rem;">
+            <div>
+
+                <h1 id="welcomeGreeting" style="margin:0;">Welcome Back, <span style="color: #2563eb;">Worker</span>!</h1>
+                <p id="workerUniqueId" style="color: #64748b; font-weight: 700; font-size: 0.85rem; margin: 5px 0;">ID: Loading...</p>
+            </div>
+            
+            <!-- Notification Bell -->
+            <div style="position: relative; cursor: pointer;" onclick="showSection('inquiries', document.querySelector('.nav-link:nth-child(3)'))">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" style="width:32px; height:32px; color: #1e293b;">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M14.857 17.082a23.848 23.848 0 0 0 5.454-1.31c.197-.058.33-.232.33-.437 0-.684-.145-1.347-.408-1.947a3.508 3.508 0 0 1-1.166-1.627 3.505 3.505 0 0 1-.426-1.648V8.411c0-2.435-1.114-4.573-2.884-5.908a3.136 3.136 0 0 0-4.053 0C10.02 2.503 8.906 4.641 8.906 7.076V10.1c0 .584-.153 1.144-.426 1.648a3.508 3.508 0 0 1-1.166 1.627c-.263.6-.408 1.263-.408 1.947 0 .205.133.379.33.437a23.848 23.848 0 0 0 5.454 1.31m4.33 0c.342.333.646.709.907 1.121m-9.33-1.121c-.342.333-.646.709-.907 1.121m12.138 0a.658.658 0 0 1-.54 1.057H7.057a.658.658 0 0 1-.54-1.057m15.608 0a52.39 52.39 0 0 1-10.272 2.255 52.39 52.39 0 0 1-10.272-2.255" />
+                </svg>
+                <span id="bookingBadge" style="display:none; position: absolute; top: -5px; right: -5px; background: #ef4444; color: white; font-size: 0.65rem; padding: 2px 6px; border-radius: 50%; font-weight: 800; border: 2px solid white;">0</span>
+            </div>
+        </div>
+
+        <!-- Overview Section -->
+        <div id="overviewSection">
+            <div id="statusBanner" class="status-banner pending">
+                <div>
+                    <h2 id="statusText" style="margin:0;">Status: Pending Approval</h2>
+                    <p id="statusDesc" style="margin:5px 0 0 0; opacity: 0.8;">The Civil Hub team is reviewing your documents.</p>
+                </div>
+                <div id="statusIcon" style="font-size: 2rem;">⏳</div>
+            </div>
+
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+                <div>
+                    <h1 style="margin:0;">Manage Your <span style="color: #2563eb;">Worker Portfolio</span></h1>
+                    <p style="color: #64748b;">Add images of your previous work to get hired by customers.</p>
+                </div>
+                <button class="btn-primary" onclick="openModal()">+ Add New Work</button>
+            </div>
+
+            <div class="grid" id="portfolioGrid">
+                <!-- Portfolio Items -->
+            </div>
+        </div>
+
+        <!-- Inquiries Section -->
+        <div id="inquiriesSection" style="display:none;">
+            <div style="margin-bottom: 2rem;">
+                <h1 style="margin:0;">Inbox & <span style="color: #2563eb;">Notifications</span></h1>
+                <p style="color: #64748b;">Read updates from engineers and payment confirmations.</p>
+            </div>
+            
+            <!-- Message List -->
+            <div id="messageList" style="margin-bottom: 3rem;">
+                <p>Checking for notifications...</p>
+            </div>
+
+            <div style="margin-bottom: 2rem; border-top: 1px solid #e2e8f0; pt-2rem;">
+                <h2 style="margin:0;">Active <span style="color: #2563eb;">Bookings</span></h2>
+                <p style="color: #64748b;">Track your 85% milestone projects here.</p>
+            </div>
+            <div id="bookingList" class="grid"></div>
+        </div>
+
+        <!-- Labour Day Work Section -->
+        <div id="laborWorkSection" style="display:none;">
+            <div style="margin-bottom: 2rem;">
+                <h1 style="margin:0;">Labour <span style="color: #2563eb;">Day Work</span></h1>
+                <p style="color: #64748b;">Tasks and attendance marked by your assigned Engineer.</p>
+            </div>
+            <div id="laborWorkList" class="grid">
+                <!-- Daily works will load here -->
+            </div>
+        </div>
+
+        <!-- Profile Section -->
+        <div id="profileSection" style="display:none;">
+            <div class="card" style="max-width: 800px; margin: 0 auto;">
+                <h1 style="margin-bottom: 2rem;">My Professional Profile</h1>
+                
+                <form id="profileForm">
+                    <div style="display: grid; grid-template-columns: 200px 1fr; gap: 2rem; align-items: start;">
+                        <div style="text-align: center;">
+                            <div id="profileImagePreview" style="width: 150px; height: 150px; border-radius: 50%; background: #f1f5f9; margin: 0 auto 1rem auto; background-size: cover; background-position: center; border: 2px solid #e2e8f0;"></div>
+                            <label class="btn-primary" style="display: inline-block; padding: 8px 16px; font-size: 0.8rem; cursor: pointer;">
+                                Change Photo
+                                <input type="file" name="profile_pic" style="display: none;" onchange="previewProfile(this)">
+                            </label>
+                        </div>
+                        
+                        <div>
+                            <label style="display:block; font-weight:700; margin-bottom:5px;">Full Name</label>
+                            <input type="text" name="name" id="profName" required>
+                            
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                                <div>
+                                    <label style="display:block; font-weight:700; margin-bottom:5px;">Age</label>
+                                    <input type="number" name="age" id="profAge">
+                                </div>
+                                <div>
+                                    <label style="display:block; font-weight:700; margin-bottom:5px;">Years of Experience</label>
+                                    <input type="number" name="experience" id="profExp">
+                                </div>
+                            </div>
+                            
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                                <div>
+                                    <label style="display:block; font-weight:700; margin-bottom:5px;">Work Category</label>
+                                    <select name="work_type" id="profType">
+                                        <option value="Plumbing">Plumbing</option>
+                                        <option value="Electrical">Electrical</option>
+                                        <option value="Painting">Painting</option>
+                                        <option value="Carpentry">Carpentry</option>
+                                        <option value="Masonry">Masonry</option>
+                                        <option value="Welding">Welding</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label style="display:block; font-weight:700; margin-bottom:5px;">Daily Wages (₹)</label>
+                                    <input type="number" name="daily_wages" id="profWages">
+                                </div>
+                            </div>
+                            
+                            <label style="display:block; font-weight:700; margin-bottom:5px;">Main Work Description (Bio)</label>
+                            <textarea name="bio" id="profBio" rows="4" placeholder="Tell customers about your expertise..."></textarea>
+                            
+                            <button type="submit" class="btn-primary" style="width: 100%; margin-top: 1rem;">Save Profile Changes</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Work Modal -->
+    <div id="workModal" class="modal">
+        <div class="card" style="width: 500px; position: relative;">
+            <span style="position: absolute; top: 1.5rem; right: 2rem; cursor: pointer; font-size: 1.5rem;"
+                onclick="closeModal()">&times;</span>
+            <h2 style="margin-bottom: 1.5rem;">Add Your Work Details</h2>
+            <form id="workForm">
+                <input type="text" name="title" placeholder="Job Title (e.g. Living Room Painting)" required>
+                <textarea name="description" placeholder="Short description of what you did..." rows="3"></textarea>
+                <div style="display: flex; gap: 1rem;">
+                    <input type="number" name="cost" placeholder="Estimated Cost (₹)" required>
+                    <input type="number" name="duration" placeholder="Days Taken" required>
+                </div>
+                <label style="font-weight: 600; font-size: 0.85rem; margin-bottom: 5px; display: block;">After-Work
+                    Photos (Select multiple):</label>
+                <input type="file" name="work_images" accept="image/*" multiple required>
+                <button type="submit" class="btn-primary" style="width: 100%; margin-top: 1rem;">Publish to User
+                    Marketplace</button>
+            </form>
+        </div>
+    </div>
+
+    <script src="../js/imgurl.js?v=2.0"></script>
+    <script>
+        const API_BASE_URL = '/api';
+        // IMG_BASE_URL is now handled by imgurl.js
+        const worker_id = localStorage.getItem('user_id');
+
+        function openModal() { document.getElementById('workModal').style.display = 'flex'; }
+        function closeModal() { document.getElementById('workModal').style.display = 'none'; }
+        function logout() { localStorage.clear(); window.location.href = '../pages/login.html'; }
+
+        function showSection(id, el) {
+            document.querySelectorAll('.section').forEach(s => s.style.display = 'none');
+            const target = document.getElementById(id + 'Section');
+            if (target) target.style.display = 'block';
+            
+            // Update sidebar links
+            document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
+            if (el) el.classList.add('active');
+            
+            if (id === 'inquiries') loadMessages();
+        }
+
+        // Auto-refresh notifications every 30 seconds
+        setInterval(() => {
+            const inbox = document.getElementById('inquiriesSection');
+            if (inbox && inbox.style.display === 'block') {
+                loadMessages();
+            }
+        }, 30000);
+
+        async function loadMessages() {
+            const list = document.getElementById('messageList');
+            const badge = document.getElementById('bookingBadge');
+            
+            // Only show "Checking" if the list is currently empty
+            if (list.innerHTML.includes('No new') || list.innerHTML.includes('Checking')) {
+                list.innerHTML = '<p style="color:#64748b; font-style:italic;">Checking for new notifications...</p>';
+            }
+
+            try {
+                const res = await fetch(`${API_BASE_URL}/auth/messages?user_id=${worker_id}`);
+                const data = await res.json();
+                list.innerHTML = '';
+                
+                if (data.messages && data.messages.length > 0) {
+                    const unread = data.messages.filter(m => !m.is_read).length;
+                    if (unread > 0 && badge) {
+                        badge.style.display = 'inline-block';
+                        badge.textContent = unread;
+                    } else if(badge) {
+                        badge.style.display = 'none';
+                    }
+
+                    data.messages.forEach(m => {
+                        const date = new Date(m.created_at).toLocaleString();
+                        const isAdvance = m.message.includes('Advance') || m.message.includes('Payment');
+                        list.innerHTML += `
+                            <div class="card" style="padding: 1.5rem; margin-bottom: 1rem; border-left: 5px solid ${isAdvance ? '#f59e0b' : '#2563eb'};">
+                                <div style="display:flex; justify-content:space-between; margin-bottom: 5px;">
+                                    <span style="font-size: 0.75rem; font-weight: 800; color: #64748b; text-transform: uppercase;">${isAdvance ? '💰 Payment Notification' : '🔔 System Update'}</span>
+                                    <span style="font-size: 0.7rem; color: #94a3b8;">${date}</span>
+                                </div>
+                                <p style="margin:0; font-weight: 600; color: #1e293b;">${m.message}</p>
+                            </div>
+                        `;
+                    });
+                } else {
+                    list.innerHTML = '<div style="text-align:center; padding:3rem; color:#94a3b8;">No new messages.</div>';
+                    if(badge) badge.style.display = 'none';
+                }
+            } catch (err) {
+                list.innerHTML = '<p>Error loading inbox.</p>';
+            }
+        }
+
+        async function loadWorkerStats() {
+            try {
+                const current_worker_id = localStorage.getItem('user_id');
+                const token = localStorage.getItem('access_token');
+                
+                const res = await fetch(`${API_BASE_URL}/auth/status?user_id=${current_worker_id}`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                const data = await res.json();
+
+                const statusBanner = document.getElementById('statusBanner');
+                const statusText = document.getElementById('statusText');
+                const statusDesc = document.getElementById('statusDesc');
+                const statusIcon = document.getElementById('statusIcon');
+
+                if (data.status === 'approved') {
+                    // Hide the banner completely if already approved
+                    statusBanner.style.display = 'none';
+                } else {
+                    statusBanner.style.display = 'flex';
+                    statusBanner.className = 'status-banner pending';
+                    statusText.textContent = 'Status: Pending Approval';
+                    statusDesc.textContent = 'The Civil Hub team is reviewing your documents.';
+                    statusIcon.textContent = '⏳';
+                }
+            } catch (e) {
+                console.error("Error loading status:", e);
+            }
+        }
+
+        async function loadPortfolio() {
+            const grid = document.getElementById('portfolioGrid');
+            const current_worker_id = localStorage.getItem('user_id'); // Dynamic check
+            grid.innerHTML = '<p>Loading your work gallery...</p>';
+            try {
+                const res = await fetch(`${API_BASE_URL}/worker/portfolio?worker_id=${current_worker_id}`);
+                const data = await res.json();
+                grid.innerHTML = '';
+
+                if (data.portfolio && data.portfolio.length > 0) {
+                    data.portfolio.forEach(w => {
+                        grid.innerHTML += `
+                            <div class="work-card">
+                                <div class="work-img" style="background-image: url('${window.imgUrl(w.image_url)}'); background-color:#f1f5f9;"></div>
+                                <div style="padding: 1.5rem;">
+                                    <h3 style="margin:0;">${w.title}</h3>
+                                    <p style="color:#64748b; font-size:0.85rem; margin:10px 0;">${w.description}</p>
+                                    <div style="display:flex; justify-content:space-between; align-items:center; border-top:1px solid #f1f5f9; padding-top:15px;">
+                                        <span style="font-weight:700; color:#2563eb;">₹ ${w.cost}</span>
+                                        <span style="font-size:0.8rem; color:#94a3b8;">⏱️ ${w.duration_days} Days</span>
+                                    </div>
+                                </div>
+                            </div>
+                        `;
+                    });
+                } else {
+                    grid.innerHTML = '<p style="grid-column: 1/-1; text-align: center; color: #94a3b8;">You haven\'t added any work yet. Click the blue button to start!</p>';
+                }
+            } catch (e) {
+                grid.innerHTML = '<p>Error loading your items.</p>';
+            }
+        }
+
+        document.getElementById('workForm').onsubmit = async (e) => {
+            e.preventDefault();
+            const formData = new FormData(e.target);
+            const current_worker_id = localStorage.getItem('user_id');
+            formData.append('worker_id', current_worker_id);
+
+            try {
+                console.log("Publishing work...");
+                const res = await fetch(`${API_BASE_URL}/worker/portfolio`, {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                const result = await res.json();
+                if (res.ok) {
+                    alert('Work published successfully!');
+                    closeModal();
+                    loadPortfolio();
+                } else {
+                    alert('Failed: ' + (result.error || result.message));
+                }
+            } catch (err) {
+                console.error("Publish Error:", err);
+                alert('Connection error - Your photos might be too large!');
+            }
+        };
+
+        // Tab Switching & Section Loading
+        function showSection(section, el) {
+            document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
+            if(el) el.classList.add('active');
+
+            document.getElementById('overviewSection').style.display = (section === 'overview') ? 'block' : 'none';
+            document.getElementById('inquiriesSection').style.display = (section === 'inquiries') ? 'block' : 'none';
+            document.getElementById('laborWorkSection').style.display = (section === 'labor-work') ? 'block' : 'none';
+            document.getElementById('profileSection').style.display = (section === 'profile') ? 'block' : 'none';
+
+            if (section === 'overview') loadPortfolio();
+            else if (section === 'inquiries') loadBookings();
+            else if (section === 'labor-work') loadDailyWork();
+            else if (section === 'profile') loadProfile();
+        }
+
+        async function loadDailyWork() {
+            const list = document.getElementById('laborWorkList');
+            if (!list) return;
+            list.innerHTML = '<p>Checking for assigned work...</p>';
+            try {
+                const current_worker_id = localStorage.getItem('user_id');
+                console.log("DEBUG: Fetching daily work for ID:", current_worker_id);
+                const res = await fetch(`${API_BASE_URL}/worker/daily-work?worker_id=${current_worker_id}`);
+                const data = await res.json();
+                console.log("DEBUG: Received Daily Work data:", data);
+                list.innerHTML = '';
+                
+                const laborBadge = document.getElementById('laborBadge');
+                const today = new Date().toLocaleDateString();
+                let hasWorkToday = false;
+
+                if (data.daily_work && data.daily_work.length > 0) {
+                    data.daily_work.forEach(work => {
+                        const isPresent = work.attendance_status === 'Present' || work.attendance_status === 'Half Day';
+                        const colorCode = isPresent ? '#10b981' : '#ef4444';
+                        
+                        const rawDate = new Date(work.created_at);
+                        const displayDate = rawDate.toLocaleDateString();
+                        
+                        // Check if this work was assigned today
+                        if (displayDate === today) hasWorkToday = true;
+
+                        // Normalize status for checking
+                        const currentStatus = (work.status || 'assigned').toLowerCase();
+
+                        list.innerHTML += `
+                            <div class="card" style="border-left: 5px solid ${colorCode}; padding: 1.5rem; position: relative; margin-bottom: 1.5rem; box-shadow: 0 4px 15px rgba(0,0,0,0.05);">
+                                <div style="display:flex; justify-content:space-between; align-items: center; margin-bottom: 1rem;">
+                                    <h3 style="margin:0; font-size: 1.1rem; font-weight: 700;">Task: ${work.assigned_work}</h3>
+                                    <span style="background:${colorCode}22; color:${colorCode}; padding:6px 12px; border-radius:12px; font-weight:800; font-size:0.75rem; text-transform: uppercase;">${currentStatus}</span>
+                                </div>
+                                
+                                <div style="color:#64748b; font-size: 0.9rem; margin-bottom: 1.5rem;">
+                                    <p style="margin:5px 0;">📅 <strong>Assigned On:</strong> ${displayDate}</p>
+                                    
+                                    ${(currentStatus === 'accepted' || currentStatus === 'started' || currentStatus === 'completed') ? `
+                                        <div style="background: #eff6ff; padding: 12px; border-radius: 12px; border: 1px solid #dbeafe; margin-top: 10px;">
+                                            <p style="margin:0; color: #1e40af;">📍 <strong>Work Location:</strong> ${work.location}</p>
+                                            <a href="https://www.google.com/maps/search/${encodeURIComponent(work.location)}" target="_blank" style="font-size: 0.75rem; color: #2563eb; text-decoration: none; font-weight: 700; display: inline-block; mt-5px;">🗺️ Open in Google Maps</a>
+                                        </div>
+                                    ` : `
+                                        <p style="margin:10px 0; font-style: italic; color: #94a3b8; font-size: 0.8rem;">(Location will be visible once you ACCEPT the job)</p>
+                                    `}
+                                </div>
+
+                                <div id="action-area-${work.id}">
+                                    ${currentStatus === 'assigned' ? `
+                                        <div style="display: flex; gap: 10px;">
+                                            <button onclick="respondJob('${work.id}', 'accepted')" class="btn-primary" style="flex: 1; background: #10b981; border:none; padding:12px; border-radius:10px; cursor:pointer; color:white; font-weight:700;">✅ Accept</button>
+                                            <button onclick="respondJob('${work.id}', 'rejected')" class="btn-primary" style="flex: 1; background: #ef4444; border:none; padding:12px; border-radius:10px; cursor:pointer; color:white; font-weight:700;">❌ Reject</button>
+                                        </div>
+                                    ` : ''}
+
+                                    ${currentStatus === 'accepted' ? `
+                                        <div style="background: #fff; padding: 15px; border-radius: 12px; border: 2px dashed #3b82f6;">
+                                            <p style="margin:0 0 10px 0; font-weight: 700; font-size: 0.85rem;">📸 Send Arrival Selfie (Proof of Reach)</p>
+                                            <input type="file" id="selfie-${work.id}" accept="image/*" capture="user" style="margin-bottom: 10px;">
+                                            <button onclick="startJob('${work.id}')" class="btn-primary" style="width: 100%; font-size: 0.85rem; background:#3b82f6; border:none; padding:12px; border-radius:10px; cursor:pointer; color:white; font-weight:700;">📤 Send Selfie & Start Work</button>
+                                        </div>
+                                    ` : ''}
+
+                                    ${currentStatus === 'started' ? `
+                                        <div style="background: #fff; padding: 15px; border-radius: 12px; border: 2px dashed #10b981;">
+                                            <p style="margin:0 0 10px 0; font-weight: 700; font-size: 0.85rem;">👷 Send Completion Photo (For Payment)</p>
+                                            <input type="file" id="photo-${work.id}" accept="image/*" style="margin-bottom: 10px;">
+                                            <button onclick="completeJobPhoto('${work.id}')" class="btn-primary" style="width: 100%; background: #059669; font-size: 0.85rem; border:none; padding:12px; border-radius:10px; cursor:pointer; color:white; font-weight:700;">📤 Send Work Photo & Finish</button>
+                                        </div>
+                                    ` : ''}
+
+                                    ${currentStatus === 'completed' ? `
+                                        <div style="text-align: center; padding: 10px; background: #f0fdf4; border-radius: 12px; color: #166534; font-weight: 700; font-size: 0.9rem;">
+                                            🎉 Work successfully completed and documented!
+                                        </div>
+                                    ` : ''}
+                                    
+                                    ${currentStatus === 'rejected' ? `
+                                        <p style="color: #ef4444; font-size: 0.8rem; font-weight: 600; text-align: center;">You rejected this task.</p>
+                                    ` : ''}
+                                </div>
+                            </div>
+                        `;
+                    });
+
+                    // Update Notification Badge
+                    if (hasWorkToday) {
+                        laborBadge.style.display = 'inline-block';
+                        // Shown an alert if this is the first login of the day
+                        if (!sessionStorage.getItem('workNotified')) {
+                            alert("📢 NEW WORK ASSIGNED!\nAn engineer has assigned you a job for today. Check the 'Labour Day Work' tab.");
+                            sessionStorage.setItem('workNotified', 'true');
+                        }
+                    } else {
+                        laborBadge.style.display = 'none';
+                    }
+                } else {
+                    list.innerHTML = '<p style="grid-column: 1/-1; text-align: center; color: #94a3b8;">No tasks assigned by any engineer yet.</p>';
+                }
+            } catch (err) {
+                list.innerHTML = '<p>Error loading daily work assignments.</p>';
+            }
+        }
+
+        async function loadBookings() {
+            const list = document.getElementById('bookingList');
+            const badge = document.getElementById('bookingBadge');
+            const API_BASE_URL = '/api';
+            // IMG_BASE_URL handled by imgurl.js
+            list.innerHTML = '<p>Loading active projects...</p>';
+            try {
+                const token = localStorage.getItem('access_token');
+                const res = await fetch(`${API_BASE_URL}/worker/list-bookings?role=worker`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                const data = await res.json();
+                list.innerHTML = '';
+                
+                if (data.bookings && data.bookings.length > 0) {
+                    // Update badge for new/pending bookings
+                    const pendingCount = data.bookings.filter(b => b.status === 'paid_partial').length;
+                    if(pendingCount > 0) {
+                        badge.style.display = 'block';
+                        badge.textContent = pendingCount;
+                    } else {
+                        badge.style.display = 'none';
+                    }
+
+                    data.bookings.forEach(b => {
+                        const user = b.users || {};
+                        const upfront = b.total_amount * 0.85;
+                        const balance = b.total_amount * 0.15;
+                        
+                        // Create Google Maps link
+                        const mapUrl = (user.latitude && user.longitude) 
+                            ? `https://www.google.com/maps?q=${user.latitude},${user.longitude}`
+                            : `https://www.google.com/maps/search/${encodeURIComponent(user.hotel_address || '')}`;
+
+                        list.innerHTML += `
+                            <div class="card" style="border-left: 5px solid ${b.status === 'completed' ? '#f59e0b' : '#2563eb'}; margin-bottom:1.5rem; padding: 1.5rem;">
+                                <div style="display:flex; justify-content:space-between; align-items:start;">
+                                    <div>
+                                        <h3 style="margin:0;">Project: ${b.title}</h3>
+                                        <p style="font-size:0.9rem; color:#1e293b; margin:10px 0; font-weight:700;">👤 Customer: ${user.full_name || 'Anonymous'}</p>
+                                    </div>
+                                    <span style="font-size:0.7rem; font-weight:800; background:#e2e8f0; padding:5px 10px; border-radius:5px; text-transform:uppercase;">${b.status}</span>
+                                    <a href="${window.imgUrl(b.dl_snapshot)}" target="_blank" style="display:block;">
+                                        <div style="height:120px; background-image:url('${window.imgUrl(b.dl_snapshot)}'); background-size:cover; background-position:center; border-radius:10px; border:1px solid #cbd5e1; background-color:#f1f5f9;"></div>
+                                    </a>
+                                </div>
+
+                                <div style="background:#f8fafc; padding:15px; border-radius:12px; border: 1px solid #e2e8f0; margin:1rem 0;">
+                                    <p style="margin:0 0 10px 0; font-size:0.85rem;">📍 <b>Work Site:</b> ${user.hotel_address || 'Address not provided'}</p>
+                                    <div style="display:flex; gap:10px;">
+                                        <a href="${mapUrl}" target="_blank" style="text-decoration:none; font-size:0.75rem; color:#2563eb; font-weight:700;">🗺️ View on Map</a>
+                                        <a href="tel:${user.contact_number}" style="text-decoration:none; font-size:0.75rem; color:#16a34a; font-weight:700;">📞 Call: ${user.contact_number || 'N/A'}</a>
+                                    </div>
+                                </div>
+
+                                <div style="background:#f1f5f9; padding:15px; border-radius:15px; margin-bottom:1rem;">
+                                    <div style="display:flex; justify-content:space-between; font-size:0.85rem;">
+                                        <span>Total Contract:</span> <span style="font-weight:700;">₹${b.total_amount}</span>
+                                    </div>
+                                    <div style="display:flex; justify-content:space-between; font-size:0.85rem; color:#16a34a; margin-top:5px;">
+                                        <span>Initial Payment (85%):</span> <span>₹${upfront.toFixed(2)}</span>
+                                    </div>
+                                </div>
+
+                                ${b.status === 'paid_partial' ? `
+                                    <button onclick="markComplete('${b.id}')" class="btn-primary" style="width:100%; background:#10b981; font-size:0.8rem; height: 45px;">🏁 Finished? Mark as Complete</button>
+                                ` : ''}
+                            </div>
+                        `;
+                    });
+                } else {
+                    list.innerHTML = '<p style="grid-column: 1/-1; text-align: center; color: #94a3b8;">No bookings yet.</p>';
+                    badge.style.display = 'none';
+                }
+            } catch (e) { list.innerHTML = '<p>Error loading bookings.</p>'; }
+        }
+
+        async function markComplete(bookingId) {
+            if (!confirm("Confirm Project Completion? The user will be prompted to release the final 15% payment!")) return;
+            try {
+                const token = localStorage.getItem('access_token');
+                const res = await fetch(`${API_BASE_URL}/worker/complete-job`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+                    body: JSON.stringify({ booking_id: bookingId })
+                });
+                if (res.ok) {
+                    alert("Project Marked as Complete! 🏗️🏁");
+                    loadBookings();
+                }
+            } catch(e) { alert("Failed to update status."); }
+        }
+
+        // --- NEW JOB MANAGEMENT FUNCTIONS ---
+        async function respondJob(jobId, response) {
+            if (!confirm(`Are you sure you want to ${response} this job?`)) return;
+            try {
+                console.log(`DEBUG: Responding ${response} to job ${jobId} using worker_id ${worker_id}`);
+                const res = await fetch(`${API_BASE_URL}/worker/respond-job`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ 
+                        job_id: jobId, 
+                        response: response,
+                        worker_id: worker_id // Use worker_id, not userId
+                    })
+                });
+                
+                const result = await res.json();
+                if (res.ok) {
+                    alert(`Job ${response}!`);
+                    loadDailyWork();
+                } else {
+                    console.error("Server Error:", result);
+                    alert("Error responding to job: " + (result.error || "Unknown server error"));
+                }
+            } catch (err) {
+                console.error("Fetch Error:", err);
+                alert("Error responding to job: " + err.message);
+            }
+        }
+
+        async function startJob(jobId) {
+            const fileInput = document.getElementById(`selfie-${jobId}`);
+            if (!fileInput.files || !fileInput.files[0]) {
+                alert("Please take a selfie first to mark your arrival!");
+                return;
+            }
+
+            const formData = new FormData();
+            formData.append('job_id', jobId);
+            formData.append('selfie', fileInput.files[0]);
+            formData.append('worker_id', worker_id); // Use worker_id
+
+            try {
+                const res = await fetch(`${API_BASE_URL}/worker/start-job`, {
+                    method: 'POST',
+                    body: formData
+                });
+                const result = await res.json();
+                if (res.ok) {
+                    alert("Arrival proof sent! Work session started. 👷");
+                    loadDailyWork();
+                } else {
+                    alert("Error: " + (result.error || "Upload failed"));
+                }
+            } catch (err) {
+                alert("Error uploading selfie: " + err.message);
+            }
+        }
+
+        async function completeJobPhoto(jobId) {
+            const fileInput = document.getElementById(`photo-${jobId}`);
+            if (!fileInput.files || !fileInput.files[0]) {
+                alert("Please upload a photo of the completed work!");
+                return;
+            }
+
+            const formData = new FormData();
+            formData.append('job_id', jobId);
+            formData.append('work_photo', fileInput.files[0]);
+            formData.append('worker_id', worker_id); // Use worker_id
+
+            try {
+                const res = await fetch(`${API_BASE_URL}/worker/complete-job-photo`, {
+                    method: 'POST',
+                    body: formData
+                });
+                const result = await res.json();
+                if (res.ok) {
+                    alert("Completion photo sent! Job documented for payment. ✅");
+                    loadDailyWork();
+                } else {
+                    alert("Error: " + (result.error || "Upload failed"));
+                }
+            } catch (err) {
+                alert("Error uploading photo: " + err.message);
+            }
+        }
+
+        function previewProfile(input) {
+            if (input.files && input.files[0]) {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    document.getElementById('profileImagePreview').style.backgroundImage = `url(${e.target.result})`;
+                };
+                reader.readAsDataURL(input.files[0]);
+            }
+        }
+
+        async function loadProfile() {
+            try {
+                const current_user_id = localStorage.getItem('user_id');
+                const token = localStorage.getItem('access_token');
+                const res = await fetch(`${API_BASE_URL}/worker/profile?worker_id=${current_user_id}`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                const data = await res.json();
+                if (data.profile) {
+                    const p = data.profile;
+                    document.getElementById('welcomeGreeting').innerHTML = `Welcome Back, <span style="color: #2563eb;">${p.name || 'Worker'}</span>!`;
+                    document.getElementById('profName').value = p.name || '';
+                    document.getElementById('profAge').value = p.age || '';
+                    document.getElementById('profExp').value = p.experience_years || '';
+                    document.getElementById('profType').value = p.work_type || 'General';
+                    document.getElementById('profWages').value = p.daily_wages || '';
+                    document.getElementById('profBio').value = p.bio || '';
+                    
+                        const url = window.imgUrl(p.profile_pic_url, '/uploads/placeholder.jpg');
+                        document.getElementById('profileImagePreview').style.backgroundImage = `url('${url}')`;
+                        document.getElementById('profileImagePreview').style.backgroundColor = '#f1f5f9';
+                    
+                    if (p.worker_code) {
+                        document.getElementById('workerUniqueId').textContent = `Unique ID: ${p.worker_code}`;
+                    } else {
+                        document.getElementById('workerUniqueId').textContent = `Unique ID: PENDING GENERATION`;
+                    }
+                }
+            } catch (e) { 
+                console.error("Error loading profile:", e); 
+                document.getElementById('workerUniqueId').textContent = `Unique ID: Error Loading`;
+            }
+        }
+
+        document.getElementById('profileForm').onsubmit = async (e) => {
+            e.preventDefault();
+            const formData = new FormData(e.target);
+            formData.append('worker_id', localStorage.getItem('user_id'));
+            try {
+                const res = await fetch(`${API_BASE_URL}/worker/profile`, {
+                    method: 'POST',
+                    body: formData
+                });
+                if (res.ok) alert("Profile updated successfully!");
+                else alert("Failed to update profile");
+            } catch (e) { alert("Error saving profile"); }
+        };
+
+        window.onload = () => {
+            const token = localStorage.getItem('access_token');
+            const user_id = localStorage.getItem('user_id');
+            const API_BASE_URL = '/api';
+            // IMG_BASE_URL handled by imgurl.js
+            
+            if (!token || !user_id) {
+                alert("Please login first!");
+                window.location.href = '../pages/login.html';
+                return;
+            }
+
+            loadWorkerStats();
+            loadPortfolio();
+            loadBookings();
+            loadDailyWork();
+            loadProfile(); // Load Unique ID and details
+            loadMessages(); // Load notifications and update bell badge
+        };
+    </script>
+    <script src="../js/theme.js"></script>
+</body>
+
+</html>
