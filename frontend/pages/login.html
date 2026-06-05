@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <!-- Google Tag Manager -->
+    <!-- Google Tag Manager (Unchanged) -->
     <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
     new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
     j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
@@ -11,235 +11,584 @@
     <!-- End Google Tag Manager -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Auth | CIVIL CONNECTION</title>
+    <!-- Existing CSS imports -->
     <link rel="stylesheet" href="../css/style.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="../assets/css/mobile.css">
+    <!-- Existing JS imports -->
     <script src="../js/theme.js"></script>
     
     <!-- Speed: DNS Prefetch & Preconnect for Backend -->
     <link rel="dns-prefetch" href="https://civil-con.onrender.com">
     <link rel="preconnect" href="https://civil-con.onrender.com" crossorigin>
     
-    <!-- Speed: Prefetch common dashboards to speed up redirect -->
-    <link rel="prefetch" href="../dashboards/user-dashboard.html">
-    <link rel="prefetch" href="../dashboards/worker-dashboard.html">
-    <link rel="prefetch" href="../dashboards/shopkeeper-dashboard.html">
-    <link rel="prefetch" href="../dashboards/engineer-dashboard.html">
     <style>
-        .auth-page {
-            background: var(--bg-light) !important;
-            transition: all 0.3s ease;
+        /* 
+         * MODIFICATION: Modern UI Reset and Layout Setup 
+         * Using a modern split-screen design common in premium platforms (Uber, Swiggy)
+         */
+        body { 
+            font-family: 'Inter', sans-serif; 
+            margin: 0; 
+            background: #f8fafc;
         }
+
         .auth-container {
-            background: white;
-            border: 1px solid var(--border);
-            box-shadow: var(--card-shadow) !important;
-            transition: all 0.3s ease;
-            max-width: 1100px;
+            display: flex;
+            min-height: 100vh;
+            background: #ffffff;
         }
+
+        /* 
+         * MODIFICATION: Dynamic Sidebar Styling 
+         * Deep professional theme with subtle animated background 
+         */
         .auth-sidebar {
-            background: var(--primary) !important;
-            transition: all 0.3s ease;
+            flex: 1;
+            background: linear-gradient(135deg, #0f172a, #1e293b);
+            color: white;
+            padding: 4rem;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
             position: relative;
             overflow: hidden;
         }
-        /* Dashboard Sidebar style accent for Dark Mode */
-        [data-theme='dark'] .auth-sidebar::before {
+        .auth-sidebar::before {
             content: '';
             position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: radial-gradient(circle at top left, rgba(255,255,255,0.1), transparent);
-            pointer-events: none;
+            top: -50%; left: -50%; width: 200%; height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.03) 10%, transparent 10%);
+            background-size: 30px 30px;
+            animation: moveBackground 40s linear infinite;
         }
-        .role-btn.active {
-            border-color: var(--primary) !important;
-            background: #eff6ff !important;
-            color: var(--primary) !important;
+        @keyframes moveBackground { 100% { transform: translate(50px, 50px); } }
+        
+        .sidebar-content { 
+            position: relative; 
+            z-index: 10; 
+            max-width: 480px; 
+            margin: 0 auto;
+            width: 100%;
         }
-        .auth-tab.active {
-            color: var(--primary) !important;
-            border-bottom: 2px solid var(--primary) !important;
+
+        .logo-container { 
+            display: flex; 
+            align-items: center; 
+            gap: 15px; 
+            margin-bottom: 4rem; 
         }
+        .logo-container img { 
+            height: 50px; 
+            border-radius: 12px; 
+            box-shadow: 0 8px 24px rgba(0,0,0,0.4); 
+        }
+        .logo-text { 
+            display: flex; 
+            flex-direction: column; 
+            line-height: 1.1; 
+        }
+        .logo-text span:first-child { 
+            font-size: 1.5rem; 
+            font-weight: 800; 
+            color: #a855f7; 
+        }
+        .logo-text span:last-child { 
+            font-size: 1.5rem; 
+            font-weight: 800; 
+            color: #fff; 
+        }
+
+        .dynamic-heading { 
+            font-size: 3.5rem; 
+            font-weight: 800; 
+            line-height: 1.1; 
+            margin-bottom: 1.5rem; 
+            transition: opacity 0.3s ease, transform 0.3s ease; 
+        }
+        .dynamic-text { 
+            font-size: 1.25rem; 
+            color: #94a3b8; 
+            line-height: 1.6; 
+            transition: opacity 0.3s ease; 
+            font-weight: 400;
+        }
+
+        /* 
+         * MODIFICATION: Right Panel Content Wrapper 
+         * Center aligned, clean card aesthetic
+         */
+        .auth-content-wrapper {
+            flex: 1.2;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+            background: #f8fafc;
+            position: relative;
+        }
+        .auth-card {
+            background: white;
+            padding: 3.5rem;
+            border-radius: 24px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.04), 0 1px 3px rgba(0,0,0,0.05);
+            width: 100%;
+            max-width: 520px;
+            position: relative;
+        }
+
+        /* 
+         * MODIFICATION: Step Management System 
+         * Handles the transition between Step 1 (Role Select) and Step 2 (Login)
+         */
+        .step { 
+            display: none; 
+            animation: fadeIn 0.4s ease forwards; 
+        }
+        .step.active { 
+            display: block; 
+        }
+        @keyframes fadeIn { 
+            from { opacity: 0; transform: translateY(15px); } 
+            to { opacity: 1; transform: translateY(0); } 
+        }
+
+        /* 
+         * MODIFICATION: Step 1 Role Cards Design 
+         */
+        .step-header { margin-bottom: 2.5rem; text-align: center; }
+        .step-header h2 { font-size: 2rem; font-weight: 800; color: #0f172a; margin: 0 0 0.5rem 0; letter-spacing: -0.5px; }
+        .step-header p { color: #64748b; margin: 0; font-size: 1.1rem; }
+
+        .role-grid { 
+            display: grid; 
+            grid-template-columns: 1fr; 
+            gap: 1rem; 
+        }
+        .role-card {
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+            padding: 1.2rem 1.5rem;
+            border: 2px solid #f1f5f9;
+            border-radius: 16px;
+            cursor: pointer;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            background: #ffffff;
+        }
+        .role-card:hover {
+            border-color: #a855f7;
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(168, 85, 247, 0.1);
+        }
+        .role-icon {
+            width: 54px;
+            height: 54px;
+            border-radius: 14px;
+            background: #f8fafc;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            color: #64748b;
+            transition: all 0.3s ease;
+        }
+        .role-card:hover .role-icon { 
+            background: #a855f7; 
+            color: white; 
+        }
+        .role-info h3 { 
+            margin: 0 0 0.25rem 0; 
+            font-size: 1.15rem; 
+            color: #0f172a; 
+            font-weight: 700; 
+        }
+        .role-info p { 
+            margin: 0; 
+            font-size: 0.9rem; 
+            color: #64748b; 
+        }
+
+        /* 
+         * MODIFICATION: Step 2 Login Form Design 
+         */
+        .back-btn {
+            background: none; border: none; color: #64748b; font-size: 0.95rem; font-weight: 600; cursor: pointer;
+            display: flex; align-items: center; gap: 8px; margin-bottom: 2rem; padding: 0; transition: color 0.2s;
+        }
+        .back-btn:hover { color: #0f172a; }
+
+        .selected-role-badge {
+            display: inline-flex; align-items: center; gap: 10px;
+            background: #f8fafc; padding: 8px 16px; border-radius: 20px; border: 1px solid #e2e8f0;
+            font-size: 0.95rem; font-weight: 700; color: #0f172a; margin-bottom: 2rem;
+        }
+        .selected-role-badge i { color: #a855f7; }
+
+        .auth-tabs { 
+            display: flex; gap: 2rem; margin-bottom: 2.5rem; border-bottom: 2px solid #f1f5f9; 
+        }
+        .auth-tab {
+            padding-bottom: 1rem; font-weight: 600; color: #64748b; cursor: pointer; position: relative; font-size: 1.1rem;
+        }
+        .auth-tab.active { color: #a855f7; }
+        .auth-tab.active::after {
+            content: ''; position: absolute; bottom: -2px; left: 0; width: 100%; height: 2px; background: #a855f7;
+        }
+
+        .form-group { margin-bottom: 1.5rem; }
+        .form-group label { 
+            display: block; font-size: 0.95rem; font-weight: 600; color: #334155; margin-bottom: 0.5rem; 
+        }
+        .form-group input {
+            width: 100%; padding: 1rem 1.25rem; border: 1px solid #e2e8f0; border-radius: 12px; font-size: 1rem;
+            transition: all 0.2s; box-sizing: border-box; background: #f8fafc; color: #0f172a;
+        }
+        .form-group input:focus { 
+            outline: none; border-color: #a855f7; background: white; box-shadow: 0 0 0 4px rgba(168, 85, 247, 0.1); 
+        }
+        .form-group input::placeholder { color: #94a3b8; }
+
+        .form-options { 
+            display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; font-size: 0.9rem; 
+        }
+        .checkbox-label { display: flex; align-items: center; gap: 8px; color: #475569; cursor: pointer; font-weight: 500;}
+        .forgot-link { color: #a855f7; text-decoration: none; font-weight: 600; }
+        .forgot-link:hover { text-decoration: underline; }
+
         .btn-auth {
-            background: var(--primary) !important;
+            width: 100%; padding: 1.1rem; background: #a855f7; color: white; border: none; border-radius: 12px;
+            font-size: 1.1rem; font-weight: 600; cursor: pointer; transition: all 0.2s;
+            display: flex; align-items: center; justify-content: center; gap: 10px; box-shadow: 0 4px 12px rgba(168, 85, 247, 0.3);
         }
-        /* Mobile fixes */
-        @media (max-width: 768px) {
-            .auth-container { flex-direction: column !important; min-height: auto; width: 100%; border-radius: 0; }
-            .auth-sidebar { padding: 3rem 2rem; border-radius: 0 !important; flex: none; }
-            .auth-content { padding: 2.5rem 1.5rem; }
-            .role-selectors { margin-bottom: 2rem; display: grid !important; grid-template-columns: repeat(3, 1fr) !important; gap: 10px !important; }
+        .btn-auth:hover { 
+            background: #9333ea; transform: translateY(-1px); box-shadow: 0 8px 16px rgba(168, 85, 247, 0.4); 
         }
+        
+        .loading-spinner {
+            width: 20px; height: 20px; border: 2px solid rgba(255,255,255,0.3); border-radius: 50%;
+            border-top-color: #fff; animation: spin 1s linear infinite; display: none;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        
+        .error-msg { 
+            color: #ef4444; font-size: 0.9rem; font-weight: 500; margin-top: 1rem; text-align: center; display: none; 
+            background: #fef2f2; padding: 10px; border-radius: 8px; border: 1px solid #fecaca;
+        }
+
+        /* 
+         * MODIFICATION: Responsive Design 
+         * Ensures the UI degrades gracefully on mobile and tablet screens 
+         */
+        @media (max-width: 992px) {
+            .auth-container { flex-direction: column; }
+            .auth-sidebar { padding: 3rem 2rem; flex: none; min-height: 25vh; }
+            .dynamic-heading { font-size: 2.5rem; }
+            .auth-content-wrapper { padding: 1.5rem; }
+            .auth-card { padding: 2.5rem 2rem; }
+        }
+        @media (max-width: 480px) {
+            .auth-sidebar { padding: 2rem 1.5rem; }
+            .dynamic-heading { font-size: 2rem; }
+            .auth-card { padding: 2rem 1.5rem; border-radius: 16px; }
+            .role-card { padding: 1rem; }
+            .step-header h2 { font-size: 1.6rem; }
+        }
+
+        /* Global navigation buttons */
+        .nav-btn {
+            position: fixed; top: 20px; z-index: 100; background: white; width: 45px; height: 45px;
+            border-radius: 50%; display: flex; align-items: center; justify-content: center;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08); color: #64748b; cursor: pointer; transition: all 0.2s;
+        }
+        .nav-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 16px rgba(0,0,0,0.12); color: #0f172a; }
+        .home-btn { left: 20px; text-decoration: none; }
+        .theme-toggle-btn { right: 20px; }
     </style>
 </head>
 <body class="auth-page" data-theme="light">
     <!-- Google Tag Manager (noscript) -->
     <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-T4X4SVS5"
     height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
-    <!-- End Google Tag Manager (noscript) -->
-    <!-- Theme Toggle -->
-    <div class="theme-toggle" title="Toggle Dark/Light Mode">
+    
+    <!-- Theme Toggle (Maintains functionality, styling improved) -->
+    <div class="nav-btn theme-toggle-btn theme-toggle" title="Toggle Dark/Light Mode">
         <i class="fa-solid fa-moon"></i>
-        <i class="fa-solid fa-sun"></i>
+        <i class="fa-solid fa-sun" style="display:none;"></i>
     </div>
     
-    <a href="../index.html" class="home-btn" title="Go to Home" style="color: #64748b; background: white; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);">
-        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" d="m2.25 12 8.954-8.955c.44-.439 1.152-.439 1.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75M8.25 21h8.25" />
-        </svg>
+    <!-- Home Button -->
+    <a href="../index.html" class="nav-btn home-btn" title="Go to Home">
+        <i class="fa-solid fa-arrow-left"></i>
     </a>
-    <div class="auth-container animate-fade-in">
-        <!-- Sidebar -->
-        <div class="auth-sidebar">
-            <div class="logo" style="display: flex; align-items: center; gap: 15px; margin-bottom: 2.5rem;">
-                <img src="../img/logo.jpg" alt="CIVIL CONNECTION" style="height: 70px; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.2);">
-                <div style="display: flex; flex-direction: column; line-height: 1;">
-                    <span style="font-size: 2.2rem; font-weight: 800; color: #a855f7; letter-spacing: -1px;">CIVIL</span>
-                    <span style="font-size: 2.2rem; font-weight: 800; color: #fff; letter-spacing: -1px;">CONNECTION</span>
+
+    <div class="auth-container">
+        <!-- 
+         * MODIFICATION: Dynamic Sidebar Branding Panel 
+         * This panel changes its text dynamically based on the selected role 
+         -->
+        <div class="auth-sidebar" id="brandingPanel">
+            <div class="sidebar-content">
+                <div class="logo-container">
+                    <img src="../img/logo.jpg" alt="CIVIL CONNECTION">
+                    <div class="logo-text">
+                        <span>CIVIL</span>
+                        <span>CONNECTION</span>
+                    </div>
                 </div>
-            </div>
-            <h1>The Foundation <br> for Your Projects</h1>
-            <p>Connect with skilled workers, hire engineers, and buy construction materials all in one place.</p>
-            
-            <div class="stats-grid">
-                <div class="stat-box">
-                    <span>10K+</span>
-                    <small>Workers</small>
-                </div>
-                <div class="stat-box">
-                    <span>5K+</span>
-                    <small>Engineers</small>
-                </div>
-                <div class="stat-box">
-                    <span>1K+</span>
-                    <small>Shops</small>
-                </div>
-                <div class="stat-box">
-                    <span>50K+</span>
-                    <small>Projects</small>
-                </div>
+                <!-- These text elements are updated via JS based on role -->
+                <h1 class="dynamic-heading" id="sidebarHeading">The Foundation<br>For Your Projects</h1>
+                <p class="dynamic-text" id="sidebarText">Connect with skilled workers, hire engineers, and buy construction materials all in one place.</p>
             </div>
         </div>
 
-        <!-- Auth Content -->
-        <div class="auth-content">
-            <div class="role-selectors">
-                <div class="role-btn" data-role="user">
-                    <i class="fa-solid fa-user-tie"></i>
-                    <small>Customer</small>
-                </div>
-                <div class="role-btn" data-role="engineer">
-                    <i class="fa-solid fa-compass-drafting"></i>
-                    <small>Engineer</small>
-                </div>
-                <div class="role-btn" data-role="worker">
-                    <i class="fa-solid fa-helmet-safety"></i>
-                    <small>Worker</small>
-                </div>
-                <div class="role-btn" data-role="shopkeeper">
-                    <i class="fa-solid fa-store"></i>
-                    <small>Shopkeeper</small>
-                </div>
-                <div class="role-btn" data-role="renter">
-                    <i class="fa-solid fa-truck-pickup"></i>
-                    <small>Rent</small>
-                </div>
-            </div>
-
-            <div class="auth-tabs">
-                <div class="auth-tab active" id="tab-login">Login</div>
-                <div class="auth-tab" id="tab-register">Register</div>
-            </div>
-
-            <form id="loginForm">
-                <div class="form-group">
-                    <label>Email Address</label>
-                    <input type="email" id="email" placeholder="user@gmail.com" required>
-                </div>
-                <div class="form-group">
-                    <label>Password</label>
-                    <input type="password" id="password" placeholder="••••••••" required>
-                </div>
-
-                <div style="display: flex; justify-content: space-between; margin-bottom: 2rem; font-size: 0.85rem;">
-                    <label style="display: flex; align-items: center; gap: 5px;">
-                        <input type="checkbox"> Remember me
-                    </label>
-                    <a href="#" style="color: var(--secondary); text-decoration: none;">Forgot Password?</a>
-                </div>
-
-                <button type="submit" class="btn-auth" style="display: flex; align-items: center; justify-content: center; gap: 10px;">
-                    <div id="spinner" class="loading-spinner" style="width: 20px; height: 20px; border: 2px solid rgba(255,255,255,0.3); border-radius: 50%; border-top-color: #fff; animation: spin 1s linear infinite; display: none;"></div>
-                    <span id="btnText">Sign In</span>
-                </button>
-                <div id="errorBox" style="color: #ef4444; font-size: 0.85rem; margin-top: 1rem; text-align: center; display: none;"></div>
-            </form>
-
-            <style>
-                @keyframes spin {
-                    to { transform: rotate(360deg); }
-                }
+        <!-- Right Content Panel -->
+        <div class="auth-content-wrapper">
+            <div class="auth-card">
                 
-                @media (max-width: 768px) {
-                    .auth-container { flex-direction: column; min-height: auto; width: 100%; border-radius: 0; }
-                    .auth-sidebar { padding: 3rem 2rem; border-radius: 0 0 30px 30px; }
-                    .auth-content { padding: 2.5rem 1.5rem; }
-                    .role-selectors { margin-bottom: 2rem; grid-template-columns: repeat(3, 1fr) !important; gap: 10px !important; }
-                }
-            </style>
+                <!-- 
+                 * MODIFICATION: Step 1 - Choose Role 
+                 * Professional role selection tiles replacing the old confusing top-bar tabs 
+                 -->
+                <div id="step1" class="step active">
+                    <div class="step-header">
+                        <h2>Welcome to Civil Connection</h2>
+                        <p>Select your role to continue</p>
+                    </div>
+                    
+                    <div class="role-grid">
+                        <div class="role-card" data-role="user">
+                            <div class="role-icon"><i class="fa-solid fa-user-tie"></i></div>
+                            <div class="role-info">
+                                <h3>Customer</h3>
+                                <p>Hire professionals & buy materials</p>
+                            </div>
+                        </div>
+                        <div class="role-card" data-role="engineer">
+                            <div class="role-icon"><i class="fa-solid fa-compass-drafting"></i></div>
+                            <div class="role-info">
+                                <h3>Engineer</h3>
+                                <p>Manage projects & find clients</p>
+                            </div>
+                        </div>
+                        <div class="role-card" data-role="worker">
+                            <div class="role-icon"><i class="fa-solid fa-helmet-safety"></i></div>
+                            <div class="role-info">
+                                <h3>Worker</h3>
+                                <p>Find construction jobs daily</p>
+                            </div>
+                        </div>
+                        <div class="role-card" data-role="shopkeeper">
+                            <div class="role-icon"><i class="fa-solid fa-store"></i></div>
+                            <div class="role-info">
+                                <h3>Material Shop</h3>
+                                <p>Sell construction materials</p>
+                            </div>
+                        </div>
+                        <div class="role-card" data-role="renter">
+                            <div class="role-icon"><i class="fa-solid fa-truck-pickup"></i></div>
+                            <div class="role-info">
+                                <h3>Equipment Rental</h3>
+                                <p>Rent out machinery & tools</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 
+                 * MODIFICATION: Step 2 - Login/Register 
+                 * The existing form logic is preserved, but wrapped in Step 2 
+                 -->
+                <div id="step2" class="step">
+                    <button class="back-btn" id="backBtn">
+                        <i class="fa-solid fa-arrow-left"></i> Change Role
+                    </button>
+
+                    <div class="selected-role-badge" id="selectedRoleBadge">
+                        <i class="fa-solid fa-user"></i> <span>Customer Login</span>
+                    </div>
+
+                    <div class="auth-tabs">
+                        <div class="auth-tab active" id="tab-login">Login</div>
+                        <div class="auth-tab" id="tab-register">Register</div>
+                    </div>
+
+                    <!-- EXISTING FORM (IDs kept identical for backend compatibility) -->
+                    <form id="loginForm">
+                        <div class="form-group">
+                            <label>Email Address</label>
+                            <input type="email" id="email" placeholder="name@example.com" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Password</label>
+                            <input type="password" id="password" placeholder="••••••••" required>
+                        </div>
+
+                        <div class="form-options">
+                            <label class="checkbox-label">
+                                <input type="checkbox"> Remember me
+                            </label>
+                            <a href="#" class="forgot-link">Forgot Password?</a>
+                        </div>
+
+                        <button type="submit" class="btn-auth" id="loginBtn">
+                            <div id="spinner" class="loading-spinner"></div>
+                            <span id="btnText">Sign In</span>
+                        </button>
+                        <div id="errorBox" class="error-msg"></div>
+                    </form>
+                </div>
+
+            </div>
         </div>
     </div>
 
+    <!-- 
+     * MODIFICATION: Script Logic 
+     * Preserves exact backend integration (`initLogin`) but manages UI steps 
+     -->
     <script type="module">
+        // Import existing authentication logic exactly as before
         import { initLogin } from '../js/auth.js';
         
         const params = new URLSearchParams(window.location.search);
-        let currentRole = params.get('role') || 'user';
+        let currentRole = params.get('role') || null;
         let currentTab = params.get('tab') || 'login';
 
-        const roleBtns = document.querySelectorAll('.role-btn');
-        const loginForm = document.getElementById('loginForm');
+        // DOM Elements
+        const step1 = document.getElementById('step1');
+        const step2 = document.getElementById('step2');
+        const backBtn = document.getElementById('backBtn');
+        const roleCards = document.querySelectorAll('.role-card');
+        const selectedRoleBadgeSpan = document.querySelector('#selectedRoleBadge span');
+        const selectedRoleBadgeIcon = document.querySelector('#selectedRoleBadge i');
+        const tabRegister = document.getElementById('tab-register');
+        
+        // Branding Elements
+        const sidebarHeading = document.getElementById('sidebarHeading');
+        const sidebarText = document.getElementById('sidebarText');
 
-        // Initial setup
-        const updateUI = () => {
-            roleBtns.forEach(btn => {
-                btn.classList.toggle('active', btn.dataset.role === currentRole);
-            });
-            
-            document.querySelectorAll('.auth-tab').forEach(tab => {
-                tab.classList.toggle('active', 
-                    (tab.id === 'tab-login' && currentTab === 'login') || 
-                    (tab.id === 'tab-register' && currentTab === 'register'));
-            });
-
-            if (currentTab === 'register') {
-                window.location.href = `register-${currentRole}.html`;
+        // Role Data Mapping for dynamic UI updates (Step 1 -> Step 2)
+        const roleData = {
+            'user': {
+                name: 'Customer',
+                icon: 'fa-user-tie',
+                heading: 'Build Your Dream<br>Project',
+                text: 'Find trusted engineers, workers, materials and rentals.'
+            },
+            'engineer': {
+                name: 'Engineer',
+                icon: 'fa-compass-drafting',
+                heading: 'Design & Build<br>The Future',
+                text: 'Connect with clients and manage civil projects.'
+            },
+            'worker': {
+                name: 'Worker',
+                icon: 'fa-helmet-safety',
+                heading: 'Find Your Next<br>Job Today',
+                text: 'Find daily and contract construction jobs.'
+            },
+            'shopkeeper': {
+                name: 'Material Shop',
+                icon: 'fa-store',
+                heading: 'Grow Your<br>Business',
+                text: 'Sell construction materials to nearby customers.'
+            },
+            'renter': {
+                name: 'Equipment Rental',
+                icon: 'fa-truck-pickup',
+                heading: 'Rent Out Your<br>Machinery',
+                text: 'Rent machinery and construction equipment.'
+            },
+            'default': {
+                heading: 'The Foundation<br>For Your Projects',
+                text: 'Connect with skilled workers, hire engineers, and buy construction materials all in one place.'
             }
         };
 
-        roleBtns.forEach(btn => {
-            btn.addEventListener('click', () => {
-                currentRole = btn.dataset.role;
-                updateUI();
-                initLogin(currentRole);
+        // Function to update the sidebar branding dynamically with smooth fade
+        function updateBranding(role) {
+            const data = role ? roleData[role] : roleData.default;
+            sidebarHeading.style.opacity = 0;
+            sidebarText.style.opacity = 0;
+            sidebarHeading.style.transform = 'translateY(10px)';
+            
+            setTimeout(() => {
+                sidebarHeading.innerHTML = data.heading;
+                sidebarText.innerHTML = data.text;
+                sidebarHeading.style.opacity = 1;
+                sidebarText.style.opacity = 1;
+                sidebarHeading.style.transform = 'translateY(0)';
+            }, 300);
+        }
+
+        // Function to switch to Step 2 (Login Form)
+        function goToStep2(role) {
+            currentRole = role;
+            const data = roleData[role];
+            
+            // Update UI for selected role
+            selectedRoleBadgeSpan.textContent = `${data.name} Login`;
+            selectedRoleBadgeIcon.className = `fa-solid ${data.icon}`;
+            
+            // Update Branding
+            updateBranding(role);
+            
+            // Switch steps
+            step1.classList.remove('active');
+            step2.classList.add('active');
+            
+            // Re-initialize existing backend logic for the selected role
+            initLogin(currentRole);
+        }
+
+        // Function to switch back to Step 1 (Role Selection)
+        function goToStep1() {
+            currentRole = null;
+            updateBranding(null);
+            step2.classList.remove('active');
+            step1.classList.add('active');
+        }
+
+        // Event Listeners for Role Selection
+        roleCards.forEach(card => {
+            card.addEventListener('click', () => {
+                const role = card.dataset.role;
+                goToStep2(role);
             });
         });
 
-        document.getElementById('tab-register').addEventListener('click', () => {
-            currentTab = 'register';
-            updateUI();
+        // Back Button
+        backBtn.addEventListener('click', goToStep1);
+
+        // Register Tab logic - maintains existing functionality
+        tabRegister.addEventListener('click', () => {
+            if (currentRole) {
+                // Redirect to the appropriate registration page based on role
+                window.location.href = `register-${currentRole}.html`;
+            }
         });
 
-        // Initialize
-        updateUI();
-        if (currentRole === 'admin') {
-            document.querySelector('.role-selectors').style.display = 'none';
+        // Application Initialization
+        if (currentRole && currentRole !== 'admin') {
+            // If role is pre-filled via URL parameter, skip to Step 2
+            goToStep2(currentRole);
+        } else if (currentRole === 'admin') {
+             // Admin goes straight to form without steps (hidden system access)
+             goToStep2('user'); // Basic UI fallback
+             selectedRoleBadgeSpan.textContent = "Admin Login";
+             backBtn.style.display = 'none'; // Lock admin to the form
+             initLogin('admin'); // Connect to admin backend
+        } else {
+            // Default to Step 1 (Choose Role)
+            goToStep1();
         }
-        initLogin(currentRole);
+
+        // If 'tab=register' is explicitly set in URL, navigate to register page
+        if (currentTab === 'register' && currentRole) {
+            window.location.href = `register-${currentRole}.html`;
+        }
     </script>
 </body>
 </html>
